@@ -1,0 +1,129 @@
+<html lang="en">
+
+<head>
+    <script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
+    
+</head>
+
+<body class="bg-gray-100">
+    <!-- Header Section with Image as Background -->
+    <header class="relative bg-cover bg-center p-5 h-[150px]" style="background-image: url('https://editors-cdn.template.net/header%205.svg-8a21c42e-37e0-4881-9b4d-4c5ccbd73e11.svg');">
+        <div class="text-center">
+            <h1 class="text-2xl text-gray-700 font-bold">Transaction Report</h1>
+        </div>
+        <p class="absolute bottom-4 right-5  text-xs">
+            <span class="text-gray-700">Date: </span>
+            <span class="text-gray-500">{{startDate}}</span>
+            <span class="text-gray-700">to</span>
+            <span class="text-gray-500">{{endDate}}</span>
+        </p>
+        <div class="absolute bottom-4 right-5 text-center mb-3 p-2 ">
+            {{#if isClientSpecific}}
+            <h2>
+                <span class="text-lg font-semibold ">Client: </span>
+                <span class="text-gray-500 text-md">{{#each groupedData}}{{@key}}{{/each}}</span>
+            </h2>
+            {{else}}
+            <h2 class="text-lg font-semibold">All Clients</h2>
+            {{/if}}
+        </div>
+
+    </header>
+
+    <!-- Main Content Section -->
+    <main class="p-3">
+
+        {{#each groupedData}}
+        <!-- Table Section -->
+        <div class="relative overflow-x-auto sm:rounded-lg mt-5">
+            <table class="w-full text-sm text-left text-gray-500 bg-white ">
+                <thead class="text-xs">
+                    <tr class="text-center text-lg font-normal  border-b border-gray-200">
+                        <th colspan="6" class="px-6 py-3">Client: {{@key}}</th>
+                    </tr>
+                    <tr class="uppercase">
+                        <th scope="col" class="px-6 py-3 border-r border-b border-gray-200">
+                            Transation Type
+                        </th>
+                        <th scope="col" class="px-6 py-3 min-w-[110px] border-r border-b border-gray-200">
+                            Amount
+                        </th>
+                        <th scope="col" class="px-6 py-3 min-w-[110px] border-r border-b border-gray-200">
+                            Transaction Amount
+                        </th>
+                        <th scope="col" class="px-6 py-3 border-r border-b border-gray-200">
+                            Withdraw Charge
+                        </th>
+                        <th scope="col" class="px-6 py-3 min-w-[110px] border-r border-b border-gray-200">
+                            Available Amount
+                        </th>
+                        <th scope="col" class="px-6 py-3 min-w-[110px] border-b">
+                            Date & Time
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each this.data}}
+                    <tr>
+                        <th scope="row" class="px-4 py-2 border-r border-b border-gray-200 font-medium text-gray-900 whitespace-nowrap">
+                            {{#if is_widthdraw_transaction}}
+                            <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
+                                <span class="">Widthdraw</span>
+                            </div>
+                            {{else}}
+                            <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
+                                <span class="">Deposit</span>
+                            </div>
+                            {{/if}}
+                        </th>
+                        <td class="px-4 py-2 min-w-[110px] border-r border-b border-gray-200">{{amount}}</td>
+                        <td class="px-4 py-2 min-w-[110px] border-r border-b border-gray-200">
+                            {{#if is_widthdraw_transaction}}
+                            <span class="text-red-700">- {{transaction_amount}}</span>
+                            <hr class="border-gray-300 my-1">
+                            <span class="text-[11px]">
+                                <span class="font-bold">ATA: </span>
+                                <span class="text-red-700 text-[10px]">- {{actual_transaction_amount}}</span>
+                            </span>
+                            {{else}}
+                            <span class="text-green-700">+ {{transaction_amount}}</span>
+                            <hr class="border-gray-300 my-1">
+                            <span class="text-[11px]">
+                                <span class="font-bold">ATA: </span>
+                                <span class="text-green-700">+ {{actual_transaction_amount}}</span>
+                            </span>
+                            {{/if}}
+                        </td>
+                        <td class="px-4 py-2 border-r border-b border-gray-200">
+                            {{widthdraw_charges}}
+                            <hr class="border-gray-300 my-1">
+                            <span class="text-[11px]">{{widthdraw_charges_pr}}</span>
+                        </td>
+                        <td class="px-4 py-2 min-w-[110px] border-r border-b border-gray-200">{{final_amount}}</td>
+                        <td class="px-4 py-2 min-w-[110px] border-b border-gray-200">{{date}}
+                            <br>{{time}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+                <tfoot class="text-xs text-white uppercase border border-gray-700">
+                    <tr class="bg-gray-700">
+                        <th class="px-4 py-3">Total </th>
+                        <!-- Accessing root context 'totalsByClient' -->
+                        <th class="px-4 py-3 min-w-[110px]">{{this.total.amount}}</th>
+                        <th class="px-4 py-3 min-w-[110px]">
+                            {{this.total.transaction_amount}}
+                            <hr class="border-white my-1">
+                            <span class="text-[11px]">ATA: {{this.total.actual_transaction_amount}}</span>
+                        </th>
+                        <th class="px-4 py-3">{{this.total.widthdraw_charges}}</th>
+                        <th class="px-4 py-3 min-w-[110px]" >{{this.total.final_amount}}</th>
+                        <th class="px-4 py-3 min-w-[110px]"></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {{/each}}
+    </main>
+</body>
+
+</html>
