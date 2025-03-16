@@ -89,7 +89,7 @@ const AmountManagementModal = ({
 
         // Validate final amount (ensure it's a valid number and not zero)
         const parsedFinalAmount = parseFormattedAmount(formData.availableAmount.toString());
-        if (isNaN(parsedFinalAmount) || parsedFinalAmount < 0) {
+        if (isNaN(parsedFinalAmount)) {
             return "Please enter a valid final amount.";
         }
 
@@ -328,32 +328,39 @@ const AmountManagementModal = ({
                         <span>Close</span>
                     </button>
                 </div>
-                <div className="mt-6 grid grid-cols-5 gap-2">
+                <div className="mt-6 grid grid-cols-4 gap-2">
                     {formData.action !== 'deposit' ? (
                         <>
                             <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
                                 <h3 className="text-xs font-medium text-gray-400">WC</h3>
-                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- {formData.deductionAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- ₹{formData.deductionAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
                             </div>
                             <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
                                 <h3 className="text-xs font-medium text-gray-400">ATA</h3>
-                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- {formData.actualTransactionAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- ₹{formData.actualTransactionAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
                             </div>
                             <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
                                 <h3 className="text-xs font-medium text-gray-400">WA</h3>
-                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- {formData.transactionAmount}</p>
+                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- ₹{formData.transactionAmount}</p>
                             </div>
                         </>
                     ) : (
                         <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
                             <h3 className="text-xs font-medium text-gray-400">DA</h3>
-                            <p className="text-sm font-bold text-green-700 dark:text-green-500">+ {formData.transactionAmount}</p>
+                            <p className="text-sm font-bold text-green-700 dark:text-green-500">+ ₹{formData.transactionAmount}</p>
                         </div>
                     )}
 
                     <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
                         <h3 className="text-xs font-medium text-gray-400">Available Amount</h3>
-                        <p className="text-sm font-bold text-green-700 dark:text-green-500">+ {formData.availableAmount}</p>
+                        <p
+                            className={`text-sm font-bold ${parseFormattedAmount(formData.availableAmount) < 0 ? 'text-red-700 dark:text-red-500' : 'text-green-700 dark:text-green-500'}`}
+                        >
+                            = {parseFormattedAmount(formData.availableAmount) < 0
+                                ? `- ₹${formatAmount(Math.abs(parseFormattedAmount(formData.availableAmount)).toString())}`
+                                : `₹${formData.availableAmount}`}
+                        </p>
+
                     </div>
                 </div>
             </div>

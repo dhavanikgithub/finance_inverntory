@@ -45,7 +45,7 @@ export async function POST(req) {
       acc[row.client_name].data.push({
         transaction_type: `${row.transaction_type === 0 ? 'Diposit' : 'Widthdraw'}`,
         amount: `₹${formatAmount(row.amount.toString())}/-`,
-        final_amount: `₹${formatAmount(row.final_amount.toString())}/-`,
+        final_amount:  `${row.final_amount < 0 ? '-' : ''} ₹${formatAmount(row.final_amount.toString())}/-`,
         transaction_amount: `₹${formatAmount(row.transaction_amount.toString())}/-`,
         widthdraw_charges: `₹${formatAmount(widthdraw_charges.toString())}/-`,
         widthdraw_charges_pr: `${row.widthdraw_charges.toString()}%`,

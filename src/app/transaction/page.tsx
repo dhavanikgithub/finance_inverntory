@@ -20,7 +20,7 @@ import { SortConfig } from '../client/page';
 export type Action = {
   icon: JSX.Element; // `JSX.Element` type for React components or elements
   label: string;
-  onClick: (data:any) => void; // `onClick` is a function that takes no arguments and returns void
+  onClick: (data: any) => void; // `onClick` is a function that takes no arguments and returns void
 };
 export default function Home() {
   const dispatch: AppDispatch = useDispatch();
@@ -34,7 +34,7 @@ export default function Home() {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "", direction: "asc" });
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [currentRows, setCurrentRows] = useState<Transaction[]>([]);
-  const rowsPerPage:number = 10;
+  const rowsPerPage: number = 10;
   const [isGenerateReportModalOpen, setIsGenerateReportModalOpen] = useState<boolean>(false);
 
   const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Transaction>(null);
@@ -129,7 +129,7 @@ export default function Home() {
   };
 
   const handleDeleteTransaction = (transactionData: Transaction) => {
-    if(transactionData?.id){
+    if (transactionData?.id) {
       dispatch(deleteTransaction(transactionData.id)).then(() => {
         // Show success toast after successful update
         showToastSuccess('Transaction Deleted', 'The transaction was deleted successfully.');
@@ -191,9 +191,8 @@ export default function Home() {
     return (
       <>
         {columns.map((column) => (
-          <TableHeaderItem key={column.accessor} onClick={() =>
-          {
-            if(column.sorting != false){
+          <TableHeaderItem key={column.accessor} onClick={() => {
+            if (column.sorting != false) {
               sortData(column.accessor as keyof Transaction)
             }
           }
@@ -269,7 +268,13 @@ export default function Home() {
 
           </TableData>
           <TableData>
-            ₹{formatAmount(row.final_amount.toString())}/-
+            <span
+            className={row.final_amount < 0 ? 'text-red-500' : ''}
+            >
+              {row.final_amount < 0
+                ? `- ₹${formatAmount(Math.abs(row.final_amount).toString())}/-`
+                : `₹${formatAmount(row.final_amount.toString())}/-`}
+            </span>
           </TableData>
           <TableData>
             <span className='text-sm'>
