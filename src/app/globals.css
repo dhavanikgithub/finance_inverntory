@@ -51,7 +51,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 
     .footer-item {
-        @apply text-sm font-normal text-gray-500 hover:underline mr-4 md:mr-6;
+        @apply text-sm font-normal text-gray-500 hover:underline hover:text-gray-800 mr-4 md:mr-6;
     }
 
     .footer-social-links {
@@ -59,7 +59,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 
     .footer-social-icon {
-        @apply text-gray-500 hover:text-gray-900;
+        @apply text-gray-500 hover:text-gray-800;
     }
 
     .footer-social-icon svg {
@@ -201,6 +201,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
         .navbar {
             @apply dark:bg-gray-800 dark:text-white dark:border-gray-600;
+        }
+
+        .footer-social-icon {
+            @apply hover:text-gray-400;
+        }
+
+        .footer-item {
+            @apply hover:underline hover:text-gray-400;
         }
     }
 
