@@ -1,6 +1,6 @@
 // components/ClientManagementModal.jsx
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { Client } from '@/store/slices/clientSlice';
 
 const ClientManagementModal = ({ 
@@ -74,15 +74,17 @@ const ClientManagementModal = ({
                 <div className="mt-6 flex space-x-2">
                     <button
                         onClick={handleSave}
-                        className="flex-1 bg-black text-white py-2 px-4 rounded-md dark:bg-slate-500"
+                        className="btn-secondary flex-1"
                     >
-                        {isEditing ? 'Update Client' : 'Add Client'}
+                        <Save className='w-5 h-5' />
+                        <span>{isEditing ? 'Update Client' : 'Add Client'}</span>
                     </button>
                     <button
                         onClick={handleClose}
-                        className="flex-1 border border-black text-black py-2 px-4 rounded-md dark:border-slate-500 dark:text-slate-300"
+                        className="btn-secondary-outline flex-1"
                     >
-                        Close
+                        <X className='w-5 h-5' />
+                        <span>Close</span>
                     </button>
                 </div>
             </div>

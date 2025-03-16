@@ -33,13 +33,13 @@ export function formatTime(dateString: string): string {
 // Function to format the amount with commas and restrict decimal points to two digits
 const formatAmount = (input: string): string => {
     let value = input.replace(/[^0-9.]/g, '');  // Remove any non-numeric and non-period characters
-    let decimalCount = (value.match(/\./g) || []).length;  // Count the number of periods (decimal points)
+    const decimalCount = (value.match(/\./g) || []).length;  // Count the number of periods (decimal points)
 
     // If more than one decimal point exists, remove the extra one
     if (decimalCount > 1) value = value.slice(0, -1);
 
     // Split the value into integer and decimal parts
-    let parts = value.split('.');
+    const parts = value.split('.');
     let integerPart = parts[0];
     let decimalPart = parts.length > 1 ? '.' + parts[1] : '';
 
@@ -50,8 +50,8 @@ const formatAmount = (input: string): string => {
 
     // Format the integer part with commas every 3 digits
     if (integerPart.length > 3) {
-        let lastThree = integerPart.slice(-3);
-        let otherNumbers = integerPart.slice(0, -3);
+        const lastThree = integerPart.slice(-3);
+        const otherNumbers = integerPart.slice(0, -3);
         if (otherNumbers !== '') {
             integerPart = otherNumbers.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ',' + lastThree;
         }

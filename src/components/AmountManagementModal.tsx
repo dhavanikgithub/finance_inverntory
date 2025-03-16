@@ -11,7 +11,7 @@ const AmountManagementModal = ({
     isOpen,
     onClose,
     onSave
-}:{
+}: {
     clients: Client[]
     transactionToEdit: Transaction | null,
     isOpen: boolean,
@@ -67,11 +67,11 @@ const AmountManagementModal = ({
         }
     }, [transactionToEdit])
 
-    const toggleAction = (selectedAction:'deposit' | 'withdraw') => {
+    const toggleAction = (selectedAction: 'deposit' | 'withdraw') => {
         setFormData((prevState) => ({ ...prevState, action: selectedAction }));
     };
 
-    const validateTransaction = (formData:FormData, clients:Client[]) => {
+    const validateTransaction = (formData: FormData, clients: Client[]) => {
         // Validate client selection
         if (!formData.selectedClient) {
             return "Please select a client.";
@@ -122,20 +122,20 @@ const AmountManagementModal = ({
             return; // Stop the function execution if there's an error
         }
 
-        
+
         const selectedClientObj = clients.find((element) => element.name === formData.selectedClient) as Client;
 
 
         // Create the transaction object
-        let transaction:Transaction = {
+        let transaction: Transaction = {
             id: transactionToEdit?.id || undefined,
             client_id: selectedClientObj.id!!,
             client_name: formData.selectedClient!!,
             remark: formData.remark,
-            amount:parseFormattedAmount(formData.amount),
-            final_amount:parseFormattedAmount(formData.availableAmount.toString()),
-            widthdraw_charges:parseFormattedAmount(formData.widthdrawCharge.toString()),
-            transaction_amount:parseFormattedAmount(formData.transactionAmount),
+            amount: parseFormattedAmount(formData.amount),
+            final_amount: parseFormattedAmount(formData.availableAmount.toString()),
+            widthdraw_charges: parseFormattedAmount(formData.widthdrawCharge.toString()),
+            transaction_amount: parseFormattedAmount(formData.transactionAmount),
             transaction_type: formData.action === 'deposit' ? 0 : 1,
             create_date: transactionToEdit?.create_date || undefined,
             create_time: transactionToEdit?.create_time || undefined
@@ -174,7 +174,7 @@ const AmountManagementModal = ({
 
 
 
-    const onItemSelect = (item:string) => {
+    const onItemSelect = (item: string) => {
         setFormData((prevState) => ({ ...prevState, selectedClient: item }));
     };
 
@@ -314,25 +314,18 @@ const AmountManagementModal = ({
                 </div>
 
 
-                <div className="flex mt-6">
-                    <button onClick={handleSave} className="flex-1 border border-black text-black py-2 px-4 rounded-md mr-2 dark:border-slate-500 dark:text-gray-300">
-                        <div className='flex items-center justify-center gap-2'>
-                            <Save className='w-5 h-5' />
-                            <span>{transactionToEdit ? 'Update' : 'Save'}</span>
-                        </div>
-
+                <div className="flex mt-6 gap-2">
+                    <button onClick={handleSave} className="btn-secondary-outline flex-1">
+                        <Save className='w-5 h-5' />
+                        <span>{transactionToEdit ? 'Update' : 'Save'}</span>
                     </button>
-                    <button onClick={updateAmount} className="flex-1 border border-black text-black py-2 px-4 rounded-md mr-2 dark:border-slate-500 dark:text-slate-300">
-                        <div className='flex items-center justify-center gap-2'>
-                            <Calculator className='w-5 h-5' />
-                            <span>Calculate</span>
-                        </div>
+                    <button onClick={updateAmount} className="btn-secondary-outline flex-1">
+                        <Calculator className='w-5 h-5' />
+                        <span>Calculate</span>
                     </button>
-                    <button onClick={handleClose} className="flex-1 bg-black text-white  py-2 px-4 rounded-md mr-2 dark:bg-slate-500">
-                        <div className='flex items-center justify-center gap-2'>
-                            <X className='w-5 h-5' />
-                            <span>Close</span>
-                        </div>
+                    <button onClick={handleClose} className="btn-secondary flex-1">
+                        <X className='w-5 h-5' />
+                        <span>Close</span>
                     </button>
                 </div>
                 <div className="mt-6 grid grid-cols-5 gap-2">

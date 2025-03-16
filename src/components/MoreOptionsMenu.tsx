@@ -5,7 +5,7 @@ interface MoreOptionsMenuProps {
   options: Action[],
   data: any,
 }
-const MoreOptionsMenu:React.FC<MoreOptionsMenuProps> = ({ options, data }) => {
+const MoreOptionsMenu: React.FC<MoreOptionsMenuProps> = ({ options, data }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement | null>(null); // Reference to the menu (type it to div element or your custom component type)
   const buttonRef = useRef<HTMLButtonElement | null>(null); // Reference to the button (assuming it's a button)
@@ -34,10 +34,11 @@ const MoreOptionsMenu:React.FC<MoreOptionsMenuProps> = ({ options, data }) => {
   }, []);
 
   // Close menu when an option is clicked
-  const handleOptionClick = (onClick:(data:any) => void) => {
+  const handleOptionClick = (onClick: (data: any) => void) => {
     onClick(data); // Execute the option's action
     setIsOpen(false); // Close the menu
   };
+
 
   return (
     <div className="relative text-left">
@@ -53,21 +54,21 @@ const MoreOptionsMenu:React.FC<MoreOptionsMenuProps> = ({ options, data }) => {
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          ref={menuRef}
-          className="bg-white origin-top-right absolute right-0 w-40 rounded-md shadow-lg z-10 dark:bg-gray-800"
-        >
-          <div className="px-1 py-2">
-            {options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => handleOptionClick(option.onClick)}
-                className="flex items-center text-black rounded-full px-4 py-2 text-sm w-full text-left hover:bg-gray-300 dark:hover:bg-gray-900 dark:text-gray-200"
-              >
-                <span className='mr-3'>{option.icon}</span><span>{option.label}</span>
-              </button>
-            ))}
-          </div>
+        ref={menuRef}
+        className="bg-white origin-top-right absolute top-0 right-0 w-40 rounded-md shadow-lg z-10 dark:bg-gray-800"
+      >
+        <div className="px-1 py-2">
+          {options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => handleOptionClick(option.onClick)}
+              className="flex items-center text-black rounded-full px-4 py-2 text-sm w-full text-left hover:bg-gray-300 dark:hover:bg-gray-900 dark:text-gray-200"
+            >
+              <span className='mr-3'>{option.icon}</span><span>{option.label}</span>
+            </button>
+          ))}
         </div>
+      </div>
       )}
     </div>
   );

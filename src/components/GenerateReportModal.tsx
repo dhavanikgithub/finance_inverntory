@@ -2,6 +2,7 @@ import { formatDate } from '@/utils/helper';
 import React, { useState } from 'react';
 import Dropdown from './Dropdown';
 import { Client } from '@/store/slices/clientSlice';
+import { File, X } from 'lucide-react';
 interface GenerateReportModalProps {
     isOpen:boolean;
     onClose:() => void;
@@ -161,15 +162,17 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
                         <button
                             onClick={handleSubmit}
                             disabled={isLoading}
-                            className="w-full h-10 bg-black text-white rounded-md font-semibold hover:bg-gray-900 focus:outline-none disabled:bg-gray-300 dark:bg-slate-500"
+                            className="btn-secondary flex-1"
                         >
+                            <File className='w-5 h-5' />
                             {isLoading ? 'Generating...' : 'Generate Report'}
                         </button>
                         <button
                             onClick={handleOnClose}
-                            className="w-full h-10 border border-black text-black py-2 px-4 rounded-md dark:border-slate-500 dark:text-slate-300"
+                            className="btn-secondary-outline flex-1"
                         >
-                            Close
+                            <X className='w-5 h-5' />
+                            <span>Close</span>
                         </button>
                     </div>
                 </div>

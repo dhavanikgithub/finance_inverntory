@@ -5,3 +5,203 @@
 input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(40%) sepia(100%) saturate(500%) hue-rotate(180deg);
 }
+
+@layer components {
+    .navbar {
+        @apply bg-white border-b border-gray-200 fixed z-30 w-full;
+    }
+
+    .sidebar {
+        @apply transition-[width] duration-75;
+    }
+
+    .sidebar-inner {
+        @apply relative flex-1 flex flex-col min-h-0 border-r border-gray-200 bg-white pt-0;
+    }
+
+    .sidebar-content {
+        @apply flex-1 flex flex-col pt-5 pb-4 overflow-y-auto;
+    }
+
+    .sidebar-links {
+        @apply flex-1 px-3 divide-y divide-gray-200 space-y-1;
+    }
+
+    .sidebar-link {
+        @apply text-base text-gray-900 font-normal rounded-lg hover:bg-gray-100 flex items-center p-2;
+    }
+
+
+    .sidebar-link-icon {
+        @apply w-5 h-5 text-gray-500 flex-shrink-0 transition duration-100;
+    }
+
+    .sidebar-link-text {
+        @apply ml-3 flex-1 whitespace-nowrap;
+    }
+
+
+    /* Footer Styles */
+    .footer {
+        @apply bg-white md:flex md:items-center md:justify-between shadow rounded-lg p-4 md:p-6 xl:p-8 my-6 mx-4;
+    }
+
+    .footer-list {
+        @apply flex items-center flex-wrap mb-6 md:mb-0;
+    }
+
+    .footer-item {
+        @apply text-sm font-normal text-gray-500 hover:underline mr-4 md:mr-6;
+    }
+
+    .footer-social-links {
+        @apply flex sm:justify-center space-x-6;
+    }
+
+    .footer-social-icon {
+        @apply text-gray-500 hover:text-gray-900;
+    }
+
+    .footer-social-icon svg {
+        @apply h-5 w-5;
+    }
+
+    .footer-text {
+        @apply text-center text-sm text-gray-500 my-10;
+    }
+
+    .main-content {
+        @apply h-full w-full bg-gray-50 relative overflow-y-auto lg:ml-64;
+    }
+
+    .main-content-section {
+        @apply pt-6 px-4;
+    }
+
+    /* Sidebar Backdrop */
+    .sidebar-backdrop {
+        @apply bg-gray-900 opacity-50 fixed inset-0 z-10;
+    }
+
+    /* Common Primary Button Styles */
+    .btn-primary {
+        @apply flex select-none gap-1 items-center justify-center font-medium rounded-lg text-sm px-5 py-2.5 text-center;
+        /* Common background and hover styles */
+        @apply bg-black text-white hover:bg-gray-700;
+        @apply transition duration-100;
+    }
+
+    .btn-primary:focus {
+        /* Remove focus ring */
+        @apply focus:outline-none;
+    }
+
+    /* Common Secondary Button Styles */
+    .btn-secondary {
+        @apply flex select-none gap-2 items-center justify-center rounded bg-slate-800 py-2.5 px-4 text-xs font-semibold text-white shadow-md shadow-slate-900/10 transition-all;
+        @apply transition duration-100;
+        /* Hover */
+        @apply hover:opacity-75;
+
+        /* Focus */
+        @apply focus:opacity-[0.85] focus:shadow-none;
+
+        /* Active */
+        @apply active:opacity-[0.85] active:shadow-none;
+
+        /* Disabled */
+        @apply disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none;
+    }
+
+    .btn-secondary-outline {
+        @apply flex gap-2 items-center justify-center rounded border border-slate-300;
+        @apply py-2.5 px-3;
+        @apply text-center text-xs font-semibold text-slate-600;
+        @apply transition-all;
+        @apply transition duration-100;
+        /* Hover */
+        @apply hover:opacity-75;
+
+        /* Active */
+        @apply active:opacity-[0.85];
+
+        /* Disabled */
+        @apply disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none;
+    }
+
+    /* Form styles */
+    .form-search {
+        @apply hidden lg:block lg:pl-32;
+    }
+
+    /* Label styles (hidden for accessibility purposes) */
+    .form-search-label {
+        @apply sr-only;
+    }
+
+    /* Wrapper around the input */
+    .form-search-wrapper {
+        @apply mt-1 relative lg:w-64;
+    }
+
+    /* Icon container inside the input */
+    .form-search-icon-container {
+        @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none;
+    }
+
+    /* Search icon style */
+    .form-search-icon {
+        @apply w-5 h-5 text-gray-500;
+    }
+
+    /* Input field styles */
+    .form-search-input {
+        @apply bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg block w-full pl-10 p-2.5 ring-0;
+        @apply dark:bg-gray-700 dark:border-gray-500 dark:text-gray-200;
+    }
+
+    /* Placeholder styles can be added separately if needed */
+    .form-search-input::placeholder {
+        @apply text-gray-500 dark:text-gray-400;
+    }
+
+
+    .dark {
+        .btn-primary {
+            @apply bg-gray-900;
+        }
+
+        .btn-primary:hover {
+            @apply bg-gray-600;
+        }
+
+        .btn-secondary-outline {
+            @apply dark:border-slate-600 dark:text-gray-300;
+        }
+
+        .main-content {
+            @apply dark:bg-gray-800;
+        }
+
+        .footer {
+            @apply dark:bg-gray-900;
+        }
+
+        .sidebar-link {
+            @apply dark:text-gray-200 dark:hover:bg-gray-500;
+        }
+
+        .sidebar-links {
+            @apply dark:divide-gray-600;
+        }
+
+        .sidebar-inner {
+            @apply dark:bg-gray-800 dark:border-gray-600;
+        }
+
+        .navbar {
+            @apply dark:bg-gray-800 dark:text-white dark:border-gray-600;
+        }
+    }
+
+}

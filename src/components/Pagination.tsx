@@ -27,18 +27,14 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalRows, onPageC
       </p>
       <div className="flex gap-1">
         <button
-          className="rounded border border-slate-300 py-2.5 px-3 text-center text-xs font-semibold text-slate-600 transition-all hover:opacity-75 focus:ring focus:ring-slate-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none
-          dark:text-slate-300 dark:border-slate-600
-          "
+          className="btn-secondary-outline"
           type="button"
           onClick={handlePrevious}
         >
           Previous
         </button>
         <button
-          className="rounded border border-slate-300 py-2.5 px-3 text-center text-xs font-semibold text-slate-600 transition-all hover:opacity-75 focus:ring focus:ring-slate-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none
-          dark:text-slate-300 dark:border-slate-600
-          "
+          className="btn-secondary-outline"
           type="button"
           onClick={handleNext}
         >
