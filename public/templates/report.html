@@ -45,18 +45,18 @@
                         <th scope="col" class="px-6 py-3 border-r border-b border-gray-200">
                             Transation Type
                         </th>
-                        <th scope="col" class="px-6 py-3 min-w-[110px] border-r border-b border-gray-200">
+                        <!-- <th scope="col" class="px-6 py-3 min-w-[110px] border-r border-b border-gray-200">
                             Amount
-                        </th>
+                        </th> -->
                         <th scope="col" class="px-6 py-3 min-w-[110px] border-r border-b border-gray-200">
                             Transaction Amount
                         </th>
                         <th scope="col" class="px-6 py-3 border-r border-b border-gray-200">
                             Withdraw Charge
                         </th>
-                        <th scope="col" class="px-6 py-3 min-w-[110px] border-r border-b border-gray-200">
+                        <!-- <th scope="col" class="px-6 py-3 min-w-[110px] border-r border-b border-gray-200">
                             Available Amount
-                        </th>
+                        </th> -->
                         <th scope="col" class="px-6 py-3 min-w-[110px] border-b">
                             Date & Time
                         </th>
@@ -76,22 +76,22 @@
                             </div>
                             {{/if}}
                         </th>
-                        <td class="px-4 py-2 min-w-[110px] border-r border-b border-gray-200">{{amount}}</td>
+                        <!-- <td class="px-4 py-2 min-w-[110px] border-r border-b border-gray-200">{{amount}}</td> -->
                         <td class="px-4 py-2 min-w-[110px] border-r border-b border-gray-200">
                             {{#if is_widthdraw_transaction}}
                             <span class="text-red-700">- {{transaction_amount}}</span>
-                            <hr class="border-gray-300 my-1">
+                            <!-- <hr class="border-gray-300 my-1">
                             <span class="text-[11px]">
                                 <span class="font-bold">ATA: </span>
                                 <span class="text-red-700 text-[10px]">- {{actual_transaction_amount}}</span>
-                            </span>
+                            </span> -->
                             {{else}}
                             <span class="text-green-700">+ {{transaction_amount}}</span>
-                            <hr class="border-gray-300 my-1">
+                            <!-- <hr class="border-gray-300 my-1">
                             <span class="text-[11px]">
                                 <span class="font-bold">ATA: </span>
                                 <span class="text-green-700">+ {{actual_transaction_amount}}</span>
-                            </span>
+                            </span> -->
                             {{/if}}
                         </td>
                         <td class="px-4 py-2 border-r border-b border-gray-200">
@@ -99,7 +99,7 @@
                             <hr class="border-gray-300 my-1">
                             <span class="text-[11px]">{{widthdraw_charges_pr}}</span>
                         </td>
-                        <td class="px-4 py-2 min-w-[110px] border-r border-b border-gray-200">{{final_amount}}</td>
+                        <!-- <td class="px-4 py-2 min-w-[110px] border-r border-b border-gray-200">{{final_amount}}</td> -->
                         <td class="px-4 py-2 min-w-[110px] border-b border-gray-200">{{date}}
                             <br>{{time}}</td>
                     </tr>
@@ -107,16 +107,26 @@
                 </tbody>
                 <tfoot class="text-xs text-white uppercase border border-gray-700">
                     <tr class="bg-gray-700">
-                        <th class="px-4 py-3">Total </th>
+                        <th class="px-4 py-3">Total :
+
+                            <div>
+                                <div>{{this.total.widthdraw_charges}} (ફી)</div>
+                                <div>{{this.total.transaction_amount}} (જમા)</div>
+                                <hr class="border-white my-1">
+                                <div>{{this.total.final_amount}} (Total)</div>
+                            </div>
+                        </th>
                         <!-- Accessing root context 'totalsByClient' -->
-                        <th class="px-4 py-3 min-w-[110px]">{{this.total.amount}}</th>
-                        <th class="px-4 py-3 min-w-[110px]">
+                        <!-- <th class="px-4 py-3 min-w-[110px]">{{this.total.amount}}</th> -->
+                        <!-- <th class="px-4 py-3 min-w-[110px]">
                             {{this.total.transaction_amount}}
                             <hr class="border-white my-1">
                             <span class="text-[11px]">ATA: {{this.total.actual_transaction_amount}}</span>
-                        </th>
-                        <th class="px-4 py-3">{{this.total.widthdraw_charges}}</th>
-                        <th class="px-4 py-3 min-w-[110px]" >{{this.total.final_amount}}</th>
+                        </th> -->
+                        <!-- <th class="px-4 py-3">{{this.total.widthdraw_charges}}</th>
+                        <th class="px-4 py-3 min-w-[110px]" >{{this.total.final_amount}}</th> -->
+                        <th class="px-4 py-3 min-w-[110px]"></th>
+                        <th class="px-4 py-3 min-w-[110px]"></th>
                         <th class="px-4 py-3 min-w-[110px]"></th>
                     </tr>
                 </tfoot>

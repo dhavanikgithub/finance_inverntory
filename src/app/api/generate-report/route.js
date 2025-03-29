@@ -3,7 +3,7 @@ import createJsReportClient from '../../../lib/jsreport-client'; // Import the J
 import pool from '../../../lib/db'; // Database connection pool
 import { formatAmount, formatDate, formatTime } from '@/utils/helper';
 import fs from 'fs';
-import path  from 'path';
+import path from 'path';
 
 export async function POST(req) {
   const { clientId, startDate, endDate, isClientSpecific } = await req.json();
@@ -24,7 +24,7 @@ export async function POST(req) {
     }
 
     const transactions = await pool.query(query, [startDate, endDate, clientId].filter(Boolean));
-
+    let isOnlyWidthdraw = true;
     // Group data by client and adjust to the required format
     let groupedData = transactions.rows.reduce((acc, row) => {
       if (!acc[row.client_name]) {
@@ -45,7 +45,7 @@ export async function POST(req) {
       acc[row.client_name].data.push({
         transaction_type: `${row.transaction_type === 0 ? 'Diposit' : 'Widthdraw'}`,
         amount: `₹${formatAmount(row.amount.toString())}/-`,
-        final_amount:  `${row.final_amount < 0 ? '-' : ''} ₹${formatAmount(row.final_amount.toString())}/-`,
+        final_amount: `${row.final_amount < 0 ? '-' : ''} ₹${formatAmount(row.final_amount.toString())}/-`,
         transaction_amount: `₹${formatAmount(row.transaction_amount.toString())}/-`,
         widthdraw_charges: `₹${formatAmount(widthdraw_charges.toString())}/-`,
         widthdraw_charges_pr: `${row.widthdraw_charges.toString()}%`,
@@ -57,20 +57,51 @@ export async function POST(req) {
 
       // Update totals
       acc[row.client_name].total.amount += row.amount;
-      acc[row.client_name].total.final_amount += row.final_amount;
-      acc[row.client_name].total.transaction_amount += row.transaction_amount;
+      // acc[row.client_name].total.final_amount += row.final_amount;
+      if (row.transaction_type === 0) {
+        isOnlyWidthdraw = false;
+        acc[row.client_name].total.transaction_amount += row.transaction_amount;
+      }
+      else {
+        acc[row.client_name].total.transaction_amount -= row.transaction_amount;
+      }
       acc[row.client_name].total.widthdraw_charges += widthdraw_charges;
+      acc[row.client_name].total.final_amount = acc[row.client_name].total.transaction_amount + acc[row.client_name].total.widthdraw_charges;
       acc[row.client_name].total.actual_transaction_amount += actual_transaction_amount;
-
+      
       return acc;
     }, {});
 
+    function formatWithSign(amount) {
+      const num = parseFloat(amount);
+      const sign = num < 0 ? "- " : "+ ";
+      return `${sign}₹${formatAmount(Math.abs(num).toString())}/-`;
+    }
+
+    function transactionAmountWithSign(amount) {
+      let num = parseFloat(amount);
+      if(isOnlyWidthdraw){
+        num = 0;
+      }
+      let text = `₹${formatAmount(Math.abs(num).toString())}/-`;
+      return text;
+    } 
+
+    function finalAmountWithSign(amount,widthdraw_charges){
+      let num = parseFloat(amount);
+      if(isOnlyWidthdraw){
+        return `- ₹${formatAmount(widthdraw_charges)}/-`;
+      }
+      else{
+        return `+ ₹${formatAmount(Math.abs(num).toString())}/-`;
+      }
+    }
     // Format the totals as currency
     Object.keys(groupedData).forEach(clientName => {
       groupedData[clientName].total.amount = `₹${formatAmount(groupedData[clientName].total.amount.toString())}/-`;
-      groupedData[clientName].total.final_amount = `₹${formatAmount(groupedData[clientName].total.final_amount.toString())}/-`;
-      groupedData[clientName].total.transaction_amount = `₹${formatAmount(groupedData[clientName].total.transaction_amount.toString())}/-`;
       groupedData[clientName].total.widthdraw_charges = `₹${formatAmount(groupedData[clientName].total.widthdraw_charges.toString())}/-`;
+      groupedData[clientName].total.final_amount = finalAmountWithSign(groupedData[clientName].total.final_amount,groupedData[clientName].total.widthdraw_charges);
+      groupedData[clientName].total.transaction_amount = transactionAmountWithSign(groupedData[clientName].total.transaction_amount);
       groupedData[clientName].total.actual_transaction_amount = `₹${formatAmount(groupedData[clientName].total.actual_transaction_amount.toString())}/-`;
     });
 

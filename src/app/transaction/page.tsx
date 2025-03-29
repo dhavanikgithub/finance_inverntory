@@ -153,11 +153,11 @@ export default function Home() {
   // Define the columns array with the correct types
   const columns: Column[] = [
     { Header: "Client", accessor: "client_name" },
-    { Header: "Amount", accessor: "amount" },
+    // { Header: "Amount", accessor: "amount" },
     { Header: "Transaction Type", accessor: "transaction_type" },
     { Header: "Transaction Amount", accessor: "transaction_amount" },
     { Header: "Charges", accessor: "widthdraw_charges" },
-    { Header: "Available Amount", accessor: "final_amount" },
+    // { Header: "Available Amount", accessor: "final_amount" },
     { Header: "Create Date", accessor: "create_date" },
     {
       Header: "Action",
@@ -214,9 +214,9 @@ export default function Home() {
           <TableData>
             {row.client_name}
           </TableData>
-          <TableData>
+          {/* <TableData>
             ₹{formatAmount(row.amount.toString())}/-
-          </TableData>
+          </TableData> */}
           <TableData>
             {row.transaction_type === 0 ?
               <div
@@ -240,10 +240,10 @@ export default function Home() {
                 <p className="text-red-700 text-sm dark:text-red-500">
                   - ₹{formatAmount((row.transaction_amount * -1).toString())}/-
                 </p>
-                <p
+                {/* <p
                   className="text-sm text-slate-500">
                   ATA: ₹{formatAmount((row.transaction_amount + ((row.transaction_amount * (row.widthdraw_charges / 100)) * -1)).toString())}/-
-                </p>
+                </p> */}
               </div>
 
               :
@@ -267,7 +267,7 @@ export default function Home() {
 
 
           </TableData>
-          <TableData>
+          {/* <TableData>
             <span
             className={row.final_amount < 0 ? 'text-red-500' : ''}
             >
@@ -275,7 +275,7 @@ export default function Home() {
                 ? `- ₹${formatAmount(Math.abs(row.final_amount).toString())}/-`
                 : `₹${formatAmount(row.final_amount.toString())}/-`}
             </span>
-          </TableData>
+          </TableData> */}
           <TableData>
             <span className='text-sm'>
               <span className=''>{formatDate(row.create_date!)}</span><br />

@@ -83,7 +83,7 @@ const AmountManagementModal = ({
 
         // Validate amount (ensure it's a valid number and not zero)
         const parsedAmount = parseFormattedAmount(formData.amount.toString());
-        if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        if (isNaN(parsedAmount)) {
             return "Please enter a valid amount.";
         }
 
@@ -121,22 +121,22 @@ const AmountManagementModal = ({
             alert(validationError); // Show the error message
             return; // Stop the function execution if there's an error
         }
-
-
-        const selectedClientObj = clients.find((element) => element.name === formData.selectedClient) as Client;
+        const tempFormData = updateAmount();
+        setFormData(tempFormData);
+        const selectedClientObj = clients.find((element) => element.name === tempFormData.selectedClient) as Client;
 
 
         // Create the transaction object
         let transaction: Transaction = {
             id: transactionToEdit?.id || undefined,
             client_id: selectedClientObj.id!!,
-            client_name: formData.selectedClient!!,
-            remark: formData.remark,
-            amount: parseFormattedAmount(formData.amount),
-            final_amount: parseFormattedAmount(formData.availableAmount.toString()),
-            widthdraw_charges: parseFormattedAmount(formData.widthdrawCharge.toString()),
-            transaction_amount: parseFormattedAmount(formData.transactionAmount),
-            transaction_type: formData.action === 'deposit' ? 0 : 1,
+            client_name: tempFormData.selectedClient!!,
+            remark: tempFormData.remark,
+            amount: parseFormattedAmount(tempFormData.amount),
+            final_amount: parseFormattedAmount(tempFormData.availableAmount.toString()),
+            widthdraw_charges: parseFormattedAmount(tempFormData.widthdrawCharge.toString()),
+            transaction_amount: parseFormattedAmount(tempFormData.transactionAmount),
+            transaction_type: tempFormData.action === 'deposit' ? 0 : 1,
             create_date: transactionToEdit?.create_date || undefined,
             create_time: transactionToEdit?.create_time || undefined
         };
@@ -148,28 +148,30 @@ const AmountManagementModal = ({
 
 
     const updateAmount = () => {
+        let tempFormData:FormData = formData;
         let totalAmountInput = parseFormattedAmount(formData.amount);
-        if (isNaN(totalAmountInput) || totalAmountInput < 0) {
-            return;
-        }
+        // if (isNaN(totalAmountInput) || totalAmountInput < 0) {
+        //     return;
+        // }
         let newTotalAmount = totalAmountInput;
         if (formData.action === 'deposit') {
             const depositAmount = parseFormattedAmount(formData.transactionAmount);
-            if (isNaN(depositAmount) || depositAmount < 0) {
-                return;
-            }
+            // if (isNaN(depositAmount) || depositAmount < 0) {
+            //     return;
+            // }
             newTotalAmount += depositAmount;
         } else {
             const withdrawAmount = parseFormattedAmount(formData.transactionAmount);
             const rateDeduction = parseFloat(formData.widthdrawCharge.toString());
-            if (isNaN(withdrawAmount) || withdrawAmount < 0 || isNaN(rateDeduction) || rateDeduction < 0 || rateDeduction > 100) {
-                return;
-            }
+            // if (isNaN(withdrawAmount) || withdrawAmount < 0 || isNaN(rateDeduction) || rateDeduction < 0 || rateDeduction > 100) {
+            //     return;
+            // }
             const deduction = (withdrawAmount * rateDeduction) / 100;
-            setFormData((prevState) => ({ ...prevState, deductionAmount: deduction, actualTransactionAmount: withdrawAmount - deduction }));
+            tempFormData = { ...tempFormData, deductionAmount: deduction, actualTransactionAmount: withdrawAmount - deduction }
             newTotalAmount -= withdrawAmount;
         }
-        setFormData((prevState) => ({ ...prevState, availableAmount: newTotalAmount.toString() }));
+        tempFormData = { ...tempFormData, availableAmount: newTotalAmount.toString() }
+        return tempFormData;
     };
 
 
@@ -202,12 +204,12 @@ const AmountManagementModal = ({
                 </button>
                 <h1 className="text-2xl font-bold mb-6">Add Transaction</h1>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                     <div>
                         <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Client</label>
                         <Dropdown placeholder="Select Client..." className='mb-3 mt-2' items={items} selectedItem={formData.selectedClient} onItemSelect={onItemSelect} />
                     </div>
-                    <div>
+                    { /* <div>
                         <label htmlFor="totalAmount" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount</label>
                         <div className="relative mb-6">
                             <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
@@ -221,7 +223,7 @@ const AmountManagementModal = ({
                                 value={formData.amount}
                                 onInput={(e) => setFormData((prevState) => ({ ...prevState, amount: formatAmount((e.target as HTMLInputElement).value) }))} />
                         </div>
-                    </div>
+                    </div> */ }
                 </div>
 
                 <div className="flex rounded-lg bg-gray-200 p-1 dark:bg-gray-800">
@@ -293,7 +295,7 @@ const AmountManagementModal = ({
                                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         placeholder="Enter rate deduction"
                                         value={formData.widthdrawCharge}
-                                        onInput={(e) => setFormData((prevState) => ({ ...prevState, widthdrawCharge: parseInt((e.target as HTMLInputElement).value) }))}
+                                        onInput={(e) => setFormData((prevState) => ({ ...prevState, widthdrawCharge: parseFloat((e.target as HTMLInputElement).value) }))}
                                     />
                                 </div>
                             </div>
@@ -314,55 +316,19 @@ const AmountManagementModal = ({
                 </div>
 
 
+
                 <div className="flex mt-6 gap-2">
                     <button onClick={handleSave} className="btn-secondary-outline flex-1">
                         <Save className='w-5 h-5' />
                         <span>{transactionToEdit ? 'Update' : 'Save'}</span>
                     </button>
-                    <button onClick={updateAmount} className="btn-secondary-outline flex-1">
-                        <Calculator className='w-5 h-5' />
-                        <span>Calculate</span>
-                    </button>
+                    
                     <button onClick={handleClose} className="btn-secondary flex-1">
                         <X className='w-5 h-5' />
                         <span>Close</span>
                     </button>
                 </div>
-                <div className="mt-6 grid grid-cols-4 gap-2">
-                    {formData.action !== 'deposit' ? (
-                        <>
-                            <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
-                                <h3 className="text-xs font-medium text-gray-400">WC</h3>
-                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- ₹{formData.deductionAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
-                            </div>
-                            <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
-                                <h3 className="text-xs font-medium text-gray-400">ATA</h3>
-                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- ₹{formData.actualTransactionAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
-                            </div>
-                            <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
-                                <h3 className="text-xs font-medium text-gray-400">WA</h3>
-                                <p className="text-sm font-bold text-red-700 dark:text-red-500">- ₹{formData.transactionAmount}</p>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
-                            <h3 className="text-xs font-medium text-gray-400">DA</h3>
-                            <p className="text-sm font-bold text-green-700 dark:text-green-500">+ ₹{formData.transactionAmount}</p>
-                        </div>
-                    )}
-
-                    <div className="bg-white p-5 rounded-lg shadow dark:bg-gray-800">
-                        <h3 className="text-xs font-medium text-gray-400">Available Amount</h3>
-                        <p
-                            className={`text-sm font-bold ${parseFormattedAmount(formData.availableAmount) < 0 ? 'text-red-700 dark:text-red-500' : 'text-green-700 dark:text-green-500'}`}
-                        >
-                            = {parseFormattedAmount(formData.availableAmount) < 0
-                                ? `- ₹${formatAmount(Math.abs(parseFormattedAmount(formData.availableAmount)).toString())}`
-                                : `₹${formData.availableAmount}`}
-                        </p>
-
-                    </div>
-                </div>
+                
             </div>
         </div>
     );
