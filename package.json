@@ -13,6 +13,7 @@
     "@types/jsreport-client": "^1.2.3",
     "@types/pg": "^8.11.11",
     "axios": "^1.8.3",
+    "fuse.js": "^7.1.0",
     "jsreport-client": "^1.0.2",
     "lucide-react": "^0.482.0",
     "next": "15.2.2",

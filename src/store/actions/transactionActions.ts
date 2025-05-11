@@ -1,6 +1,6 @@
+import Transaction from '@/app/model/Transaction';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { Transaction } from '../slices/transactionSlice';
 
 
 

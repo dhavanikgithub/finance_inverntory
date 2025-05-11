@@ -1,8 +1,8 @@
 import { formatDate } from '@/utils/helper';
 import React, { useState } from 'react';
 import Dropdown from './Dropdown';
-import { Client } from '@/store/slices/clientSlice';
 import { File, X } from 'lucide-react';
+import { Client } from '@/app/model/Client';
 interface GenerateReportModalProps {
     isOpen:boolean;
     onClose:() => void;
@@ -52,12 +52,10 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
         setIsLoading(true);
         
         const selectedClientObj = clients.find((element) => element.name === selectedClient) as Client;
-        let clientId = isClientSpecific ? selectedClientObj.id : null;
         const requestData = {
-            clientId: isClientSpecific ? clientId : null,
+            clientId:selectedClientObj?.id||null,
             startDate,
             endDate,
-            isClientSpecific: isClientSpecific && selectedClient !== null,
         };
         try {
             const response = await fetch('/api/generate-report', {

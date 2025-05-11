@@ -1,3 +1,4 @@
+import { Deposit, Widthdraw } from "@/app/model/Transaction";
 
 export function formatDate(dateString: string): string {
     const date = new Date(dateString);
@@ -75,5 +76,38 @@ const parseFormattedAmount = (formattedAmount: string): number => {
     return parseFloat(formattedAmount.replace(/,/g, ''));
 };
 
+export function isTransactionTypeDeposit(type:number){
+    return type === 0;
+}
 
-export {formatAmount, parseFormattedAmount}
+export function isTransactionTypeWidthdraw(type:number){
+    return type === 1;
+}
+
+export function getTransactionTypeStr(type:number){
+    if(isTransactionTypeDeposit(type)){
+        return Deposit
+    }
+    return Widthdraw
+}
+
+const baseFuseOptions = {
+	isCaseSensitive: false,
+	includeScore: false,
+    shouldSort: true,
+	// ignoreDiacritics: false,
+	// shouldSort: true,
+	// includeMatches: false,
+	// findAllMatches: false,
+	// minMatchCharLength: 1,
+	// location: 0,
+	threshold: 0.6,
+	// distance: 100,
+	// useExtendedSearch: false,
+	// ignoreLocation: false,
+	// ignoreFieldNorm: false,
+	// fieldNormWeight: 1,
+};
+
+
+export {formatAmount, parseFormattedAmount, baseFuseOptions}

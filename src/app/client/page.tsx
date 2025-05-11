@@ -9,12 +9,11 @@ import { SquarePen, Trash, UserRound } from 'lucide-react';
 import ClientManagementModal from '@/components/ClientManagementModal';
 import { formatDate, formatTime } from '@/utils/helper';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
-import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { showToastError, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
-import { Client } from '@/store/slices/clientSlice';
-import { Action } from '../transaction/page';
+import { Action } from '@/app/model/Action';
+import { Client } from '@/app/model/Client';
 
 export interface SortConfig {
     key: string;
@@ -147,7 +146,7 @@ export default function ClientScreen() {
             type: "string"
         },
         {
-            Header: "Date & Time",
+            Header: "Date",
             accessor: "create_date"
         },
         {

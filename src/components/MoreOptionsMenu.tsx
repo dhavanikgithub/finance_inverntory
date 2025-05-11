@@ -1,4 +1,4 @@
-import { Action } from '@/app/transaction/page';
+import { Action } from '@/app/model/Action';
 import { EllipsisVertical } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 interface MoreOptionsMenuProps {

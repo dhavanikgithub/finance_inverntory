@@ -1,7 +1,7 @@
 // components/ClientManagementModal.jsx
 import React, { useState, useEffect } from 'react';
 import { Save, X } from 'lucide-react';
-import { Client } from '@/store/slices/clientSlice';
+import { Client } from '@/app/model/Client';
 
 const ClientManagementModal = ({ 
     isOpen,

@@ -13,7 +13,7 @@
 
 import { NextResponse } from 'next/server';
 import pool from '../../../lib/db';
-import { Client } from '@/store/slices/clientSlice';
+import { Client } from '@/app/model/Client';
 
 
 // Handler to get all clients

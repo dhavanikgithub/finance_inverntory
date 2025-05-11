@@ -1,26 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchTransactions, addTransaction, updateTransaction, deleteTransaction } from '../actions/transactionActions';
+import TransactionState from '@/app/model/TransactionState';
+import Transaction from '@/app/model/Transaction';
 
-// Define the type for a transaction (expand this based on your actual transaction structure)
-export interface Transaction {
-  id?: number;
-  amount: number;
-  transaction_type: number;
-  client_id: number;
-  final_amount: number;
-  widthdraw_charges: number;
-  transaction_amount: number;
-  client_name: string;
-  remark: string;
-  create_date?: string;
-  create_time?: string;
-}
 
-// Define the type for the state
-interface TransactionState {
-  transactions: Transaction[];
-  loading: boolean;
-}
 
 const initialState: TransactionState = {
   transactions: [],

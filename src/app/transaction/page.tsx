@@ -1,7 +1,7 @@
 'use client'
 import { JSX, useEffect, useState } from 'react';
 import AmountManagementModal from '../../components/AmountManagementModal';
-import { ArrowLeftRight, File, SquarePen, Trash } from "lucide-react";
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, File, Search, SquarePen, Trash } from "lucide-react";
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
@@ -9,22 +9,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addTransaction, deleteTransaction, fetchTransactions, updateTransaction } from '@/store/actions/transactionActions';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
-import { formatAmount, formatDate, formatTime } from '@/utils/helper';
+import { baseFuseOptions, formatAmount, formatDate, formatTime, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { showToastError, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
-import { Transaction } from '@/store/slices/transactionSlice';
 import { SortConfig } from '../client/page';
-export type Action = {
-  icon: JSX.Element; // `JSX.Element` type for React components or elements
-  label: string;
-  onClick: (data: any) => void; // `onClick` is a function that takes no arguments and returns void
-};
+import Fuse from 'fuse.js';
+import { Action } from '../model/Action';
+import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
+
+
 export default function Home() {
+
   const dispatch: AppDispatch = useDispatch();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState<null | TransactionType>(null);
   const transactions = useSelector((state: RootState) => state.transaction.transactions);
   const clients = useSelector((state: RootState) => state.client.clients);
   const loading = useSelector((state: RootState) => state.transaction.loading);
@@ -36,7 +36,7 @@ export default function Home() {
   const [currentRows, setCurrentRows] = useState<Transaction[]>([]);
   const rowsPerPage: number = 10;
   const [isGenerateReportModalOpen, setIsGenerateReportModalOpen] = useState<boolean>(false);
-
+  const [searchInput, setSearchInput] = useState<string>("");
   const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Transaction>(null);
 
   const openDeleteRecordDialog = (data: Transaction) => {
@@ -91,12 +91,12 @@ export default function Home() {
 
   const openModalForEdit = (transaction: Transaction) => {
     setTransactionToEdit(transaction);
-    setIsModalOpen(true);
+    setIsModalOpen(getTransactionTypeStr(transaction.transaction_type));
   };
 
-  const openModalForAdd = () => {
+  const openModalForAdd = (transactionType: TransactionType) => {
     setTransactionToEdit(null); // Clear clientToEdit for adding new
-    setIsModalOpen(true);
+    setIsModalOpen(transactionType);
   };
 
   const handleSaveTransaction = (transactionData: Transaction) => {
@@ -141,7 +141,6 @@ export default function Home() {
     }
   }
 
-
   // Define the type for a column object
   interface Column {
     Header: string;
@@ -153,12 +152,11 @@ export default function Home() {
   // Define the columns array with the correct types
   const columns: Column[] = [
     { Header: "Client", accessor: "client_name" },
-    // { Header: "Amount", accessor: "amount" },
-    { Header: "Transaction Type", accessor: "transaction_type" },
-    { Header: "Transaction Amount", accessor: "transaction_amount" },
+    { Header: "Type", accessor: "transaction_type" },
+    { Header: "Amount", accessor: "transaction_amount" },
     { Header: "Charges", accessor: "widthdraw_charges" },
-    // { Header: "Available Amount", accessor: "final_amount" },
-    { Header: "Create Date", accessor: "create_date" },
+    { Header: "Date", accessor: "create_date" },
+    { Header: "Remarks", accessor: "remark" },
     {
       Header: "Action",
       accessor: "action",
@@ -204,7 +202,7 @@ export default function Home() {
     )
   }
 
-  function renderTableRows(currentRows: Transaction[], columns: Column[]) {
+  function renderTableRows(currentRows: Transaction[]) {
 
     const renderTableData = (row: Transaction) => {
 
@@ -214,11 +212,9 @@ export default function Home() {
           <TableData>
             {row.client_name}
           </TableData>
-          {/* <TableData>
-            ₹{formatAmount(row.amount.toString())}/-
-          </TableData> */}
+
           <TableData>
-            {row.transaction_type === 0 ?
+            {isTransactionTypeDeposit(row.transaction_type) ?
               <div
                 className="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20
                 dark:bg-green-900 dark:text-green-300 dark:bg-opacity-30
@@ -235,15 +231,12 @@ export default function Home() {
             }
           </TableData>
           <TableData>
-            {row.transaction_type === 1 ?
+            {isTransactionTypeWidthdraw(row.transaction_type) ?
               <div>
                 <p className="text-red-700 text-sm dark:text-red-500">
                   - ₹{formatAmount((row.transaction_amount * -1).toString())}/-
                 </p>
-                {/* <p
-                  className="text-sm text-slate-500">
-                  ATA: ₹{formatAmount((row.transaction_amount + ((row.transaction_amount * (row.widthdraw_charges / 100)) * -1)).toString())}/-
-                </p> */}
+
               </div>
 
               :
@@ -253,7 +246,7 @@ export default function Home() {
             }
           </TableData>
           <TableData>
-            {row.transaction_type === 0 ? (<p className="text-sm font-semibold text-slate-700">-</p>) : (
+            {isTransactionTypeDeposit(row.transaction_type) ? (<p className="text-sm font-semibold text-slate-700">-</p>) : (
               <>
                 <p className="text-sm font-semibold text-slate-700 dark:text-gray-200">
                   {row.widthdraw_charges}%
@@ -264,23 +257,21 @@ export default function Home() {
                 </p>
               </>
             )}
-
-
           </TableData>
-          {/* <TableData>
-            <span
-            className={row.final_amount < 0 ? 'text-red-500' : ''}
-            >
-              {row.final_amount < 0
-                ? `- ₹${formatAmount(Math.abs(row.final_amount).toString())}/-`
-                : `₹${formatAmount(row.final_amount.toString())}/-`}
-            </span>
-          </TableData> */}
+
           <TableData>
             <span className='text-sm'>
               <span className=''>{formatDate(row.create_date!)}</span><br />
               <span className='text-gray-500'>{formatTime(row.create_time!)}</span>
             </span>
+          </TableData>
+          <TableData>
+
+            <textarea
+              rows={1}
+              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              value={row.remark}
+              readOnly />
           </TableData>
           <TableData>
             <MoreOptionsMenu options={actions} data={row} />
@@ -300,8 +291,27 @@ export default function Home() {
   }
 
   const onCloseAmountManagementModal = () => {
-    setIsModalOpen(false)
+    setIsModalOpen(null)
     setTransactionToEdit(null)
+  }
+  const fuseOptions = {
+    ...baseFuseOptions,
+    keys: [
+      "remark",
+      "client_name"
+    ]
+  }
+  const fuse = new Fuse(transactions, fuseOptions);
+  const handleOnSearch = (searchText:string) => {
+    if(searchText === ""){
+      setCurrentRows([...transactions])
+      return
+    }
+    const fuseSearchResult = fuse.search(searchText);
+    const searchResultList = fuseSearchResult.map((fuseItem) => {
+      return fuseItem.item
+    })
+    setCurrentRows([...searchResultList])
   }
 
   return (
@@ -320,15 +330,51 @@ export default function Home() {
             Report
           </button>
           <button
-            onClick={openModalForAdd}
-            className="btn-secondary"
+            onClick={() => openModalForAdd(Deposit)}
+            className="btn-secondary bg-green-500 dark:bg-green-700"
             type="button">
-            <ArrowLeftRight className='w-3 h-3' />
-            Add Transaction
+            <ArrowDownLeft className='w-3 h-3' />
+            Deposit
           </button>
-          <AmountManagementModal clients={clients} transactionToEdit={transactionToEdit} isOpen={isModalOpen} onClose={onCloseAmountManagementModal} onSave={handleSaveTransaction} />
+          <button
+            onClick={() => openModalForAdd(Widthdraw)}
+            className="btn-secondary bg-red-500 dark:bg-red-700"
+            type="button">
+            <ArrowUpRight className='w-3 h-3' />
+            Widthdraw
+          </button>
+
+          {isModalOpen != null &&
+            <AmountManagementModal
+              clients={clients}
+              transactionToEdit={transactionToEdit}
+              isOpen={isModalOpen != null}
+              onClose={onCloseAmountManagementModal}
+              onSave={handleSaveTransaction}
+              transactionType={isModalOpen}
+            />
+          }
         </SectionHeaderRight>
       </SectionHeader>
+      <div className='w-full flex items-baseline justify-end gap-2'>
+        <div className="form-search m-0 p-0">
+          <label htmlFor="topbar-search" className="form-search-label">Search</label>
+          <div className="form-search-wrapper">
+            <input type="text" name="email" id="topbar-search"
+              className="form-search-input ps-3"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search" />
+          </div>
+        </div>
+        <button
+          onClick={()=>handleOnSearch(searchInput)}
+          className="btn-secondary-outline p-3"
+          type="button">
+          <Search className='w-3 h-3' />
+          Search
+        </button>
+      </div>
       <SectionContent>
         <div className="container mx-auto">
           <CustomTable
@@ -344,7 +390,7 @@ export default function Home() {
 
             {/* Table Body */}
             <TableBody>
-              {renderTableRows(currentRows, columns)}
+              {renderTableRows(currentRows)}
             </TableBody>
           </CustomTable>
           <DeactivateAccountModal

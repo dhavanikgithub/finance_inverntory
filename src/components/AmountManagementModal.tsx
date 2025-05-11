@@ -1,45 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowDownLeft, ArrowUpRight, Calculator, IndianRupee, Percent, Save, X } from 'lucide-react';
+import { IndianRupee, Percent, Save, X } from 'lucide-react';
 import Dropdown from './Dropdown';
-import { formatAmount, parseFormattedAmount } from '@/utils/helper';
-import { Client } from '@/store/slices/clientSlice';
-import { Transaction } from '@/store/slices/transactionSlice';
+import { formatAmount, getTransactionTypeStr, parseFormattedAmount } from '@/utils/helper';
+import { Client } from '@/app/model/Client';
+import Transaction, { Deposit, TransactionType } from '@/app/model/Transaction';
 
 const AmountManagementModal = ({
     clients,
     transactionToEdit,
     isOpen,
     onClose,
-    onSave
+    onSave,
+    transactionType
 }: {
     clients: Client[]
     transactionToEdit: Transaction | null,
     isOpen: boolean,
     onClose: () => void;
     onSave: (transactionData: Transaction) => void;
+    transactionType: TransactionType
 }) => {
     // Define the type for the form data
     interface FormData {
-        action: 'deposit' | 'withdraw';  // Assuming action can be 'deposit' or 'withdraw'
+        action: TransactionType;  // Assuming action can be 'deposit' or 'widthdraw'
         remark: string;
         selectedClient: string | null;  // Assuming Client is a type you're using
-        amount: string;
-        availableAmount: string;
         deductionAmount: number;
-        actualTransactionAmount: number;
         widthdrawCharge: number;
         transactionAmount: string;
     }
 
     // Define initial form data
     const initialFormData: FormData = {
-        action: 'deposit',
+        action: transactionType,
         remark: '',
         selectedClient: null,
-        amount: '0',
-        availableAmount: '0',
         deductionAmount: 0,
-        actualTransactionAmount: 0,
         widthdrawCharge: 0,
         transactionAmount: '0',
     };
@@ -51,13 +47,10 @@ const AmountManagementModal = ({
         if (transactionToEdit) {
             const temp = (transactionToEdit.transaction_amount * transactionToEdit.widthdraw_charges) / 100;
             setFormData({
-                action: transactionToEdit.transaction_type === 0 ? 'deposit' : 'withdraw',
+                action: getTransactionTypeStr(transactionToEdit.transaction_type),
                 remark: transactionToEdit.remark,
                 selectedClient: transactionToEdit.client_name,
-                amount: formatAmount(transactionToEdit.amount.toString()),
-                availableAmount: formatAmount(transactionToEdit.final_amount.toString()),
                 deductionAmount: temp,
-                actualTransactionAmount: transactionToEdit.transaction_amount - temp,
                 widthdrawCharge: transactionToEdit.widthdraw_charges,
                 transactionAmount: formatAmount(transactionToEdit.transaction_amount.toString()),
             })
@@ -67,7 +60,7 @@ const AmountManagementModal = ({
         }
     }, [transactionToEdit])
 
-    const toggleAction = (selectedAction: 'deposit' | 'withdraw') => {
+    const toggleAction = (selectedAction: TransactionType) => {
         setFormData((prevState) => ({ ...prevState, action: selectedAction }));
     };
 
@@ -81,18 +74,6 @@ const AmountManagementModal = ({
             return "Invalid client selected.";
         }
 
-        // Validate amount (ensure it's a valid number and not zero)
-        const parsedAmount = parseFormattedAmount(formData.amount.toString());
-        if (isNaN(parsedAmount)) {
-            return "Please enter a valid amount.";
-        }
-
-        // Validate final amount (ensure it's a valid number and not zero)
-        const parsedFinalAmount = parseFormattedAmount(formData.availableAmount.toString());
-        if (isNaN(parsedFinalAmount)) {
-            return "Please enter a valid final amount.";
-        }
-
         const parsedWidthdrawCharge = parseFormattedAmount(formData.widthdrawCharge.toString())
         // Validate withdraw charges (must be a valid percentage)
         if (isNaN(parsedWidthdrawCharge) || parsedWidthdrawCharge < 0 || parsedWidthdrawCharge > 100) {
@@ -102,12 +83,7 @@ const AmountManagementModal = ({
         // Validate transaction amount (must be a valid number and not zero)
         const parsedTransactionAmount = parseFormattedAmount(formData.transactionAmount.toString());
         if (isNaN(parsedTransactionAmount) || parsedTransactionAmount <= 0) {
-            return "Please enter a valid transaction amount.";
-        }
-
-        // Validate transaction type (either 'deposit' or 'withdraw')
-        if (formData.action !== 'deposit' && formData.action !== 'withdraw') {
-            return "Please select a valid transaction type (deposit or withdraw).";
+            return `Please enter a valid ${transactionType} amount.`;
         }
 
         return null;  // If no validation errors
@@ -132,11 +108,9 @@ const AmountManagementModal = ({
             client_id: selectedClientObj.id!!,
             client_name: tempFormData.selectedClient!!,
             remark: tempFormData.remark,
-            amount: parseFormattedAmount(tempFormData.amount),
-            final_amount: parseFormattedAmount(tempFormData.availableAmount.toString()),
             widthdraw_charges: parseFormattedAmount(tempFormData.widthdrawCharge.toString()),
             transaction_amount: parseFormattedAmount(tempFormData.transactionAmount),
-            transaction_type: tempFormData.action === 'deposit' ? 0 : 1,
+            transaction_type: tempFormData.action === Deposit ? 0 : 1,
             create_date: transactionToEdit?.create_date || undefined,
             create_time: transactionToEdit?.create_time || undefined
         };
@@ -149,12 +123,12 @@ const AmountManagementModal = ({
 
     const updateAmount = () => {
         let tempFormData:FormData = formData;
-        let totalAmountInput = parseFormattedAmount(formData.amount);
+        let totalAmountInput = 0;
         // if (isNaN(totalAmountInput) || totalAmountInput < 0) {
         //     return;
         // }
         let newTotalAmount = totalAmountInput;
-        if (formData.action === 'deposit') {
+        if (formData.action === Deposit) {
             const depositAmount = parseFormattedAmount(formData.transactionAmount);
             // if (isNaN(depositAmount) || depositAmount < 0) {
             //     return;
@@ -167,10 +141,9 @@ const AmountManagementModal = ({
             //     return;
             // }
             const deduction = (withdrawAmount * rateDeduction) / 100;
-            tempFormData = { ...tempFormData, deductionAmount: deduction, actualTransactionAmount: withdrawAmount - deduction }
+            tempFormData = { ...tempFormData, deductionAmount: deduction}
             newTotalAmount -= withdrawAmount;
         }
-        tempFormData = { ...tempFormData, availableAmount: newTotalAmount.toString() }
         return tempFormData;
     };
 
@@ -188,8 +161,6 @@ const AmountManagementModal = ({
     // Dropdown items list
     const items = clients.map((item) => item.name);
 
-
-
     if (!isOpen) return null;
 
     return (
@@ -202,51 +173,16 @@ const AmountManagementModal = ({
                 >
                     <X className='w-4 h-4' />
                 </button>
-                <h1 className="text-2xl font-bold mb-6">Add Transaction</h1>
+                <h1 className="text-2xl font-bold mb-6">{transactionToEdit ? 'Update ' : 'Add '}{transactionType}</h1>
 
                 <div className="grid grid-cols-1 gap-4">
                     <div>
                         <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Client</label>
                         <Dropdown placeholder="Select Client..." className='mb-3 mt-2' items={items} selectedItem={formData.selectedClient} onItemSelect={onItemSelect} />
                     </div>
-                    { /* <div>
-                        <label htmlFor="totalAmount" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount</label>
-                        <div className="relative mb-6">
-                            <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                                <IndianRupee className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                id="totalAmount"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Enter amount"
-                                value={formData.amount}
-                                onInput={(e) => setFormData((prevState) => ({ ...prevState, amount: formatAmount((e.target as HTMLInputElement).value) }))} />
-                        </div>
-                    </div> */ }
                 </div>
-
-                <div className="flex rounded-lg bg-gray-200 p-1 dark:bg-gray-800">
-                    <button
-                        className={`flex-1 py-2 px-4 rounded-lg ${formData.action === 'deposit' ? 'bg-black text-white dark:bg-gray-900' : 'text-gray-700'}`}
-                        onClick={() => toggleAction('deposit')}
-                    >
-                        <div className='flex items-center justify-center gap-2'>
-                            <ArrowDownLeft className='w-5 h-5' />
-                            <span>Deposit</span>
-                        </div>
-                    </button>
-                    <button
-                        className={`flex-1 py-2 px-4 rounded-lg ${formData.action === 'withdraw' ? 'bg-black text-white dark:bg-gray-900' : 'text-gray-700'}`}
-                        onClick={() => toggleAction('withdraw')}
-                    >
-                        <div className='flex items-center justify-center gap-2'>
-                            <ArrowUpRight className='w-5 h-5' />
-                            <span>Widthdraw</span>
-                        </div>
-                    </button>
-                </div>
-                {formData.action === 'deposit' ? (
+                
+                {formData.action === Deposit ? (
 
                     <div className="mt-4">
                         <label htmlFor="depositAmount" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit Amount</label>
@@ -314,8 +250,6 @@ const AmountManagementModal = ({
                         onInput={(e) => setFormData((prevState) => ({ ...prevState, remark: (e.target as HTMLInputElement).value }))}
                     />
                 </div>
-
-
 
                 <div className="flex mt-6 gap-2">
                     <button onClick={handleSave} className="btn-secondary-outline flex-1">

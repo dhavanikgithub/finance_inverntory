@@ -1,18 +1,7 @@
+import { Client } from '@/app/model/Client';
+import ClientState from '@/app/model/ClientState';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// Define the client type (you can expand this based on your actual client structure)
-export interface Client {
-  id?: number;
-  name: string;
-  create_date?: string;
-  create_time?: string;
-}
-
-// Define the state type
-interface ClientState {
-  clients: Client[];
-  loading: boolean;
-}
 
 const initialState: ClientState = {
   clients: [],

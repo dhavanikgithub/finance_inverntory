@@ -1,5 +1,6 @@
 import { AppDispatch } from '../store'; // Assuming AppDispatch is defined in your store file
-import { setLoading, setClients, addClient, updateClient, deleteClient, Client } from '../slices/clientSlice';
+import { setLoading, setClients, addClient, updateClient, deleteClient } from '../slices/clientSlice';
+import { Client } from '@/app/model/Client';
 
 const API_URL = '/api/client';
 
