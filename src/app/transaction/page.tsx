@@ -1,13 +1,12 @@
 'use client'
-import { JSX, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AmountManagementModal from '../../components/AmountManagementModal';
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, File, Search, SquarePen, Trash } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Search, SquarePen, Trash } from "lucide-react";
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTransaction, deleteTransaction, fetchTransactions, updateTransaction } from '@/store/actions/transactionActions';
-import DeleteConfirmDialog from '@/components/DeleteConfirmDialog';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
 import { baseFuseOptions, formatAmount, formatDate, formatTime, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import { fetchClients } from '@/store/actions/clientActions';
@@ -19,6 +18,8 @@ import { SortConfig } from '../client/page';
 import Fuse from 'fuse.js';
 import { Action } from '../model/Action';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
+import FilterModal, { FilterType, getTotalFilterCount, getTotalFiltersCount } from '@/components/FilterModal';
+import DataProcessor from '@/utils/DataProcessor';
 
 
 export default function Home() {
@@ -38,7 +39,8 @@ export default function Home() {
   const [isGenerateReportModalOpen, setIsGenerateReportModalOpen] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>("");
   const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Transaction>(null);
-
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState<FilterType[]>([]);
   const openDeleteRecordDialog = (data: Transaction) => {
     setIsDeleteRecordDialogOpen(data);
   };
@@ -64,6 +66,7 @@ export default function Home() {
     setSortConfig({ key, direction });
   };
 
+
   useEffect(() => {
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
@@ -82,8 +85,7 @@ export default function Home() {
     dispatch(fetchClients())
   }, [dispatch]);
 
-  useEffect(() => {
-  }, [clients])
+
   useEffect(() => {
     setSortedData(transactions);
   }, [transactions]);
@@ -302,8 +304,8 @@ export default function Home() {
     ]
   }
   const fuse = new Fuse(transactions, fuseOptions);
-  const handleOnSearch = (searchText:string) => {
-    if(searchText === ""){
+  const handleOnSearch = (searchText: string) => {
+    if (searchText === "") {
       setCurrentRows([...transactions])
       return
     }
@@ -313,6 +315,58 @@ export default function Home() {
     })
     setCurrentRows([...searchResultList])
   }
+
+  const handleApplyFilters = (filters: FilterType[]) => {
+    setAppliedFilters(filters);    
+  };
+
+  useEffect(()=>{
+    const dataProcessor = new DataProcessor(transactions,[])
+    dataProcessor.applyFilter(appliedFilters)
+    setSortedData(dataProcessor.getData())
+  },[appliedFilters])
+
+  const clientNameFilter = useMemo((): FilterType<string> => {
+    const distinctClientNames: string[] = Array.from(
+      new Set(transactions.map(t => t.client_name))
+    );
+
+    return {
+      columnName: "Client Name",
+      columnAccessor: "client_name",
+      filterOperator: 'string',
+      dataOperator: 'string',
+      data: distinctClientNames
+    }
+  }, [transactions])
+
+  const dateMonthFilter = useMemo((): FilterType<string> => {
+    const distinctMonths: string[] = Array.from(
+      new Set(
+        transactions
+          .filter(t => t.create_date)
+          .map(t => (new Date(t.create_date!).getMonth() + 1).toString()) // Extracts "YYYY-MM"
+      )
+    );
+
+    return {
+      columnName: "Transaction Month",
+      columnAccessor: "create_date",
+      filterOperator: 'month',
+      dataOperator: 'date',
+      data: distinctMonths
+    }
+  }, [transactions])
+
+  const filterColumns: FilterType[] = [
+    clientNameFilter,
+    dateMonthFilter
+  ]
+
+
+  const totalFilterCount = useMemo(() => {
+    return getTotalFilterCount(appliedFilters)
+  }, [appliedFilters])
 
   return (
     <Dashboard>
@@ -368,12 +422,44 @@ export default function Home() {
           </div>
         </div>
         <button
-          onClick={()=>handleOnSearch(searchInput)}
+          onClick={() => handleOnSearch(searchInput)}
           className="btn-secondary-outline p-3"
           type="button">
           <Search className='w-3 h-3' />
           Search
         </button>
+        <div className="relative inline-block">
+          <button
+            onClick={() => setIsFilterModalOpen(true)}
+            className="btn-secondary-outline p-3 flex items-center gap-2"
+            type="button"
+          >
+            <FilterIcon className="w-4 h-4" />
+            Filter
+          </button>
+          {totalFilterCount > 0 &&
+            (
+              <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {totalFilterCount}
+              </span>
+            )
+          }
+        </div>
+
+        {/* <button
+          onClick={() => setIsFilterModalOpen(true)}
+          className="btn-secondary-outline p-3"
+          type="button">
+          <Filter className='w-3 h-3' />
+          Filter
+        </button> */}
+        <FilterModal
+          isOpen={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+          columns={filterColumns}
+          initialFilters={appliedFilters}
+          onApplyFilters={handleApplyFilters}
+        />
       </div>
       <SectionContent>
         <div className="container mx-auto">
