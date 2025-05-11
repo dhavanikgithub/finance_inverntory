@@ -41,6 +41,7 @@ export default function Home() {
   const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Transaction>(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterType[]>([]);
+  const [filterColumns, setFilterColumns] = useState<FilterType[]>([])
   const openDeleteRecordDialog = (data: Transaction) => {
     setIsDeleteRecordDialogOpen(data);
   };
@@ -336,7 +337,7 @@ export default function Home() {
       columnAccessor: "client_name",
       filterOperator: 'string',
       dataOperator: 'string',
-      data: distinctClientNames
+      data: distinctClientNames,
     }
   }, [transactions])
 
@@ -354,14 +355,16 @@ export default function Home() {
       columnAccessor: "create_date",
       filterOperator: 'month',
       dataOperator: 'date',
-      data: distinctMonths
+      data: distinctMonths,
     }
   }, [transactions])
 
-  const filterColumns: FilterType[] = [
-    clientNameFilter,
-    dateMonthFilter
-  ]
+  useEffect(()=>{
+    setFilterColumns([
+      clientNameFilter,
+      dateMonthFilter
+    ])
+  },[transactions])
 
 
   const totalFilterCount = useMemo(() => {
@@ -434,7 +437,7 @@ export default function Home() {
             className="btn-secondary-outline p-3 flex items-center gap-2"
             type="button"
           >
-            <FilterIcon className="w-4 h-4" />
+            <FilterIcon className="w-3 h-3" />
             Filter
           </button>
           {totalFilterCount > 0 &&
@@ -456,7 +459,7 @@ export default function Home() {
         <FilterModal
           isOpen={isFilterModalOpen}
           onClose={() => setIsFilterModalOpen(false)}
-          columns={filterColumns}
+          filterColumns={filterColumns}
           initialFilters={appliedFilters}
           onApplyFilters={handleApplyFilters}
         />

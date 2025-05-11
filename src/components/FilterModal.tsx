@@ -11,10 +11,15 @@ export interface FilterType<T = any> {
     data: T[];
 }
 
+interface ColumnStateType {
+    columnName: string;
+    isOpen: boolean;
+}
+
 interface FilterModalProps {
     isOpen: boolean;
     onClose: () => void;
-    columns: FilterType[];
+    filterColumns: FilterType[];
     initialFilters: FilterType[];
     onApplyFilters: (filters: FilterType[]) => void;
 }
@@ -42,12 +47,37 @@ export function getTotalFilterCount(filters:FilterType[]): number {
 const FilterModal = ({
     isOpen,
     onClose,
-    columns,
+    filterColumns,
     initialFilters,
     onApplyFilters,
 }: FilterModalProps) => {
     const [filters, setFilters] = useState<FilterType[]>([]);
+    const [columnsState, setColumnsState] = useState<ColumnStateType[]>([]);
 
+    function toggleColumnState(columnName:string){
+        const columnState = columnsState.find((column) => column.columnName === columnName)
+        if(!columnState){
+            setColumnsState(
+                [...columnsState,
+                    {
+                        columnName,
+                        isOpen: true
+                    }
+                ]
+            )
+            return
+        }
+        const newState = {
+            columnName: columnState.columnName,
+            isOpen: !columnState.isOpen
+        }
+        setColumnsState([...columnsState.filter((item) => item.columnName !== columnName),newState])
+    }
+
+    function getColumnState(columnName:string):boolean {
+        const columnState = columnsState.find((column) => column.columnName === columnName)
+        return  columnState? columnState.isOpen : false
+    }
     function getFilterByColumnAccessor<T>(
         filters: FilterType<T>[],
         columnAccessor: string
@@ -153,7 +183,7 @@ const FilterModal = ({
         if (isOpen) {
             setFilters(initialFilters);
         }
-    }, [isOpen, columns]);
+    }, [isOpen, filterColumns]);
 
     const handleSelectAll = (column:FilterType) => {
         selectAllFilter(column)
@@ -196,14 +226,14 @@ const FilterModal = ({
         return filterColumns[0].data
     }
 
-
+    if (!isOpen) return null;
     return (
-        <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
-            <div className="relative bg-white w-full max-w-lg max-h-[90vh] overflow-hidden p-6 rounded-lg shadow-lg mx-auto my-10 flex flex-col">
+        <main className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50 text-gray-900 font-sans overflow-hidden">
+            <div className="relative bg-white w-full max-w-lg max-h-[90vh] overflow-hidden p-6 rounded-lg shadow-lg mx-auto my-10 flex flex-col dark:bg-gray-900 dark:text-gray-200">
                 <div className='flex justify-between'>
                     <h2 className="text-xl font-semibold mb-4">
                         <span>
-                            Filter Data
+                            Filter
                             <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
                                 {totalFilterCount}
                             </span>
@@ -214,14 +244,13 @@ const FilterModal = ({
                 </div>
 
                 <div className="overflow-y-auto pr-2 flex-1">
-                    {columns.map((column) => {
-                        const [open, setOpen] = useState(false); // local state per render
+                    {filterColumns.map((column) => {
                         return (
-                            <div key={column.columnName} className="mb-4 border border-gray-200 rounded">
+                            <div key={column.columnName} className="mb-4 border border-gray-200 rounded dark:border-gray-700">
                                 <button
                                     type="button"
-                                    onClick={() => setOpen(!open)}
-                                    className="w-full px-4 py-2 text-left bg-gray-100 font-medium flex justify-between items-center"
+                                    onClick={() => toggleColumnState(column.columnName)}
+                                    className="w-full px-4 py-2 text-left bg-gray-100 font-medium flex justify-between items-center dark:bg-gray-900"
                                 >
                                     <span>
                                         {column.columnName}
@@ -229,11 +258,11 @@ const FilterModal = ({
                                             {getFilterCountByColumn(filters, column.columnAccessor)}
                                         </span>
                                     </span>
-                                    <span className="text-sm">{open ? '−' : '+'}</span>
+                                    <span className="text-sm">{getColumnState(column.columnName) ? '−' : '+'}</span>
                                 </button>
 
-                                {open && (
-                                    <div className="px-4 py-2 space-y-2 bg-white">
+                                {getColumnState(column.columnName) && (
+                                    <div className="px-4 py-2 space-y-2 bg-white dark:bg-gray-900">
                                         <div className="flex space-x-4">
                                             <button
                                                 className="text-blue-500 text-sm"
@@ -277,20 +306,20 @@ const FilterModal = ({
                 <div className="flex justify-end space-x-4 mt-4">
 
                     <button
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                        className="btn-secondary"
                         onClick={handleApply}
                     >
                         Apply
                     </button>
                     <button
-                        className="px-4 py-2 bg-gray-300 text-black rounded"
+                        className="btn-secondary-outline p-3"
                         onClick={handleClearAllFilter}
                     >
                         Clear All
                     </button>
                 </div>
             </div>
-        </div>
+        </main>
     );
 
 };
