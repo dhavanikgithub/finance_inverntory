@@ -232,7 +232,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                 <a href="#" className="footer-social-icon">
                                     <Twitter className="h-5 w-5" />
                                 </a>
-                                <a href="#" className="footer-social-icon">
+                                <a href="https://github.com/dhavanikgithub/finance_inverntory" className="footer-social-icon">
                                     <Github className="h-5 w-5" />
                                 </a>
                                 <a href="#" className="footer-social-icon">
