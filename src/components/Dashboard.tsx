@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef, ReactNode } from 'react';
-import { House, UserRound, ArrowLeftRight, LayoutDashboard, BadgeHelp, Search, Sun, Moon, Facebook, Instagram, Twitter, Github, Dribbble } from 'lucide-react'
+import { House, UserRound, ArrowLeftRight, LayoutDashboard, BadgeHelp, Search, Sun, Moon, Facebook, Instagram, Twitter, Github, Dribbble, CreditCard } from 'lucide-react'
 import { Section } from './Section';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
@@ -32,6 +32,14 @@ export const defaultNavItems = [
         isDisable: false,
         selectedIcon: <ArrowLeftRight className="w-4 h-4 text mr-3 font-semibold text-white dark:text-zinc-950 " />,
         icon: <ArrowLeftRight className="w-4 h-4 text mr-3 font-semibold text-zinc-950 dark:text-white" />
+    },
+    {
+        name: "Card Type",
+        value: "card-type",
+        url: "/card-type",
+        isDisable: false,
+        selectedIcon: <CreditCard className="w-4 h-4 text mr-3 font-semibold text-white dark:text-zinc-950 " />,
+        icon: <CreditCard className="w-4 h-4 text mr-3 font-semibold text-zinc-950 dark:text-white" />
     }
 ]
 
@@ -190,6 +198,12 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                             <Link href="/transaction" className="sidebar-link group">
                                                 <ArrowLeftRight className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Transactions</span>
+                                            </Link>
+                                        </li>
+                                        <li>
+                                            <Link href="/card-type" className="sidebar-link group">
+                                                <CreditCard className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
+                                                <span className="sidebar-link-text">Card Type</span>
                                             </Link>
                                         </li>
                                     </ul>

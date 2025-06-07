@@ -1,16 +1,3 @@
-// import { NextResponse } from 'next/server';
-// import pool from '../../../lib/db';
-
-// // Handler to get all clients
-// export async function GET() {
-//   try {
-//     const result = await pool.query('SELECT * FROM public.client');
-//     return NextResponse.json(result.rows);
-//   } catch (error) {
-//     return NextResponse.json({ error: error.message }, { status: 500 });
-//   }
-// }
-
 import { NextResponse } from 'next/server';
 import pool from '../../../lib/db';
 import { Client } from '@/app/model/Client';
