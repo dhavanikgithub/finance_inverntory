@@ -67,7 +67,13 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
             const data = await response.json();
 
             // Generate the filename with the formatted date and time
-            const filename = `finance_inverntory_report_${formatDate(startDate)}_${formatDate(endDate)}.pdf`;
+            let filename = `finance_inverntory_report_${formatDate(startDate)}_${formatDate(endDate)}.pdf`;
+            if(isClientSpecific && selectedClient){
+                filename = `${selectedClientObj.name}_${filename}`;
+            }
+            else{
+                filename = `al_client_data_${filename}`;
+            }
 
             if (response.ok) {
                 const link = document.createElement('a');
