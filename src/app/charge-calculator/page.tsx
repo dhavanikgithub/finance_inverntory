@@ -72,11 +72,20 @@ export default function ChargeCalculationScreen() {
                                 icon={<IndianRupee />}
                             />
                             <InputField
-                                label="Bank Charge (%) + GST (18% auto include at background)"
+                                label="Bank Charge (%)"
                                 type="number"
                                 value={bankCharge}
                                 onChange={(e) => setBankCharge(e.target.value)}
                                 placeholder="e.g., 1.27"
+                                icon={<Percent />}
+                            />
+                            <InputField
+                                label="GST (%)"
+                                type="number"
+                                value={"18"}
+                                onChange={(e) => null}
+                                placeholder="e.g., 18%"
+                                disabled={true}
                                 icon={<Percent />}
                             />
                             <InputField
