@@ -3,6 +3,8 @@ import { Bank, BankInput } from '@/app/model/Bank';
 import { CardType } from '@/app/model/CardType';
 import Modal from '@/components/Modal';
 import InputField from '@/components/InputField';
+import { Text } from 'lucide-react';
+import Dropdown from './Dropdown';
 
 interface BankManagementModalProps {
     isOpen: boolean;
@@ -20,15 +22,15 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
     cardTypes,
 }) => {
     const [name, setName] = useState('');
-    const [cardTypeId, setCardTypeId] = useState<number>(0);
+    const [selectedCardType, setSelectedCardType] = useState<string>("");
 
     useEffect(() => {
         if (bankToEdit) {
             setName(bankToEdit.name);
-            setCardTypeId(bankToEdit.card_type_id);
+            setSelectedCardType(bankToEdit.card_type_name!);
         } else {
             setName('');
-            setCardTypeId(0);
+            setSelectedCardType("");
         }
     }, [bankToEdit]);
 
@@ -37,8 +39,8 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
         const bankData: Bank = {
             id: bankToEdit?.id || 0,
             name,
-            card_type_id: cardTypeId,
-            card_type_name: cardTypes.find(ct => ct.id === cardTypeId)?.name || '',
+            card_type_id: cardTypes.find(ct => ct.name === selectedCardType)?.id || 0,
+            card_type_name: selectedCardType,
             create_date: bankToEdit?.create_date ?? null,
             create_time: bankToEdit?.create_time ?? null,
             modify_date: null,
@@ -46,13 +48,25 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
         };
 
         onSave(bankData);
-        onClose();
+        handleClose();
     };
+
+    const handleClose = () => {
+        setName("");
+        setSelectedCardType("");
+        onClose();
+    }
+
+    const onItemSelect = (item:string) => {
+        setSelectedCardType(item);
+    }
+
+    const items = cardTypes.map((item) => item.name);
 
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={handleClose}
             title={bankToEdit ? 'Edit Bank' : 'Add New Bank'}
         >
             <form onSubmit={handleSubmit}>
@@ -63,30 +77,19 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
                         onChange={(e) => setName(e.target.value)}
                         required
                         placeholder="e.g., HDFC Bank"
+                        icon={<Text/>}
                     />
 
                     <div className="flex flex-col">
                         <label className="mb-1 font-medium text-sm text-gray-700">Card Type</label>
-                        <select
-                            value={cardTypeId}
-                            onChange={(e) => setCardTypeId(Number(e.target.value))}
-                            required
-                            className="form-select border border-gray-300 rounded px-3 py-2"
-                        >
-                            <option value="" disabled>Select card type</option>
-                            {cardTypes.map((cardType) => (
-                                <option key={cardType.id} value={cardType.id}>
-                                    {cardType.name}
-                                </option>
-                            ))}
-                        </select>
+                        <Dropdown placeholder="Select card type..." className='mb-3 mt-2' items={items} selectedItem={selectedCardType} onItemSelect={onItemSelect} />
                     </div>
                 </div>
 
                 <div className="mt-6 flex justify-end space-x-3">
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={handleClose}
                         className="btn-secondary"
                     >
                         Cancel

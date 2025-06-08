@@ -2,6 +2,7 @@ import React from 'react';
 import { CardType } from '@/app/model/CardType';
 import Modal from '@/components/Modal'
 import InputField from '@/components/InputField';
+import { Text } from 'lucide-react';
 
 interface CardTypeManagementModalProps {
     isOpen: boolean;
@@ -33,13 +34,18 @@ const CardTypeManagementModal: React.FC<CardTypeManagementModalProps> = ({
             name,
         };
         onSave(cardTypeData);
-        onClose();
+        handleClose();
     };
+
+    const handleClose = () => {
+        setName("");
+        onClose();
+    }
 
     return (
         <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={handleClose}
             title={cardTypeToEdit ? 'Edit Card Type' : 'Add New Card Type'}
         >
             <form onSubmit={handleSubmit}>
@@ -50,13 +56,14 @@ const CardTypeManagementModal: React.FC<CardTypeManagementModalProps> = ({
                         onChange={(e) => setName(e.target.value)}
                         required
                         placeholder="e.g., Visa, MasterCard"
+                        icon={<Text/>}
                     />
                 </div>
 
                 <div className="mt-6 flex justify-end space-x-3">
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={handleClose}
                         className="btn-secondary"
                     >
                         Cancel

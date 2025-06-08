@@ -28,7 +28,7 @@ import {
 } from '@/store/actions/bankActions';
 import { fetchCardTypes } from '@/store/actions/cardTypeActions';
 import { showToastError, showToastSuccess } from '@/utils/toast';
-import { SquarePen, Trash, Building } from 'lucide-react';
+import { SquarePen, Trash, Building, Landmark } from 'lucide-react';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 
@@ -136,7 +136,7 @@ export default function BankScreen() {
         </SectionHeaderLeft>
         <SectionHeaderRight>
           <button onClick={openModalForAdd} className="btn-secondary" type="button">
-            <Building className="w-4 h-4" /> Add Bank
+            <Landmark className="w-4 h-4" /> Add Bank
           </button>
           <BankManagementModal
             isOpen={isModalOpen}
