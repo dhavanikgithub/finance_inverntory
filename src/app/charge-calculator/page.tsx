@@ -55,9 +55,6 @@ export default function ChargeCalculationScreen() {
             <SectionHeader>
                 <SectionHeaderLeft>
                     <Heading>Charge Calculator</Heading>
-                    {/* <SubHeading>
-                        Manage, review, add, update, or delete client records and their transactions.
-                    </SubHeading> */}
                 </SectionHeaderLeft>
             </SectionHeader>
             <SectionContent>
