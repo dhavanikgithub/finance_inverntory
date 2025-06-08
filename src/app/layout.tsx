@@ -34,6 +34,7 @@ export default function RootLayout({
       <StoreProvider>
         <html lang="en">
           <head>
+            <title>Finance Invetory</title>
             <link id="favicon" rel="icon" href="/favicon-light.svg" />
           </head>
           <body
