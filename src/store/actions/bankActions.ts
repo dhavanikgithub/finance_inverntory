@@ -8,6 +8,7 @@ import {
   deleteBank,
   setError,
 } from '../slices/bankSlice';
+import { APIResponseError } from '@/app/model/APIResponseError';
 
 const API_URL = '/api/bank';
 
@@ -16,8 +17,14 @@ export const fetchBanks = () => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await fetch(API_URL);
-    const data: Bank[] = await response.json();
-    dispatch(setBanks(data));
+    if(response.ok){
+      const data: Bank[] = await response.json();
+      dispatch(setBanks(data));
+    }
+    else{
+      const data:APIResponseError = await response.json();
+      dispatch(setError(data.error))
+    }
   } catch (error) {
     console.error('Error fetching banks:', error);
     dispatch(setError('Failed to fetch banks.'));
@@ -35,8 +42,14 @@ export const addNewBank = (bankInput: BankInput) => async (dispatch: AppDispatch
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bankInput),
     });
-    const data: Bank = await response.json();
-    dispatch(addBank(data));
+    if(response.ok){
+      const data: Bank = await response.json();
+      dispatch(addBank(data));
+    }
+    else{
+      const data:APIResponseError = await response.json();
+      dispatch(setError(data.error))
+    }
   } catch (error) {
     console.error('Error adding bank:', error);
     dispatch(setError('Failed to add bank.'));
@@ -54,8 +67,14 @@ export const updateBankData = (bank: Bank) => async (dispatch: AppDispatch) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bank),
     });
-    const data: Bank = await response.json();
-    dispatch(updateBank(data));
+    if(response.ok){
+      const data: Bank = await response.json();
+      dispatch(updateBank(data));
+    }
+    else{
+      const data:APIResponseError = await response.json();
+      dispatch(setError(data.error))
+    }
   } catch (error) {
     console.error('Error updating bank:', error);
     dispatch(setError('Failed to update bank.'));
@@ -68,12 +87,18 @@ export const updateBankData = (bank: Bank) => async (dispatch: AppDispatch) => {
 export const deleteBankData = (id: number) => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {
-    await fetch(API_URL, {
+    const response = await fetch(API_URL, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-    dispatch(deleteBank(id));
+    if(response.ok){
+      dispatch(deleteBank(id));
+    }
+    else{
+      const data:APIResponseError = await response.json();
+      dispatch(setError(data.error))
+    }
   } catch (error) {
     console.error('Error deleting bank:', error);
     dispatch(setError('Failed to delete bank.'));

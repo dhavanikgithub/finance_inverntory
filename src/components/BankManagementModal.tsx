@@ -22,7 +22,7 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
     cardTypes,
 }) => {
     const [name, setName] = useState('');
-    const [selectedCardType, setSelectedCardType] = useState<string>("");
+    const [selectedCardType, setSelectedCardType] = useState<string | null>(null);
 
     useEffect(() => {
         if (bankToEdit) {
@@ -30,17 +30,17 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
             setSelectedCardType(bankToEdit.card_type_name!);
         } else {
             setName('');
-            setSelectedCardType("");
+            setSelectedCardType(null);
         }
     }, [bankToEdit]);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = () => {
+
         const bankData: Bank = {
             id: bankToEdit?.id || 0,
             name,
             card_type_id: cardTypes.find(ct => ct.name === selectedCardType)?.id || 0,
-            card_type_name: selectedCardType,
+            card_type_name: selectedCardType!,
             create_date: bankToEdit?.create_date ?? null,
             create_time: bankToEdit?.create_time ?? null,
             modify_date: null,
@@ -57,7 +57,7 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
         onClose();
     }
 
-    const onItemSelect = (item:string) => {
+    const onItemSelect = (item: string) => {
         setSelectedCardType(item);
     }
 
@@ -69,39 +69,37 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
             onClose={handleClose}
             title={bankToEdit ? 'Edit Bank' : 'Add New Bank'}
         >
-            <form onSubmit={handleSubmit}>
-                <div className="space-y-4">
-                    <InputField
-                        label="Bank Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        placeholder="e.g., HDFC Bank"
-                        icon={<Text/>}
-                    />
+            <div className="space-y-4">
+                <InputField
+                    label="Bank Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    placeholder="e.g., HDFC Bank"
+                    icon={<Text />}
+                />
 
-                    <div className="flex flex-col">
-                        <label className="mb-1 font-medium text-sm text-gray-700">Card Type</label>
-                        <Dropdown placeholder="Select card type..." className='mb-3 mt-2' items={items} selectedItem={selectedCardType} onItemSelect={onItemSelect} />
-                    </div>
+                <div className="flex flex-col">
+                    <label className="mb-1 font-medium text-sm ">Card Type</label>
+                    <Dropdown placeholder="Select card type..." className='mb-3 mt-2' items={items} selectedItem={selectedCardType} onItemSelect={onItemSelect} />
                 </div>
+            </div>
 
-                <div className="mt-6 flex justify-end space-x-3">
-                    <button
-                        type="button"
-                        onClick={handleClose}
-                        className="btn-secondary"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        className="btn-primary"
-                    >
-                        {bankToEdit ? 'Update' : 'Save'}
-                    </button>
-                </div>
-            </form>
+            <div className="mt-6 flex justify-end space-x-3">
+                <button
+                    type="button"
+                    onClick={handleClose}
+                    className="btn-secondary"
+                >
+                    Cancel
+                </button>
+                <button
+                    className="btn-primary"
+                    onClick={handleSubmit}
+                >
+                    {bankToEdit ? 'Update' : 'Save'}
+                </button>
+            </div>
         </Modal>
     );
 };

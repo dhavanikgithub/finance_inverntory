@@ -94,8 +94,7 @@ export async function PUT(request: Request): Promise<NextResponse> {
 // DELETE a bank
 export async function DELETE(request: Request): Promise<NextResponse> {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const {id} = await request.json();
     
     if (!id) {
       return NextResponse.json(
