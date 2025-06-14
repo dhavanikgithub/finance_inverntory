@@ -1,6 +1,5 @@
 "use client"
 import { createContext, useState, useEffect, useContext } from 'react';
-
 const ThemeContext = createContext();
 
 export function useTheme() {
@@ -61,14 +60,17 @@ export default function ThemeProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    // Apply the theme class to the HTML element
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (typeof window !== undefined) {
+      // Apply the theme class to the HTML element
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      // Save theme to localStorage
+      localStorage.setItem('theme', theme);
     }
-    // Save theme to localStorage
-    localStorage.setItem('theme', theme);
+
   }, [theme]);
 
   const toggleTheme = () => {
