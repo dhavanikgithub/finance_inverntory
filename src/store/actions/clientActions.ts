@@ -1,6 +1,7 @@
 import { AppDispatch } from '../store'; // Assuming AppDispatch is defined in your store file
 import { setLoading, setClients, addClient, updateClient, deleteClient } from '../slices/clientSlice';
 import { Client } from '@/app/model/Client';
+import { APIResponseError } from '@/app/model/APIResponseError';
 
 const API_URL = '/api/client';
 
@@ -9,8 +10,14 @@ export const fetchClients = () => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {
     const response = await fetch(API_URL);
-    const data: Client[] = await response.json();  // Type the response as an array of clients
-    dispatch(setClients(data));
+    if(response.ok){
+      const data: Client[] = await response.json();  // Type the response as an array of clients
+      dispatch(setClients(data));
+    }
+    else{
+      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
+      console.error('Error fetching clients:', errorData.error);
+    }
   } catch (error) {
     console.error('Error fetching clients:', error);
   } finally {
@@ -27,8 +34,15 @@ export const addNewClient = (client: Client) => async (dispatch: AppDispatch) =>
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(client),
     });
-    const data: Client = await response.json();  // Type the response as a single client
-    dispatch(addClient(data));
+    if(response.ok){
+      const data: Client = await response.json();  // Type the response as a single client
+      dispatch(addClient(data));
+    }
+    else{
+      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
+      console.error('Error adding client:', errorData.error);
+    }
+
   } catch (error) {
     console.error('Error adding client:', error);
   } finally {
@@ -45,8 +59,13 @@ export const updateClientData = (client: Client) => async (dispatch: AppDispatch
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(client),
     });
-    const data: Client = await response.json();  // Type the response as a single client
-    dispatch(updateClient(data));
+    if(response.ok){
+      const data: Client = await response.json();  // Type the response as a single client
+      dispatch(updateClient(data));
+    } else {
+      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
+      console.error('Error updating client:', errorData.error);
+    }
   } catch (error) {
     console.error('Error updating client:', error);
   } finally {
@@ -63,6 +82,11 @@ export const deleteClientData = (id: number) => async (dispatch: AppDispatch) =>
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
+    if (!response.ok) {
+      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
+      console.error('Error deleting client:', errorData.error);
+      return;
+    }
     await response.json();  // Assuming you don't need to use the response, but you can type it if necessary
     dispatch(deleteClient(id));
   } catch (error) {

@@ -8,6 +8,7 @@ import {
   setError,
 } from '../slices/cardSlice';
 import { Card } from '@/app/model/Card';
+import { APIResponseError } from '@/app/model/APIResponseError';
 
 const API_URL = '/api/card';
 
@@ -17,7 +18,10 @@ export const fetchCards = () => async (dispatch: AppDispatch) => {
   try {
     const response = await fetch(API_URL);
     if (!response.ok) {
-      throw new Error('Failed to fetch cards');
+      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
+      dispatch(setError(errorData.error));
+      console.error('Failed to fetch cards:', errorData.error);
+      return;
     }
     const data: Card[] = await response.json();
     dispatch(setCards(data));
@@ -38,11 +42,15 @@ export const addNewCard = (card: Omit<Card, 'id'>) => async (dispatch: AppDispat
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(card),
     });
-    
+
+
     if (!response.ok) {
-      throw new Error('Failed to add card');
+      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
+      dispatch(setError(errorData.error));
+      console.error('Failed to add card:', errorData.error);
+      return;
     }
-    
+
     const data: Card = await response.json();
     dispatch(addCard(data));
   } catch (error: any) {
@@ -62,11 +70,13 @@ export const updateCardData = (cardType: Card) => async (dispatch: AppDispatch) 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cardType),
     });
-    
     if (!response.ok) {
-      throw new Error('Failed to update card');
+      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
+      dispatch(setError(errorData.error));
+      console.error('Failed to update card:', errorData.error);
+      return;
     }
-    
+
     const data: Card = await response.json();
     dispatch(updateCard(data));
   } catch (error: any) {
@@ -84,11 +94,14 @@ export const deleteCardData = (id: number) => async (dispatch: AppDispatch) => {
     const response = await fetch(`${API_URL}?id=${id}`, {
       method: 'DELETE',
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to delete card');
+      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
+      dispatch(setError(errorData.error));
+      console.error('Failed to delete card:', errorData.error);
+      return;
     }
-    
+
     await response.json();
     dispatch(deleteCard(id));
   } catch (error: any) {
