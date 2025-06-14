@@ -101,36 +101,15 @@ export default function ClientScreen() {
     const handleSaveClient = (clientData:Client) => {
         if (clientToEdit) {
             // Update existing client
-            dispatch(updateClientData(clientData)).then(() => {
-                // Show success toast after successful update
-                showToastSuccess('Client Updated', 'The client was updated successfully.');
-              })
-              .catch((error) => {
-                // Show error toast if the update failed
-                showToastError('Error Updating Client', `Something went wrong: ${error.message}`);
-              });
+            dispatch(updateClientData(clientData))
         } else {
             // Add new client
-            dispatch(addNewClient(clientData)).then(() => {
-                // Show success toast after successful add
-                showToastSuccess('Client Added', 'The new client has been added successfully.');
-              })
-              .catch((error) => {
-                // Show error toast if the add failed
-                showToastError('Error Adding Client', `Something went wrong: ${error.message}`);
-              });
+            dispatch(addNewClient(clientData))
         }
     };
 
     const handleDeleteClient = (clientData:Client) => {
-        dispatch(deleteClientData(clientData.id!)).then(() => {
-            // Show success toast after successful update
-            showToastSuccess('Client Deleted', 'The client was deleted successfully.');
-          })
-          .catch((error) => {
-            // Show error toast if the update failed
-            showToastError('Error Deleting Client', `Something went wrong: ${error.message}`);
-          });
+        dispatch(deleteClientData(clientData.id!))
     }
 
 

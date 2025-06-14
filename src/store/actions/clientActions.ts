@@ -2,6 +2,7 @@ import { AppDispatch } from '../store'; // Assuming AppDispatch is defined in yo
 import { setLoading, setClients, addClient, updateClient, deleteClient } from '../slices/clientSlice';
 import { Client } from '@/app/model/Client';
 import { APIResponseError } from '@/app/model/APIResponseError';
+import { showToastError } from '@/utils/toast';
 
 const API_URL = '/api/client';
 
@@ -16,10 +17,12 @@ export const fetchClients = () => async (dispatch: AppDispatch) => {
     }
     else{
       const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      console.error('Error fetching clients:', errorData.error);
+      console.error('Failed to fetch clients:', errorData.error);
+      showToastError('Failed to fetch clients', errorData.error);
     }
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error fetching clients:', error);
+    showToastError("Error fetching clients",error.message)
   } finally {
     dispatch(setLoading(false));
   }
@@ -40,11 +43,13 @@ export const addNewClient = (client: Client) => async (dispatch: AppDispatch) =>
     }
     else{
       const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      console.error('Error adding client:', errorData.error);
+      console.error('Failed to add client:', errorData.error);
+      showToastError("Failed to add client",errorData.error)
     }
 
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error adding client:', error);
+    showToastError("Error adding client",error.message)
   } finally {
     dispatch(setLoading(false));
   }
@@ -64,10 +69,12 @@ export const updateClientData = (client: Client) => async (dispatch: AppDispatch
       dispatch(updateClient(data));
     } else {
       const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      console.error('Error updating client:', errorData.error);
+      console.error('Failed to update client:', errorData.error);
+      showToastError("Failed to update client",errorData.error)
     }
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error updating client:', error);
+    showToastError("Error updating client",error.message)
   } finally {
     dispatch(setLoading(false));
   }
@@ -84,13 +91,15 @@ export const deleteClientData = (id: number) => async (dispatch: AppDispatch) =>
     });
     if (!response.ok) {
       const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      console.error('Error deleting client:', errorData.error);
+      console.error('Failed to delete client:', errorData.error);
+      showToastError("Failed to delete client",errorData.error)
       return;
     }
     await response.json();  // Assuming you don't need to use the response, but you can type it if necessary
     dispatch(deleteClient(id));
-  } catch (error) {
+  } catch (error:any) {
     console.error('Error deleting client:', error);
+    showToastError("Error deleting client",error.message)
   } finally {
     dispatch(setLoading(false));
   }

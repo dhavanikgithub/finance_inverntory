@@ -25,7 +25,6 @@ export default function CardTypeScreen() {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [cardToEdit, setCardToEdit] = useState<null | Card>(null);
     const cards = useSelector((state: RootState) => state.card.cards);
-    const loading = useSelector((state: RootState) => state.card.loading);
     const [sortedData, setSortedData] = useState<Card[]>([]);
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "name", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -98,19 +97,17 @@ export default function CardTypeScreen() {
     const handleSaveCard = (cardTypeData: Card) => {
         if (cardToEdit) {
             dispatch(updateCardData(cardTypeData))
-                .then(() => showToastSuccess('Card Updated', 'The card was updated successfully.'))
-                .catch((error) => showToastError('Error Updating Card', `Something went wrong: ${error.message}`));
         } else {
+            
             dispatch(addNewCard(cardTypeData))
-                .then(() => showToastSuccess('Card Added', 'The new card has been added successfully.'))
-                .catch((error) => showToastError('Error Adding Card', `Something went wrong: ${error.message}`));
         }
     };
 
     const handleDeleteCardType = (cardTypeData: Card) => {
         dispatch(deleteCardData(cardTypeData.id!))
-            .then(() => showToastSuccess('Card Deleted', 'The card was deleted successfully.'))
-            .catch((error) => showToastError('Error Deleting Card', `Something went wrong: ${error.message}`));
+            .then(() => {
+                closeDeleteRecordDialog();
+            })
     }
 
     const columns: Column[] = [

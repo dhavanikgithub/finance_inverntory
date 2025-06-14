@@ -40,7 +40,7 @@ export default function BankScreen() {
   const dispatch: AppDispatch = useDispatch();
   const banks = useSelector((state: RootState) => state.bank.banks);
   const loading = useSelector((state: RootState) => state.bank.loading);
-
+  const error = useSelector((state: RootState) => state.bank.error);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bankToEdit, setBankToEdit] = useState<null | Bank>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -71,14 +71,23 @@ export default function BankScreen() {
   const handleSaveBank = (bank: Bank) => {
     const action = bankToEdit ? updateBankData : addNewBank;
     dispatch(action(bank))
-      .then(() => showToastSuccess(`Bank ${bankToEdit ? 'Updated' : 'Added'}`, 'Operation successful.'))
-      .catch((error) => showToastError('Error', error.message));
+      .then(() => {
+        setIsModalOpen(false); // Close the modal on error
+        setBankToEdit(null);
+      })
   };
 
   const handleDeleteBank = (bank: Bank) => {
     dispatch(deleteBankData(bank.id))
-      .then(() => showToastSuccess('Bank Deleted', 'Successfully deleted.'))
-      .catch((error) => showToastError('Error', error.message));
+      .then(() => {
+        if(error){
+          showToastError('Error Deleting Bank', error);
+          setIsDeleteDialogOpen(null); // Close the dialog on error
+        }
+        else{
+          showToastSuccess('Bank Deleted', 'Successfully deleted.')
+        }
+      })
   };
 
   const columns = [

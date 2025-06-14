@@ -9,6 +9,7 @@ import {
 } from '../slices/cardSlice';
 import { Card } from '@/app/model/Card';
 import { APIResponseError } from '@/app/model/APIResponseError';
+import { showToastError, showToastNotify, showToastSuccess } from '@/utils/toast';
 
 const API_URL = '/api/card';
 
@@ -19,15 +20,15 @@ export const fetchCards = () => async (dispatch: AppDispatch) => {
     const response = await fetch(API_URL);
     if (!response.ok) {
       const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      dispatch(setError(errorData.error));
       console.error('Failed to fetch cards:', errorData.error);
-      return;
+      showToastError('Failed to fetch cards', errorData.error);
     }
     const data: Card[] = await response.json();
     dispatch(setCards(data));
   } catch (error: any) {
-    dispatch(setError(error.message));
     console.error('Error fetching cards:', error);
+    dispatch(setError(error.message));
+    showToastError('Error fetching cards', error.message);
   } finally {
     dispatch(setLoading(false));
   }
@@ -46,16 +47,22 @@ export const addNewCard = (card: Omit<Card, 'id'>) => async (dispatch: AppDispat
 
     if (!response.ok) {
       const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      dispatch(setError(errorData.error));
       console.error('Failed to add card:', errorData.error);
+      if(errorData.error === `duplicate key value violates unique constraint "card_name_ukey"`){
+        showToastNotify('Card Name Already Exists', 'Please choose a different name for the card.');
+      }else{
+        showToastError('Failed to add card', errorData.error);
+      }
       return;
     }
 
     const data: Card = await response.json();
     dispatch(addCard(data));
+    showToastSuccess('Card Added', 'The card was added successfully.');
   } catch (error: any) {
+    console.error('Error adding card:', error.message);
     dispatch(setError(error.message));
-    console.error('Error adding card:', error);
+    showToastError('Error Adding Card', error.message);
   } finally {
     dispatch(setLoading(false));
   }
@@ -72,16 +79,23 @@ export const updateCardData = (cardType: Card) => async (dispatch: AppDispatch) 
     });
     if (!response.ok) {
       const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      dispatch(setError(errorData.error));
+      if(errorData.error === `duplicate key value violates unique constraint "card_name_ukey"`){
+        showToastNotify('Card Name Already Exists', 'Please choose a different name for the card.');
+      }
+      else{
+        showToastError('Failed to update card', errorData.error);
+      }
       console.error('Failed to update card:', errorData.error);
       return;
     }
 
     const data: Card = await response.json();
     dispatch(updateCard(data));
+    showToastSuccess('Card Updated', 'The card was updated successfully.')
   } catch (error: any) {
+    console.error('Error updating card:', error.message);
     dispatch(setError(error.message));
-    console.error('Error updating card:', error);
+    showToastError('Error Updating Card', error.message);
   } finally {
     dispatch(setLoading(false));
   }
@@ -94,19 +108,20 @@ export const deleteCardData = (id: number) => async (dispatch: AppDispatch) => {
     const response = await fetch(`${API_URL}?id=${id}`, {
       method: 'DELETE',
     });
-
     if (!response.ok) {
       const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      dispatch(setError(errorData.error));
+      showToastError('Failed to delete card', errorData.error);
       console.error('Failed to delete card:', errorData.error);
       return;
     }
 
     await response.json();
     dispatch(deleteCard(id));
+    showToastSuccess('Card Deleted', 'The card was deleted successfully.');
   } catch (error: any) {
-    dispatch(setError(error.message));
     console.error('Error deleting card:', error);
+    dispatch(setError(error.message));
+    showToastError('Error Deleting Card', error.message);
   } finally {
     dispatch(setLoading(false));
   }
