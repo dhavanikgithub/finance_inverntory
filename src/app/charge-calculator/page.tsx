@@ -102,8 +102,8 @@ export default function ChargeCalculationScreen() {
                                 icon={<IndianRupee />}
                             />
                             <div className="flex gap-4 mt-4">
-                                <button className="btn-secondary-outline" onClick={handleCalculate}>Calculate</button>
-                                <button className="btn-secondary" onClick={resetForm}>Reset</button>
+                                <button className="btn-secondary" onClick={handleCalculate}>Calculate</button>
+                                <button className="btn-secondary-outline" onClick={resetForm}>Reset</button>
                             </div>
                         </div>
 

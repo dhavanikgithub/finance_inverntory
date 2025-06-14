@@ -69,18 +69,19 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
 
             <div className="mt-6 flex justify-end space-x-3">
                 <button
-                    type="button"
-                    onClick={handleClose}
                     className="btn-secondary"
-                >
-                    Cancel
-                </button>
-                <button
-                    className="btn-primary"
                     onClick={handleSubmit}
                 >
                     {bankToEdit ? 'Update' : 'Save'}
                 </button>
+                <button
+                    type="button"
+                    onClick={handleClose}
+                    className="btn-secondary-outline"
+                >
+                    Cancel
+                </button>
+                
             </div>
         </Modal>
     );

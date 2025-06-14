@@ -62,18 +62,19 @@ const CardManagementModal: React.FC<CardManagementModalProps> = ({
 
                 <div className="mt-6 flex justify-end space-x-3">
                     <button
-                        type="button"
-                        onClick={handleClose}
-                        className="btn-secondary"
-                    >
-                        Cancel
-                    </button>
-                    <button
                         type="submit"
-                        className="btn-primary"
+                        className="btn-secondary"
                     >
                         {cardToEdit ? 'Update' : 'Save'}
                     </button>
+                    <button
+                        type="button"
+                        onClick={handleClose}
+                        className="btn-secondary-outline"
+                    >
+                        Cancel
+                    </button>
+                    
                 </div>
             </form>
         </Modal>
