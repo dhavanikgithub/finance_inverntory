@@ -86,21 +86,23 @@ const Dropdown: React.FC<Dropdown> = (
               autoComplete="off"
             />
             {/* Dropdown content */}
-            {items
-              .filter((item) =>
-                item.toLowerCase().includes(searchTerm)
-              )
-              .map((item, index) => (
-                <a
-                  key={index}
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer rounded-md
-                  dark:text-gray-200 dark:hover:bg-gray-900
-                  "
-                  onClick={() => handleItemClick(item)} // Call the item click handler
-                >
-                  {item}
-                </a>
-              ))}
+            <div className="max-h-[200px] overflow-y-auto custom-scroll">
+              {items
+                .filter((item) =>
+                  item.toLowerCase().includes(searchTerm)
+                )
+                .map((item, index) => (
+                  <a
+                    key={index}
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer rounded-md
+                    dark:text-gray-200 dark:hover:bg-gray-900
+                    "
+                    onClick={() => handleItemClick(item)} // Call the item click handler
+                  >
+                    {item}
+                  </a>
+                ))}
+            </div>
           </div>
         )}
       </div>
