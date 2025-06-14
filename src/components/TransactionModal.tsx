@@ -6,6 +6,7 @@ import { Client } from '@/app/model/Client';
 import Transaction, { Deposit, TransactionType } from '@/app/model/Transaction';
 import { Card } from '@/app/model/Card';
 import { Bank } from '@/app/model/Bank';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 const TransactionModal = ({
     clients,
@@ -137,7 +138,7 @@ const TransactionModal = ({
 
 
     const updateAmount = () => {
-        let tempFormData:FormData = formData;
+        let tempFormData: FormData = formData;
         let totalAmountInput = 0;
         // if (isNaN(totalAmountInput) || totalAmountInput < 0) {
         //     return;
@@ -156,7 +157,7 @@ const TransactionModal = ({
             //     return;
             // }
             const deduction = (withdrawAmount * rateDeduction) / 100;
-            tempFormData = { ...tempFormData, deductionAmount: deduction}
+            tempFormData = { ...tempFormData, deductionAmount: deduction }
             newTotalAmount -= withdrawAmount;
         }
         return tempFormData;
@@ -188,6 +189,9 @@ const TransactionModal = ({
 
     const bankItems = banks.map((item) => item.name);
 
+    useBodyScrollLock(isOpen);
+
+
     if (!isOpen) return null;
 
     return (
@@ -208,7 +212,7 @@ const TransactionModal = ({
                         <Dropdown placeholder="Select Client..." className='mb-3 mt-2' items={items} selectedItem={formData.selectedClient} onItemSelect={onClientSelect} />
                     </div>
                 </div>
-                
+
                 {formData.action === Deposit ? (
 
                     <div className="mt-4">
@@ -290,13 +294,13 @@ const TransactionModal = ({
                         <Save className='w-5 h-5' />
                         <span>{transactionToEdit ? 'Update' : 'Save'}</span>
                     </button>
-                    
+
                     <button onClick={handleClose} className="btn-secondary flex-1">
                         <X className='w-5 h-5' />
                         <span>Close</span>
                     </button>
                 </div>
-                
+
             </div>
         </div>
     );

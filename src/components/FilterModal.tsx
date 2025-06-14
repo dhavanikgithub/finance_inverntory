@@ -1,3 +1,4 @@
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 import { X } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 export type FilterOperatorType = 'string' | 'year' | 'number' | 'month' | 'day' | 'transaction_type_string'
@@ -33,13 +34,13 @@ export const getTotalFiltersCount = (filters: any) => {
 }
 
 // Get total filter count by column
-export function getFilterCountByColumn(filters:FilterType[], columnName: string): number {
+export function getFilterCountByColumn(filters: FilterType[], columnName: string): number {
     const filter = filters.find(f => f.columnName === columnName);
     return filter ? filter.data.length : 0;
 }
 
 // Get total filter count across all columns
-export function getTotalFilterCount(filters:FilterType[]): number {
+export function getTotalFilterCount(filters: FilterType[]): number {
     return filters.reduce((sum, filter) => sum + filter.data.length, 0);
 }
 
@@ -54,15 +55,15 @@ const FilterModal = ({
     const [filters, setFilters] = useState<FilterType[]>([]);
     const [columnsState, setColumnsState] = useState<ColumnStateType[]>([]);
 
-    function toggleColumnState(columnName:string){
+    function toggleColumnState(columnName: string) {
         const columnState = columnsState.find((column) => column.columnName === columnName)
-        if(!columnState){
+        if (!columnState) {
             setColumnsState(
                 [...columnsState,
-                    {
-                        columnName,
-                        isOpen: true
-                    }
+                {
+                    columnName,
+                    isOpen: true
+                }
                 ]
             )
             return
@@ -71,12 +72,12 @@ const FilterModal = ({
             columnName: columnState.columnName,
             isOpen: !columnState.isOpen
         }
-        setColumnsState([...columnsState.filter((item) => item.columnName !== columnName),newState])
+        setColumnsState([...columnsState.filter((item) => item.columnName !== columnName), newState])
     }
 
-    function getColumnState(columnName:string):boolean {
+    function getColumnState(columnName: string): boolean {
         const columnState = columnsState.find((column) => column.columnName === columnName)
-        return  columnState? columnState.isOpen : false
+        return columnState ? columnState.isOpen : false
     }
     function getFilterByColumnName<T>(
         filters: FilterType<T>[],
@@ -84,15 +85,15 @@ const FilterModal = ({
     ): FilterType<T> | undefined {
         return filters.find(filter => filter.columnName === columnName);
     }
-    
+
 
     function invertSelectFilter<T>(
-        filters:FilterType[],
+        filters: FilterType[],
         columnName: string,
         allPossibleValues: T[]
     ) {
         const currentFilter = getFilterByColumnName(filters, columnName);
-        if(!currentFilter){
+        if (!currentFilter) {
             return;
         }
         setFilters(prev => {
@@ -100,20 +101,20 @@ const FilterModal = ({
             const invertedValues = allPossibleValues.filter(
                 value => !currentFilter.data.includes(value)
             );
-    
+
             const invertedFilter: FilterType<T> = {
                 ...currentFilter,
                 data: invertedValues,
             };
-    
+
             return [...others, invertedFilter];
         });
     }
-    
+
 
     // Select all filters for a column (replace with full set of data)
     function selectAllFilter(
-        newFilter:FilterType,
+        newFilter: FilterType,
     ) {
         setFilters(prev => {
             const others = prev.filter(f => f.columnName !== newFilter.columnName);
@@ -126,34 +127,34 @@ const FilterModal = ({
         setFilters(prev => prev.filter(f => f.columnName !== columnName));
     }
 
-    
+
 
     function toggleFilter<T>(
-        column:FilterType,
+        column: FilterType,
         value: T,
     ) {
         setFilters(prev => {
             const existing = prev.find(f => f.columnName === column.columnName);
-    
+
             if (existing) {
                 const valueExists = existing.data.includes(value);
-    
+
                 // Remove the value if it exists
                 if (valueExists) {
                     const newData = existing.data.filter(v => v !== value);
-    
+
                     // If no values left, remove the filter entirely
                     if (newData.length === 0) {
                         return prev.filter(f => f.columnName !== column.columnName);
                     }
-    
+
                     return prev.map(f =>
                         f.columnName === column.columnName
                             ? { ...f, data: newData }
                             : f
                     );
                 }
-    
+
                 // Otherwise, add the value
                 return prev.map(f =>
                     f.columnName === column.columnName
@@ -161,7 +162,7 @@ const FilterModal = ({
                         : f
                 );
             }
-    
+
             // No existing filter for this column, create new
             const newFilter: FilterType<T> = {
                 columnAccessor: column.columnAccessor,
@@ -170,13 +171,13 @@ const FilterModal = ({
                 dataOperator: column.dataOperator,
                 data: [value],
             };
-    
+
             return [...prev, newFilter];
         });
     }
-    
 
-    
+
+
 
 
     useEffect(() => {
@@ -185,7 +186,7 @@ const FilterModal = ({
         }
     }, [isOpen, filterColumns]);
 
-    const handleSelectAll = (column:FilterType) => {
+    const handleSelectAll = (column: FilterType) => {
         selectAllFilter(column)
     };
 
@@ -193,8 +194,8 @@ const FilterModal = ({
         clearAllFilter(columnName)
     };
 
-    const handleChange = (column:FilterType, value: string) => {
-        toggleFilter(column,value)
+    const handleChange = (column: FilterType, value: string) => {
+        toggleFilter(column, value)
     };
 
     const handleApply = () => {
@@ -216,7 +217,7 @@ const FilterModal = ({
 
 
     const getFilterColumn = (columnName: string): any[] | null => {
-        if(filters.length === 0){
+        if (filters.length === 0) {
             return null
         }
         const filterColumns = filters.filter((filterItem) => filterItem.columnName === columnName)
@@ -225,6 +226,8 @@ const FilterModal = ({
         }
         return filterColumns[0].data
     }
+
+    useBodyScrollLock(isOpen);
 
     if (!isOpen) return null;
     return (
@@ -272,7 +275,7 @@ const FilterModal = ({
                                             </button>
                                             <button
                                                 className="text-purple-500 text-sm"
-                                                onClick={() => invertSelectFilter(filters, column.columnName,column.data)}
+                                                onClick={() => invertSelectFilter(filters, column.columnName, column.data)}
                                             >
                                                 Invert Select
                                             </button>

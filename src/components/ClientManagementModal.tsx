@@ -2,17 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import { Save, X } from 'lucide-react';
 import { Client } from '@/app/model/Client';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
-const ClientManagementModal = ({ 
+const ClientManagementModal = ({
     isOpen,
     clientToEdit,
     onClose,
     onSave
-}:{
-    isOpen:boolean,
-    clientToEdit:Client|null,
-    onClose:()=>void,
-    onSave:(clientData:Client) => void
+}: {
+    isOpen: boolean,
+    clientToEdit: Client | null,
+    onClose: () => void,
+    onSave: (clientData: Client) => void
 }) => {
     const [name, setName] = useState<string>('');
     const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -32,7 +33,7 @@ const ClientManagementModal = ({
             alert('Name is required');
             return;
         }
-        const client:Client = {
+        const client: Client = {
             id: clientToEdit?.id || undefined,
             name: name,
             create_date: clientToEdit?.create_date || undefined,
@@ -46,6 +47,8 @@ const ClientManagementModal = ({
         setName('');
         onClose();
     }
+
+    useBodyScrollLock(isOpen);
 
     if (!isOpen) return null;
 

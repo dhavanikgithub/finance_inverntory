@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 
 interface ModalProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ const Modal: React.FC<ModalProps> = ({
   children,
   size = 'md'
 }) => {
+
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   const sizeClasses = {

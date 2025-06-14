@@ -1,19 +1,20 @@
 import { formatDate } from '@/utils/helper';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Dropdown from './Dropdown';
 import { File, X } from 'lucide-react';
 import { Client } from '@/app/model/Client';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 interface GenerateReportModalProps {
-    isOpen:boolean;
-    onClose:() => void;
-    clients:Client[];
+    isOpen: boolean;
+    onClose: () => void;
+    clients: Client[];
 }
-const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClose, clients }) => {
+const GenerateReportModal: React.FC<GenerateReportModalProps> = ({ isOpen, onClose, clients }) => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [isClientSpecific, setIsClientSpecific] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedClient, setSelectedClient] = useState<string|null>(null);
+    const [selectedClient, setSelectedClient] = useState<string | null>(null);
     const [error, setError] = useState('');
 
     // Validation function
@@ -50,10 +51,10 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
             return;
         }
         setIsLoading(true);
-        
+
         const selectedClientObj = clients.find((element) => element.name === selectedClient) as Client;
         const requestData = {
-            clientId:selectedClientObj?.id||null,
+            clientId: selectedClientObj?.id || null,
             startDate,
             endDate,
         };
@@ -68,10 +69,10 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
 
             // Generate the filename with the formatted date and time
             let filename = `finance_inverntory_report_${formatDate(startDate)}_${formatDate(endDate)}.pdf`;
-            if(isClientSpecific && selectedClient){
+            if (isClientSpecific && selectedClient) {
                 filename = `${selectedClientObj.name}_${filename}`;
             }
-            else{
+            else {
                 filename = `al_client_data_${filename}`;
             }
 
@@ -91,7 +92,7 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
             setIsLoading(false);
         }
     };
-    const onItemSelect = (item:string) => {
+    const onItemSelect = (item: string) => {
         setSelectedClient(item)
     }
 
@@ -105,7 +106,7 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
     }
     // Dropdown items list
     const items = clients.map((item) => item.name);
-
+    useBodyScrollLock(isOpen);
     if (!isOpen) return null;
     return (
         <main className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50 text-gray-900 font-sans overflow-hidden">
