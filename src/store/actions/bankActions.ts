@@ -9,7 +9,7 @@ import {
   setError,
 } from '../slices/bankSlice';
 import { APIResponseError } from '@/app/model/APIResponseError';
-import { showToastError, showToastNotify } from '@/utils/toast';
+import { showToastError, showToastNotify, showToastSuccess } from '@/utils/toast';
 
 const API_URL = '/api/bank';
 
@@ -48,6 +48,7 @@ export const addNewBank = (bankInput: BankInput) => async (dispatch: AppDispatch
     if(response.ok){
       const data: Bank = await response.json();
       dispatch(addBank(data));
+      showToastSuccess('Bank Added', 'The new bank has been added successfully.');
     }
     else{
       const data:APIResponseError = await response.json();
@@ -80,6 +81,7 @@ export const updateBankData = (bank: Bank) => async (dispatch: AppDispatch) => {
     if(response.ok){
       const data: Bank = await response.json();
       dispatch(updateBank(data));
+      showToastSuccess('Bank Updated', 'The bank has been updated successfully.');
     }
     else{
       const data:APIResponseError = await response.json();
@@ -112,6 +114,7 @@ export const deleteBankData = (id: number) => async (dispatch: AppDispatch) => {
     });
     if(response.ok){
       dispatch(deleteBank(id));
+      showToastSuccess('Bank Deleted', 'The bank has been deleted successfully.');
     }
     else{
       const data:APIResponseError = await response.json();

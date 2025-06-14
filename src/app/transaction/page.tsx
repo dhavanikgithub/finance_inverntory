@@ -112,41 +112,18 @@ export default function Home() {
 
     if (transactionToEdit) {
       // Update existing Transaction
-      dispatch(updateTransaction(transactionData))
-        .then(() => {
-          // Show success toast after successful update
-          showToastSuccess('Transaction Updated', 'The transaction was updated successfully.');
-        })
-        .catch((error) => {
-          // Show error toast if the update failed
-          showToastError('Error Updating Transaction', `Something went wrong: ${error.message}`);
-        });
+      dispatch(updateTransaction(transactionData));
 
       setTransactionToEdit(null);
     } else {
       // Add new Transaction
-      dispatch(addTransaction(transactionData))
-        .then(() => {
-          // Show success toast after successful add
-          showToastSuccess('Transaction Added', 'The new transaction has been added successfully.');
-        })
-        .catch((error) => {
-          // Show error toast if the add failed
-          showToastError('Error Adding Transaction', `Something went wrong: ${error.message}`);
-        });
+      dispatch(addTransaction(transactionData));
     }
   };
 
   const handleDeleteTransaction = (transactionData: Transaction) => {
     if (transactionData?.id) {
-      dispatch(deleteTransaction(transactionData.id)).then(() => {
-        // Show success toast after successful update
-        showToastSuccess('Transaction Deleted', 'The transaction was deleted successfully.');
-      })
-        .catch((error) => {
-          // Show error toast if the update failed
-          showToastError('Error Deleting Transaction', `Something went wrong: ${error.message}`);
-        });
+      dispatch(deleteTransaction(transactionData.id));
     }
   }
 

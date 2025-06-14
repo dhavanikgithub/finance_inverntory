@@ -1,4 +1,5 @@
 import Transaction from '@/app/model/Transaction';
+import { showToastError, showToastSuccess } from '@/utils/toast';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -21,12 +22,15 @@ export const fetchTransactions = createAsyncThunk<
       console.error('Error fetching transactions:', error);
       if (axios.isAxiosError(error) && error.response) {
         // Server error response
+        showToastError('Failed to fetch transactions',error.response.data);
         return rejectWithValue(error.response.data);
       } else if (axios.isAxiosError(error) && error.request) {
         // Network error or no response received
+        showToastError('Error fetching transactions','Network error or no response received')
         return rejectWithValue('Network error or no response received');
       } else {
         // Other errors
+        showToastError('Error fetching transactions','An error occurred while fetching transactions');
         return rejectWithValue('An error occurred while fetching transactions');
       }
     }
@@ -43,17 +47,21 @@ export const addTransaction = createAsyncThunk<
   async (transactionData, { rejectWithValue }) => {
     try {
       const response = await axios.post(API_URL, transactionData); // POST request
+      showToastSuccess('Transaction Added', 'The new transaction has been added successfully.');
       return response.data;
     } catch (error) {
       console.error('Error adding transaction:', error);
       if (axios.isAxiosError(error) && error.response) {
         // Server error response
+        showToastError('Failed to add transaction',error.response.data);
         return rejectWithValue(error.response.data);
       } else if (axios.isAxiosError(error) && error.request) {
         // Network error or no response received
+        showToastError('Error adding transaction','Network error or no response received');
         return rejectWithValue('Network error or no response received');
       } else {
         // Other errors
+        showToastError('Error adding transaction', 'An error occurred while adding the transaction');
         return rejectWithValue('An error occurred while adding the transaction');
       }
     }
@@ -70,17 +78,21 @@ export const updateTransaction = createAsyncThunk<
   async (transactionData, { rejectWithValue }) => {
     try {
       const response = await axios.put(API_URL, transactionData); // PUT request
+      showToastSuccess('Transaction Updated', 'The transaction was updated successfully.');
       return response.data;
     } catch (error) {
       console.error('Error updating transaction:', error);
       if (axios.isAxiosError(error) && error.response) {
         // Server error response
+        showToastError('Failed to update transaction',error.response.data);
         return rejectWithValue(error.response.data);
       } else if (axios.isAxiosError(error) && error.request) {
         // Network error or no response received
+        showToastError('Error updating transaction','Network error or no response received');
         return rejectWithValue('Network error or no response received');
       } else {
         // Other errors
+        showToastError('Error updating transaction', 'An error occurred while updating the transaction');
         return rejectWithValue('An error occurred while updating the transaction');
       }
     }
@@ -97,17 +109,21 @@ export const deleteTransaction = createAsyncThunk<
   async (transactionId, { rejectWithValue }) => {
     try {
       const response = await axios.delete(API_URL, { data: { id: transactionId } }); // DELETE request
+      showToastSuccess('Transaction Deleted', 'The transaction was deleted successfully.');
       return response.data;
     } catch (error) {
       console.error('Error deleting transaction:', error);
       if (axios.isAxiosError(error) && error.response) {
         // Server error response
+        showToastError('Failed to delete transaction',error.response.data);
         return rejectWithValue(error.response.data);
       } else if (axios.isAxiosError(error) && error.request) {
         // Network error or no response received
+        showToastError('Error deleting transaction','Network error or no response received');
         return rejectWithValue('Network error or no response received');
       } else {
         // Other errors
+        showToastError('Error deleting transaction', 'An error occurred while deleting the transaction')
         return rejectWithValue('An error occurred while deleting the transaction');
       }
     }
