@@ -298,14 +298,14 @@ export default function Home() {
   const fuse = new Fuse(transactions, fuseOptions);
   const handleOnSearch = (searchText: string) => {
     if (searchText === "") {
-      setCurrentRows([...transactions])
+      setSortedData([...transactions])
       return
     }
     const fuseSearchResult = fuse.search(searchText);
     const searchResultList = fuseSearchResult.map((fuseItem) => {
       return fuseItem.item
     })
-    setCurrentRows([...searchResultList])
+    setSortedData([...searchResultList])
   }
 
   const handleApplyFilters = (filters: FilterType[]) => {
