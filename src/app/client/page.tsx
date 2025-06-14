@@ -248,7 +248,7 @@ export default function ClientScreen() {
                 <div className="container mx-auto">
                     <CustomTable
                         currentPage={currentPage}
-                        totalRows={clients.length}
+                        totalRows={sortedData.length}
                         onPageChange={setCurrentPage}
                         rowsPerPage={rowsPerPage}
                     >

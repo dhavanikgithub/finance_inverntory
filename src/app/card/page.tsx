@@ -221,7 +221,7 @@ export default function CardTypeScreen() {
                 <div className="container mx-auto">
                     <CustomTable
                         currentPage={currentPage}
-                        totalRows={cards.length}
+                        totalRows={sortedData.length}
                         onPageChange={setCurrentPage}
                         rowsPerPage={rowsPerPage}
                     >

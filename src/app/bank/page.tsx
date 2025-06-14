@@ -146,7 +146,7 @@ export default function BankScreen() {
       <SectionContent>
         <CustomTable
           currentPage={currentPage}
-          totalRows={banks.length}
+          totalRows={sortedData.length}
           onPageChange={setCurrentPage}
           rowsPerPage={rowsPerPage}
         >
