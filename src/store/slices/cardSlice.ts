@@ -1,15 +1,15 @@
-import { CardType } from '@/app/model/CardType';
+import { Card } from '@/app/model/Card';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 
 interface CardTypeState {
-  cardTypes: CardType[];
+  cards: Card[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: CardTypeState = {
-  cardTypes: [],
+  cards: [],
   loading: false,
   error: null,
 };
@@ -21,23 +21,23 @@ const cardTypeSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    setCardTypes: (state, action: PayloadAction<CardType[]>) => {
-      state.cardTypes = action.payload;
+    setCards: (state, action: PayloadAction<Card[]>) => {
+      state.cards = action.payload;
       state.error = null;
     },
-    addCardType: (state, action: PayloadAction<CardType>) => {
-      state.cardTypes.push(action.payload);
+    addCard: (state, action: PayloadAction<Card>) => {
+      state.cards.push(action.payload);
       state.error = null;
     },
-    updateCardType: (state, action: PayloadAction<CardType>) => {
-      const index = state.cardTypes.findIndex(ct => ct.id === action.payload.id);
+    updateCard: (state, action: PayloadAction<Card>) => {
+      const index = state.cards.findIndex(ct => ct.id === action.payload.id);
       if (index !== -1) {
-        state.cardTypes[index] = action.payload;
+        state.cards[index] = action.payload;
       }
       state.error = null;
     },
-    deleteCardType: (state, action: PayloadAction<number>) => {
-      state.cardTypes = state.cardTypes.filter(ct => ct.id !== action.payload);
+    deleteCard: (state, action: PayloadAction<number>) => {
+      state.cards = state.cards.filter(ct => ct.id !== action.payload);
       state.error = null;
     },
     setError: (state, action: PayloadAction<string>) => {
@@ -48,10 +48,10 @@ const cardTypeSlice = createSlice({
 
 export const {
   setLoading,
-  setCardTypes,
-  addCardType,
-  updateCardType,
-  deleteCardType,
+  setCards,
+  addCard,
+  updateCard,
+  deleteCard,
   setError,
 } = cardTypeSlice.actions;
 

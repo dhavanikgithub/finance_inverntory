@@ -1,4 +1,4 @@
-export interface CardType {
+export interface Card {
   id: number;
   name: string;
   create_date?: Date | null;
@@ -7,6 +7,6 @@ export interface CardType {
   modify_time?: string | null;
 }
 
-export interface CardTypeInput {
+export interface CardInput {
   name: string;
 }

@@ -9,14 +9,14 @@ import { useTheme } from '@/context/ThemeContext';
 import Logo from '@/components/Logo';
 
 export const defaultNavItems = [
-    {
-        name: "Dashboard",
-        value: "dashboard",
-        url: "/",
-        isDisable: false,
-        selectedIcon: <House className="w-4 h-4 text mr-3 text-white dark:text-zinc-950 " />,
-        icon: <House className="w-4 h-4 text mr-3 text-zinc-950 dark:text-white" />
-    },
+    // {
+    //     name: "Dashboard",
+    //     value: "dashboard",
+    //     url: "/",
+    //     isDisable: false,
+    //     selectedIcon: <House className="w-4 h-4 text mr-3 text-white dark:text-zinc-950 " />,
+    //     icon: <House className="w-4 h-4 text mr-3 text-zinc-950 dark:text-white" />
+    // },
     {
         name: "Client",
         value: "client",
@@ -34,9 +34,9 @@ export const defaultNavItems = [
         icon: <ArrowLeftRight className="w-4 h-4 text mr-3 font-semibold text-zinc-950 dark:text-white" />
     },
     {
-        name: "Card Type",
-        value: "card-type",
-        url: "/card-type",
+        name: "Card",
+        value: "card",
+        url: "/card",
         isDisable: false,
         selectedIcon: <CreditCard className="w-4 h-4 text mr-3 font-semibold text-white dark:text-zinc-950 " />,
         icon: <CreditCard className="w-4 h-4 text mr-3 font-semibold text-zinc-950 dark:text-white" />
@@ -117,7 +117,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                     <Logo className="h-6 mr-2 text-black dark:text-white" />
                                     <span className="self-center whitespace-nowrap">Finance</span>
                                 </a>
-                                <form action="#" method="GET" className="form-search">
+                                {/* <form action="#" method="GET" className="form-search">
                                     <label htmlFor="topbar-search" className="form-search-label">Search</label>
                                     <div className="form-search-wrapper">
                                         <div className="form-search-icon-container">
@@ -127,7 +127,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                             className="form-search-input"
                                             placeholder="Search" />
                                     </div>
-                                </form>
+                                </form> */}
                             </div>
                             <div className="flex items-center gap-4">
                                 <button
@@ -153,7 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                         }
                                     </div>
                                 </div>
-                                <a
+                                {/* <a
                                     href="#"
                                     className="hidden sm:inline-flex btn-primary ml-5 mr-3 ">
                                     <svg
@@ -168,7 +168,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                         <path fill="currentColor" d="M378.7 32H133.3L256 182.7L378.7 32zM512 192l-107.4-141.3L289.6 192H512zM107.4 50.67L0 192h222.4L107.4 50.67zM244.3 474.9C247.3 478.2 251.6 480 256 480s8.653-1.828 11.67-5.062L510.6 224H1.365L244.3 474.9z"></path>
                                     </svg>
                                     Upgrade to Pro
-                                </a>
+                                </a> */}
                             </div>
                         </div>
                     </div>
@@ -190,12 +190,12 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                                 </div>
                                             </form>
                                         </li>
-                                        <li>
+                                        {/* <li>
                                             <Link href="/" className="sidebar-link group">
                                                 <LayoutDashboard className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Dashboard</span>
                                             </Link>
-                                        </li>
+                                        </li> */}
                                         <li>
                                             <Link href="/client" className="sidebar-link group">
                                                 <UserRound className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
@@ -209,9 +209,9 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link href="/card-type" className="sidebar-link group">
+                                            <Link href="/card" className="sidebar-link group">
                                                 <CreditCard className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
-                                                <span className="sidebar-link-text">Card Type</span>
+                                                <span className="sidebar-link-text">Card</span>
                                             </Link>
                                         </li>
                                          <li>
@@ -257,7 +257,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                 <li><a href="#" className="footer-item">Contact</a></li>
                             </ul>
                             <div className="footer-social-links">
-                                <a href="#" className="footer-social-icon">
+                                {/* <a href="#" className="footer-social-icon">
                                     <Facebook className="h-5 w-5" />
                                 </a>
                                 <a href="#" className="footer-social-icon">
@@ -265,17 +265,17 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                 </a>
                                 <a href="#" className="footer-social-icon">
                                     <Twitter className="h-5 w-5" />
-                                </a>
+                                </a> */}
                                 <a href="https://github.com/dhavanikgithub/finance_inverntory" className="footer-social-icon">
                                     <Github className="h-5 w-5" />
                                 </a>
-                                <a href="#" className="footer-social-icon">
+                                {/* <a href="#" className="footer-social-icon">
                                     <Dribbble className="h-5 w-5" />
-                                </a>
+                                </a> */}
                             </div>
                         </footer>
                         <p className="footer-text">
-                            &copy; 2019-2021 <a href="#" className="hover:underline" target="_blank">Themesberg</a>. All rights reserved.
+                            &copy; 2025 <a href="#" className="hover:underline" target="_blank">Dhavanik</a>. All rights reserved.
                         </p>
                     </div>
                 </div>

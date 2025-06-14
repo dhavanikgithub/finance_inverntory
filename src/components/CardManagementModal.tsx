@@ -1,39 +1,39 @@
 import React from 'react';
-import { CardType } from '@/app/model/CardType';
+import { Card } from '@/app/model/Card';
 import Modal from '@/components/Modal'
 import InputField from '@/components/InputField';
 import { Text } from 'lucide-react';
 
-interface CardTypeManagementModalProps {
+interface CardManagementModalProps {
     isOpen: boolean;
-    cardTypeToEdit: CardType | null;
+    cardToEdit: Card | null;
     onClose: () => void;
-    onSave: (cardType: CardType) => void;
+    onSave: (cardType: Card) => void;
 }
 
-const CardTypeManagementModal: React.FC<CardTypeManagementModalProps> = ({
+const CardManagementModal: React.FC<CardManagementModalProps> = ({
     isOpen,
-    cardTypeToEdit,
+    cardToEdit: cardToEdit,
     onClose,
     onSave,
 }) => {
-    const [name, setName] = React.useState(cardTypeToEdit?.name || '');
+    const [name, setName] = React.useState(cardToEdit?.name || '');
 
     React.useEffect(() => {
-        if (cardTypeToEdit) {
-            setName(cardTypeToEdit.name);
+        if (cardToEdit) {
+            setName(cardToEdit.name);
         } else {
             setName('');
         }
-    }, [cardTypeToEdit]);
+    }, [cardToEdit]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const cardTypeData: CardType = {
-            id: cardTypeToEdit?.id || 0,
+        const cardData: Card = {
+            id: cardToEdit?.id || 0,
             name,
         };
-        onSave(cardTypeData);
+        onSave(cardData);
         handleClose();
     };
 
@@ -46,12 +46,12 @@ const CardTypeManagementModal: React.FC<CardTypeManagementModalProps> = ({
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            title={cardTypeToEdit ? 'Edit Card Type' : 'Add New Card Type'}
+            title={cardToEdit ? 'Edit Card' : 'Add New Card'}
         >
             <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                     <InputField
-                        label="Card Type Name"
+                        label="Card Name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
@@ -72,7 +72,7 @@ const CardTypeManagementModal: React.FC<CardTypeManagementModalProps> = ({
                         type="submit"
                         className="btn-primary"
                     >
-                        {cardTypeToEdit ? 'Update' : 'Save'}
+                        {cardToEdit ? 'Update' : 'Save'}
                     </button>
                 </div>
             </form>
@@ -80,4 +80,4 @@ const CardTypeManagementModal: React.FC<CardTypeManagementModalProps> = ({
     );
 };
 
-export default CardTypeManagementModal;
+export default CardManagementModal;

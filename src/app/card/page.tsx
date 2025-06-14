@@ -3,17 +3,17 @@ import React, { useEffect, useState } from 'react';
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeading, SectionContent } from '@/components/Section';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNewCardType, deleteCardTypeData, fetchCardTypes, updateCardTypeData } from '@/store/actions/cardTypeActions';
+import { addNewCard, deleteCardData, fetchCards, updateCardData } from '@/store/actions/cardActions';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { SquarePen, Trash, CreditCard } from 'lucide-react';
-import CardTypeManagementModal from '@/components/CardTypeManagementModal';
+import CardManagementModal from '@/components/CardManagementModal';
 import { formatDate, formatTime } from '@/utils/helper';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { showToastError, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
 import { Action } from '@/app/model/Action';
-import { CardType } from '@/app/model/CardType';
+import { Card } from '@/app/model/Card';
 
 export interface SortConfig {
     key: string;
@@ -23,17 +23,17 @@ export interface SortConfig {
 export default function CardTypeScreen() {
     const dispatch: AppDispatch = useDispatch();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [cardTypeToEdit, setCardTypeToEdit] = useState<null | CardType>(null);
-    const cardTypes = useSelector((state: RootState) => state.cardType.cardTypes);
-    const loading = useSelector((state: RootState) => state.cardType.loading);
-    const [sortedData, setSortedData] = useState<CardType[]>([]);
+    const [cardToEdit, setCardToEdit] = useState<null | Card>(null);
+    const cards = useSelector((state: RootState) => state.card.cards);
+    const loading = useSelector((state: RootState) => state.card.loading);
+    const [sortedData, setSortedData] = useState<Card[]>([]);
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [currentRows, setCurrentRows] = useState<CardType[]>([]);
+    const [currentRows, setCurrentRows] = useState<Card[]>([]);
     const rowsPerPage = 10;
-    const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | CardType>(null);
+    const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Card>(null);
 
-    const openDeleteRecordDialog = (data: CardType) => {
+    const openDeleteRecordDialog = (data: Card) => {
         setIsDeleteRecordDialogOpen(data);
     };
 
@@ -43,18 +43,18 @@ export default function CardTypeScreen() {
 
     interface Column {
         Header: string;
-        accessor: keyof CardType | string;
+        accessor: keyof Card | string;
         type?: string;
         sorting?: boolean;
     }
 
-    const sortData = (key: keyof CardType) => {
+    const sortData = (key: keyof Card) => {
         let direction = "asc";
         if (sortConfig.key === key && sortConfig.direction === "asc") {
             direction = "desc";
         }
 
-        const sorted = [...cardTypes].sort((a, b) => {
+        const sorted = [...cards].sort((a, b) => {
             if (a[key]! < b[key]!) return direction === "asc" ? -1 : 1;
             if (a[key]! > b[key]!) return direction === "asc" ? 1 : -1;
             return 0;
@@ -68,7 +68,7 @@ export default function CardTypeScreen() {
         const indexOfLastRow = currentPage * rowsPerPage;
         const indexOfFirstRow = indexOfLastRow - rowsPerPage;
         setCurrentRows(sortedData.slice(indexOfFirstRow, indexOfLastRow));
-    }, [currentPage, sortedData, cardTypes])
+    }, [currentPage, sortedData, cards])
 
     const getSortIcon = (columnKey: string, sorting = true) => {
         if (sorting && sortConfig.key === columnKey) {
@@ -78,39 +78,39 @@ export default function CardTypeScreen() {
     };
 
     useEffect(() => {
-        dispatch(fetchCardTypes());
+        dispatch(fetchCards());
     }, [dispatch]);
 
     useEffect(() => {
-        setSortedData(cardTypes);
-    }, [cardTypes])
+        setSortedData(cards);
+    }, [cards])
 
-    const openModalForEdit = (cardType: CardType) => {
-        setCardTypeToEdit(cardType);
+    const openModalForEdit = (cardType: Card) => {
+        setCardToEdit(cardType);
         setIsModalOpen(true);
     };
 
     const openModalForAdd = () => {
-        setCardTypeToEdit(null);
+        setCardToEdit(null);
         setIsModalOpen(true);
     };
 
-    const handleSaveCardType = (cardTypeData: CardType) => {
-        if (cardTypeToEdit) {
-            dispatch(updateCardTypeData(cardTypeData))
-                .then(() => showToastSuccess('Card Type Updated', 'The card type was updated successfully.'))
-                .catch((error) => showToastError('Error Updating Card Type', `Something went wrong: ${error.message}`));
+    const handleSaveCard = (cardTypeData: Card) => {
+        if (cardToEdit) {
+            dispatch(updateCardData(cardTypeData))
+                .then(() => showToastSuccess('Card Updated', 'The card was updated successfully.'))
+                .catch((error) => showToastError('Error Updating Card', `Something went wrong: ${error.message}`));
         } else {
-            dispatch(addNewCardType(cardTypeData))
-                .then(() => showToastSuccess('Card Type Added', 'The new card type has been added successfully.'))
-                .catch((error) => showToastError('Error Adding Card Type', `Something went wrong: ${error.message}`));
+            dispatch(addNewCard(cardTypeData))
+                .then(() => showToastSuccess('Card Added', 'The new card has been added successfully.'))
+                .catch((error) => showToastError('Error Adding Card', `Something went wrong: ${error.message}`));
         }
     };
 
-    const handleDeleteCardType = (cardTypeData: CardType) => {
-        dispatch(deleteCardTypeData(cardTypeData.id!))
-            .then(() => showToastSuccess('Card Type Deleted', 'The card type was deleted successfully.'))
-            .catch((error) => showToastError('Error Deleting Card Type', `Something went wrong: ${error.message}`));
+    const handleDeleteCardType = (cardTypeData: Card) => {
+        dispatch(deleteCardData(cardTypeData.id!))
+            .then(() => showToastSuccess('Card Deleted', 'The card was deleted successfully.'))
+            .catch((error) => showToastError('Error Deleting Card', `Something went wrong: ${error.message}`));
     }
 
     const columns: Column[] = [
@@ -155,7 +155,7 @@ export default function CardTypeScreen() {
                 {columns.map((column) => (
                     <TableHeaderItem 
                         key={column.accessor} 
-                        onClick={() => column.sorting !== false && sortData(column.accessor as keyof CardType)}
+                        onClick={() => column.sorting !== false && sortData(column.accessor as keyof Card)}
                     >
                         {column.Header} 
                         {column.sorting !== false && <span>{getSortIcon(column.accessor)}</span>}
@@ -165,8 +165,8 @@ export default function CardTypeScreen() {
         )
     }
 
-    function renderTableRows(currentRows: CardType[], columns: Column[]) {
-        const renderTableData = (row: CardType) => {
+    function renderTableRows(currentRows: Card[], columns: Column[]) {
+        const renderTableData = (row: Card) => {
             return (
                 <>
                     <TableData>{row.id}</TableData>
@@ -199,9 +199,9 @@ export default function CardTypeScreen() {
         <Dashboard>
             <SectionHeader>
                 <SectionHeaderLeft>
-                    <Heading>Card Types</Heading>
+                    <Heading>Card</Heading>
                     <SubHeading>
-                        Manage all payment card types in the system
+                        Manage all payment card in the system
                     </SubHeading>
                 </SectionHeaderLeft>
                 <SectionHeaderRight>
@@ -211,14 +211,14 @@ export default function CardTypeScreen() {
                         type="button"
                     >
                         <CreditCard className='w-3 h-3' />
-                        Add Card Type
+                        Add Card
                     </button>
                     
-                    <CardTypeManagementModal
+                    <CardManagementModal
                         isOpen={isModalOpen}
-                        cardTypeToEdit={cardTypeToEdit}
+                        cardToEdit={cardToEdit}
                         onClose={() => setIsModalOpen(false)}
-                        onSave={handleSaveCardType}
+                        onSave={handleSaveCard}
                     />
                 </SectionHeaderRight>
             </SectionHeader>
@@ -227,7 +227,7 @@ export default function CardTypeScreen() {
                 <div className="container mx-auto">
                     <CustomTable
                         currentPage={currentPage}
-                        totalRows={cardTypes.length}
+                        totalRows={cards.length}
                         onPageChange={setCurrentPage}
                         rowsPerPage={rowsPerPage}
                     >
@@ -241,12 +241,12 @@ export default function CardTypeScreen() {
                     </CustomTable>
 
                     <DeactivateAccountModal
-                        title={"Delete Card Type"}
+                        title={"Delete Card"}
                         description={
-                            "You are about to delete this card type. " +
-                            "This action cannot be undone. All records associated with this card type will be updated."
+                            "You are about to delete this card. " +
+                            "This action cannot be undone. All records associated with this card will be updated."
                         }
-                        positiveButtonText={"Delete Card Type"}
+                        positiveButtonText={"Delete Card"}
                         negativeButtonText={"Cancel"}
                         isOpen={isDeleteRecordDialogOpen}
                         onClose={closeDeleteRecordDialog}

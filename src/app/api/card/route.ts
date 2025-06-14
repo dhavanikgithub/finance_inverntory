@@ -1,11 +1,11 @@
-import { CardType, CardTypeInput } from '@/app/model/CardType';
+import { Card, CardInput } from '@/app/model/Card';
 import { NextResponse } from 'next/server';
 import pool from '../../../lib/db';
 
 // GET all card types
 export async function GET(): Promise<NextResponse> {
   try {
-    const result = await pool.query<CardType>('SELECT * FROM public.card_type ORDER BY id');
+    const result = await pool.query<Card>('SELECT * FROM public.card ORDER BY id');
     return NextResponse.json(result.rows);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -15,7 +15,7 @@ export async function GET(): Promise<NextResponse> {
 // POST a new card type
 export async function POST(request: Request): Promise<NextResponse> {
   try {
-    const data: CardTypeInput = await request.json();
+    const data: CardInput = await request.json();
     
     if (!data.name) {
       return NextResponse.json(
@@ -24,8 +24,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       );
     }
 
-    const result = await pool.query<CardType>(
-      'INSERT INTO public.card_type (name) VALUES ($1) RETURNING *',
+    const result = await pool.query<Card>(
+      'INSERT INTO public.card (name) VALUES ($1) RETURNING *',
       [data.name]
     );
 
@@ -38,7 +38,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 // PUT update a card type
 export async function PUT(request: Request): Promise<NextResponse> {
   try {
-    const data: CardType = await request.json();
+    const data: Card = await request.json();
     
     if (!data.id || !data.name) {
       return NextResponse.json(
@@ -47,8 +47,8 @@ export async function PUT(request: Request): Promise<NextResponse> {
       );
     }
 
-    const result = await pool.query<CardType>(
-      'UPDATE public.card_type SET name = $1 WHERE id = $2 RETURNING *',
+    const result = await pool.query<Card>(
+      'UPDATE public.card SET name = $1 WHERE id = $2 RETURNING *',
       [data.name, data.id]
     );
 
@@ -79,7 +79,7 @@ export async function DELETE(request: Request): Promise<NextResponse> {
     }
 
     const result = await pool.query(
-      'DELETE FROM public.card_type WHERE id = $1 RETURNING *',
+      'DELETE FROM public.card WHERE id = $1 RETURNING *',
       [id]
     );
 

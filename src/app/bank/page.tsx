@@ -26,20 +26,19 @@ import {
   updateBankData,
   deleteBankData,
 } from '@/store/actions/bankActions';
-import { fetchCardTypes } from '@/store/actions/cardTypeActions';
+import { fetchCards } from '@/store/actions/cardActions';
 import { showToastError, showToastSuccess } from '@/utils/toast';
 import { SquarePen, Trash, Building, Landmark } from 'lucide-react';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 
 import { formatDate, formatTime } from '@/utils/helper';
-import { CardType } from '@/app/model/CardType';
+import { Card } from '@/app/model/Card';
 import BankManagementModal from '@/components/BankManagementModal';
 
 export default function BankScreen() {
   const dispatch: AppDispatch = useDispatch();
   const banks = useSelector((state: RootState) => state.bank.banks);
-  const cardTypes = useSelector((state: RootState) => state.cardType.cardTypes);
   const loading = useSelector((state: RootState) => state.bank.loading);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +51,7 @@ export default function BankScreen() {
 
   useEffect(() => {
     dispatch(fetchBanks());
-    dispatch(fetchCardTypes());
+    dispatch(fetchCards());
   }, [dispatch]);
 
   useEffect(() => {
@@ -85,7 +84,6 @@ export default function BankScreen() {
   const columns = [
     { Header: 'ID', accessor: 'id' },
     { Header: 'Bank Name', accessor: 'name' },
-    { Header: 'Card Type', accessor: 'card_type_name' },
     { Header: 'Created On', accessor: 'create_date' },
     { Header: 'Action', accessor: 'action', sorting: false },
   ];
@@ -143,7 +141,6 @@ export default function BankScreen() {
             onClose={() => setIsModalOpen(false)}
             onSave={handleSaveBank}
             bankToEdit={bankToEdit}
-            cardTypes={cardTypes}
           />
         </SectionHeaderRight>
       </SectionHeader>
@@ -160,7 +157,6 @@ export default function BankScreen() {
               <TableRow key={row.id}>
                 <TableData>{row.id}</TableData>
                 <TableData>{row.name}</TableData>
-                <TableData>{row.card_type_name}</TableData>
                 <TableData>
                   <span>{formatDate(row.create_date!.toString())}<br /><span className="text-gray-500">{formatTime(row.create_time!)}</span></span>
                 </TableData>

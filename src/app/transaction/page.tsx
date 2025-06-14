@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react';
-import AmountManagementModal from '../../components/AmountManagementModal';
+import TransactionModal from '../../components/TransactionModal';
 import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Search, SquarePen, Trash } from "lucide-react";
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
@@ -20,6 +20,8 @@ import { Action } from '../model/Action';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
 import FilterModal, { FilterType, getTotalFilterCount, getTotalFiltersCount } from '@/components/FilterModal';
 import DataProcessor from '@/utils/DataProcessor';
+import { fetchBanks } from '@/store/actions/bankActions';
+import { fetchCards } from '@/store/actions/cardActions';
 
 
 export default function Home() {
@@ -28,6 +30,8 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<null | TransactionType>(null);
   const transactions = useSelector((state: RootState) => state.transaction.transactions);
   const clients = useSelector((state: RootState) => state.client.clients);
+  const banks = useSelector((state: RootState) => state.bank.banks);
+  const cards = useSelector((state: RootState) => state.card.cards);
   const loading = useSelector((state: RootState) => state.transaction.loading);
   const clientsLoading = useSelector((state: RootState) => state.client.loading);
   const [transactionToEdit, setTransactionToEdit] = useState<null | Transaction>(null);
@@ -83,7 +87,9 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(fetchTransactions());
-    dispatch(fetchClients())
+    dispatch(fetchClients());
+    dispatch(fetchBanks());
+    dispatch(fetchCards());
   }, [dispatch]);
 
 
@@ -158,6 +164,8 @@ export default function Home() {
     { Header: "Type", accessor: "transaction_type" },
     { Header: "Amount", accessor: "transaction_amount" },
     { Header: "Charges", accessor: "widthdraw_charges" },
+    { Header: "Bank", accessor: "bank_name" },
+    { Header: "Card", accessor: "card_name" },
     { Header: "Date", accessor: "create_date" },
     { Header: "Remarks", accessor: "remark" },
     {
@@ -261,7 +269,16 @@ export default function Home() {
               </>
             )}
           </TableData>
-
+          <TableData>
+            <p className="text-sm font-semibold text-slate-700 dark:text-gray-200">
+              {row.bank_name}
+            </p>
+          </TableData>
+          <TableData>
+            <p className="text-sm font-semibold text-slate-700 dark:text-gray-200">
+              {row.card_name}
+            </p>
+          </TableData>
           <TableData>
             <span className='text-sm'>
               <span className=''>{formatDate(row.create_date!)}</span><br />
@@ -402,8 +419,10 @@ export default function Home() {
           </button>
 
           {isModalOpen != null &&
-            <AmountManagementModal
+            <TransactionModal
               clients={clients}
+              cards={cards}
+              banks={banks}
               transactionToEdit={transactionToEdit}
               isOpen={isModalOpen != null}
               onClose={onCloseAmountManagementModal}

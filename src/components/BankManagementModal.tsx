@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Bank, BankInput } from '@/app/model/Bank';
-import { CardType } from '@/app/model/CardType';
+import { Card } from '@/app/model/Card';
 import Modal from '@/components/Modal';
 import InputField from '@/components/InputField';
 import { Text } from 'lucide-react';
@@ -11,7 +11,6 @@ interface BankManagementModalProps {
     onClose: () => void;
     onSave: (bank: Bank) => void;
     bankToEdit: Bank | null;
-    cardTypes: CardType[];
 }
 
 const BankManagementModal: React.FC<BankManagementModalProps> = ({
@@ -19,18 +18,14 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
     onClose,
     onSave,
     bankToEdit,
-    cardTypes,
 }) => {
     const [name, setName] = useState('');
-    const [selectedCardType, setSelectedCardType] = useState<string | null>(null);
 
     useEffect(() => {
         if (bankToEdit) {
             setName(bankToEdit.name);
-            setSelectedCardType(bankToEdit.card_type_name!);
         } else {
             setName('');
-            setSelectedCardType(null);
         }
     }, [bankToEdit]);
 
@@ -39,8 +34,6 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
         const bankData: Bank = {
             id: bankToEdit?.id || 0,
             name,
-            card_type_id: cardTypes.find(ct => ct.name === selectedCardType)?.id || 0,
-            card_type_name: selectedCardType!,
             create_date: bankToEdit?.create_date ?? null,
             create_time: bankToEdit?.create_time ?? null,
             modify_date: null,
@@ -53,15 +46,9 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
 
     const handleClose = () => {
         setName("");
-        setSelectedCardType("");
         onClose();
     }
 
-    const onItemSelect = (item: string) => {
-        setSelectedCardType(item);
-    }
-
-    const items = cardTypes.map((item) => item.name);
 
     return (
         <Modal
@@ -78,11 +65,6 @@ const BankManagementModal: React.FC<BankManagementModalProps> = ({
                     placeholder="e.g., HDFC Bank"
                     icon={<Text />}
                 />
-
-                <div className="flex flex-col">
-                    <label className="mb-1 font-medium text-sm ">Card Type</label>
-                    <Dropdown placeholder="Select card type..." className='mb-3 mt-2' items={items} selectedItem={selectedCardType} onItemSelect={onItemSelect} />
-                </div>
             </div>
 
             <div className="mt-6 flex justify-end space-x-3">

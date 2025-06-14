@@ -4,21 +4,27 @@ import Dropdown from './Dropdown';
 import { formatAmount, getTransactionTypeStr, parseFormattedAmount } from '@/utils/helper';
 import { Client } from '@/app/model/Client';
 import Transaction, { Deposit, TransactionType } from '@/app/model/Transaction';
+import { Card } from '@/app/model/Card';
+import { Bank } from '@/app/model/Bank';
 
-const AmountManagementModal = ({
+const TransactionModal = ({
     clients,
+    banks,
+    cards,
     transactionToEdit,
     isOpen,
     onClose,
     onSave,
     transactionType
 }: {
-    clients: Client[]
-    transactionToEdit: Transaction | null,
-    isOpen: boolean,
+    clients: Client[];
+    banks: Bank[];
+    cards: Card[];
+    transactionToEdit: Transaction | null;
+    isOpen: boolean;
     onClose: () => void;
     onSave: (transactionData: Transaction) => void;
-    transactionType: TransactionType
+    transactionType: TransactionType;
 }) => {
     // Define the type for the form data
     interface FormData {
@@ -28,6 +34,8 @@ const AmountManagementModal = ({
         deductionAmount: number;
         widthdrawCharge: number;
         transactionAmount: string;
+        selectedBank: string | null;
+        selectedCard: string | null;
     }
 
     // Define initial form data
@@ -38,6 +46,8 @@ const AmountManagementModal = ({
         deductionAmount: 0,
         widthdrawCharge: 0,
         transactionAmount: '0',
+        selectedBank: null,
+        selectedCard: null,
     };
 
     // Use the useState hook with typed initial state
@@ -53,6 +63,8 @@ const AmountManagementModal = ({
                 deductionAmount: temp,
                 widthdrawCharge: transactionToEdit.widthdraw_charges,
                 transactionAmount: formatAmount(transactionToEdit.transaction_amount.toString()),
+                selectedBank: transactionToEdit.bank_name || null,
+                selectedCard: transactionToEdit.card_name || null
             })
         }
         else {
@@ -100,7 +112,8 @@ const AmountManagementModal = ({
         const tempFormData = updateAmount();
         setFormData(tempFormData);
         const selectedClientObj = clients.find((element) => element.name === tempFormData.selectedClient) as Client;
-
+        const selectedBankObj = banks.find((element) => element.name === tempFormData.selectedBank) as Bank;
+        const selectedCardObj = cards.find((element) => element.name === tempFormData.selectedCard) as Card;
 
         // Create the transaction object
         let transaction: Transaction = {
@@ -112,7 +125,9 @@ const AmountManagementModal = ({
             transaction_amount: parseFormattedAmount(tempFormData.transactionAmount),
             transaction_type: tempFormData.action === Deposit ? 0 : 1,
             create_date: transactionToEdit?.create_date || undefined,
-            create_time: transactionToEdit?.create_time || undefined
+            create_time: transactionToEdit?.create_time || undefined,
+            card_id: selectedCardObj.id || undefined,
+            bank_id: selectedBankObj.id || undefined
         };
 
         // If all fields are valid, save the transaction
@@ -149,8 +164,16 @@ const AmountManagementModal = ({
 
 
 
-    const onItemSelect = (item: string) => {
+    const onClientSelect = (item: string) => {
         setFormData((prevState) => ({ ...prevState, selectedClient: item }));
+    };
+
+    const onBankSelect = (item: string) => {
+        setFormData((prevState) => ({ ...prevState, selectedBank: item }));
+    };
+
+    const onCardSelect = (item: string) => {
+        setFormData((prevState) => ({ ...prevState, selectedCard: item }));
     };
 
     const handleClose = () => {
@@ -160,6 +183,10 @@ const AmountManagementModal = ({
 
     // Dropdown items list
     const items = clients.map((item) => item.name);
+
+    const cardItems = cards.map((item) => item.name);
+
+    const bankItems = banks.map((item) => item.name);
 
     if (!isOpen) return null;
 
@@ -178,7 +205,7 @@ const AmountManagementModal = ({
                 <div className="grid grid-cols-1 gap-4">
                     <div>
                         <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Client</label>
-                        <Dropdown placeholder="Select Client..." className='mb-3 mt-2' items={items} selectedItem={formData.selectedClient} onItemSelect={onItemSelect} />
+                        <Dropdown placeholder="Select Client..." className='mb-3 mt-2' items={items} selectedItem={formData.selectedClient} onItemSelect={onClientSelect} />
                     </div>
                 </div>
                 
@@ -237,7 +264,14 @@ const AmountManagementModal = ({
                             </div>
 
                         </div>
-
+                        <div>
+                            <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Select Bank</label>
+                            <Dropdown placeholder="Select Bank..." className='mb-3 mt-2' items={bankItems} selectedItem={formData.selectedBank} onItemSelect={onBankSelect} />
+                        </div>
+                        <div>
+                            <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Select Card</label>
+                            <Dropdown placeholder="Select Card..." className='mb-3 mt-2' items={cardItems} selectedItem={formData.selectedCard} onItemSelect={onCardSelect} />
+                        </div>
                     </div>
                 )}
                 <div>
@@ -268,4 +302,4 @@ const AmountManagementModal = ({
     );
 };
 
-export default AmountManagementModal;
+export default TransactionModal;
