@@ -2,12 +2,13 @@
 
 <head>
     <script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
-    
+
 </head>
 
 <body class="bg-gray-100">
     <!-- Header Section with Image as Background -->
-    <header class="relative bg-cover bg-center p-5 h-[150px]" style="background-image: url('https://editors-cdn.template.net/header%205.svg-8a21c42e-37e0-4881-9b4d-4c5ccbd73e11.svg');">
+    <header class="relative bg-cover bg-center p-5 h-[150px]"
+        style="background-image: url('https://editors-cdn.template.net/header%205.svg-8a21c42e-37e0-4881-9b4d-4c5ccbd73e11.svg');">
         <div class="text-center">
             <h1 class="text-2xl text-gray-700 font-bold">Transaction Report</h1>
         </div>
@@ -51,6 +52,12 @@
                         <th scope="col" class="px-6 py-3 border-r border-b border-gray-200">
                             Withdraw Charge
                         </th>
+                        <th scope="col" class="px-6 py-3 border-r border-b border-gray-200">
+                            Bank
+                        </th>
+                        <th scope="col" class="px-6 py-3 border-r border-b border-gray-200">
+                            Card
+                        </th>
                         <th scope="col" class="px-6 py-3 min-w-[110px] border-b">
                             Date & Time
                         </th>
@@ -59,13 +66,16 @@
                 <tbody>
                     {{#each this.data}}
                     <tr>
-                        <th scope="row" class="px-4 py-2 border-r border-b border-gray-200 font-medium text-gray-900 whitespace-nowrap">
+                        <th scope="row"
+                            class="px-4 py-2 border-r border-b border-gray-200 font-medium text-gray-900 whitespace-nowrap">
                             {{#if is_widthdraw_transaction}}
-                            <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
+                            <div
+                                class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20">
                                 <span class="">Widthdraw</span>
                             </div>
                             {{else}}
-                            <div class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
+                            <div
+                                class="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20">
                                 <span class="">Deposit</span>
                             </div>
                             {{/if}}
@@ -82,14 +92,20 @@
                             <hr class="border-gray-300 my-1">
                             <span class="text-[11px]">{{widthdraw_charges_pr}}</span>
                         </td>
+                        <td class="px-4 py-2 min-w-[110px] border-b border-gray-200">{{bank_name}}
+                        </td>
+                        <td class="px-4 py-2 min-w-[110px] border-b border-gray-200">{{card_name}}
+                        </td>
                         <td class="px-4 py-2 min-w-[110px] border-b border-gray-200">{{date}}
-                            <br>{{time}}</td>
+                            <br>{{time}}
+                        </td>
                     </tr>
                     {{/each}}
                 </tbody>
                 <tfoot class="text-xs text-white uppercase border border-gray-700">
                     <tr class="bg-gray-700">
-                        <th class="px-4 py-3">Total :
+                        <th class="px-4 py-3" colspan="6">
+                            Total :
                             <div>
                                 <div>{{this.total.widthdraw_charges}} (ફી)</div>
                                 <div>{{this.total.transaction_amount}} (જમા)</div>
@@ -97,9 +113,6 @@
                                 <div>{{this.total.final_amount}} (Total)</div>
                             </div>
                         </th>
-                        <th class="px-4 py-3 min-w-[110px]"></th>
-                        <th class="px-4 py-3 min-w-[110px]"></th>
-                        <th class="px-4 py-3 min-w-[110px]"></th>
                     </tr>
                 </tfoot>
             </table>
