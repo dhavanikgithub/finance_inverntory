@@ -274,9 +274,9 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                 </a> */}
                             </div>
                         </footer>
-                        <p className="footer-text">
+                        {/* <p className="footer-text">
                             &copy; 2025 <a href="#" className="hover:underline" target="_blank">Dhavanik</a>. All rights reserved.
-                        </p>
+                        </p> */}
                     </div>
                 </div>
             </div>

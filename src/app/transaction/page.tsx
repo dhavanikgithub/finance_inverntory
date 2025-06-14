@@ -22,6 +22,7 @@ import FilterModal, { FilterType, getTotalFilterCount, getTotalFiltersCount } fr
 import DataProcessor from '@/utils/DataProcessor';
 import { fetchBanks } from '@/store/actions/bankActions';
 import { fetchCards } from '@/store/actions/cardActions';
+import ViewMore from '@/components/ViewMore';
 
 
 export default function Home() {
@@ -45,7 +46,7 @@ export default function Home() {
   const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Transaction>(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterType[]>([]);
-  const [filterColumns, setFilterColumns] = useState<FilterType[]>([])
+  const [filterColumns, setFilterColumns] = useState<FilterType[]>([]);
   const openDeleteRecordDialog = (data: Transaction) => {
     setIsDeleteRecordDialogOpen(data);
   };
@@ -204,15 +205,15 @@ export default function Home() {
           <TableData>
             {isTransactionTypeDeposit(row.transaction_type) ?
               <div
-                className="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20
-                dark:bg-green-900 dark:text-green-300 dark:bg-opacity-30
+                className="grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20
+                dark:bg-green-900 dark:text-green-300 dark:bg-opacity-25
                 ">
                 <span className="">Deposit</span>
               </div>
               :
               <div
-                className="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20
-                dark:bg-red-900 dark:text-red-300 dark:bg-opacity-30
+                className="grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20
+                dark:bg-red-900 dark:text-red-300 dark:bg-opacity-25
                 ">
                 <span className="">Widthdraw</span>
               </div>
@@ -263,13 +264,9 @@ export default function Home() {
             </span>
           </TableData>
           <TableData>
-
-            <textarea
-              rows={1}
-              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              value={row.remark}
-              readOnly />
+            <ViewMore title={"Remark"} text={row.remark} charLimit={20} />
           </TableData>
+
           <TableData>
             <MoreOptionsMenu options={actions} data={row} />
           </TableData>
@@ -360,7 +357,7 @@ export default function Home() {
         transactions
           .filter(t => t.create_date)
           .map(t => getMonthNumberFromDate(t.create_date!).toString()) // returns "YYYY-MM"
-          .sort((a,b) => parseInt(a) - parseInt(b)) // Sort in ascending order
+          .sort((a, b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
     );
 
@@ -379,7 +376,7 @@ export default function Home() {
         transactions
           .filter(t => t.create_date)
           .map(t => new Date(t.create_date!).getDate().toString()) // assumes ISO string: "YYYY-MM-DDTHH:mm:ss"
-          .sort((a,b) => parseInt(a) - parseInt(b)) // Sort in ascending order
+          .sort((a, b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
     );
 
