@@ -356,13 +356,87 @@ export default function Home() {
       dataOperator: 'string',
       data: distinctClientNames,
     }
-  }, [transactions])
+  }, [transactions]);
 
-  
+  const dateYearFilter = useMemo((): FilterType<string> => {
+    const distinctYears: string[] = Array.from(
+      new Set(
+        transactions
+          .filter(t => t.create_date)
+          .map(t => new Date(t.create_date!).getFullYear().toString())
+      )
+    );
+
+    return {
+      columnName: "Transaction Year",
+      columnAccessor: "create_date",
+      filterOperator: 'year',
+      dataOperator: 'date',
+      data: distinctYears,
+    };
+  }, [transactions]);
+
+  const dateMonthFilter = useMemo((): FilterType<string> => {
+    const distinctMonths: string[] = Array.from(
+      new Set(
+        transactions
+          .filter(t => t.create_date)
+          .map(t => getMonthNumberFromDate(t.create_date!).toString()) // returns "YYYY-MM"
+      )
+    );
+
+    return {
+      columnName: "Transaction Month",
+      columnAccessor: "create_date",
+      filterOperator: 'month',
+      dataOperator: 'date',
+      data: distinctMonths,
+    };
+  }, [transactions]);
+
+  const dateDayFilter = useMemo((): FilterType<string> => {
+    const distinctDays: string[] = Array.from(
+      new Set(
+        transactions
+          .filter(t => t.create_date)
+          .map(t => new Date(t.create_date!).getDate().toString()) // assumes ISO string: "YYYY-MM-DDTHH:mm:ss"
+      )
+    );
+
+    return {
+      columnName: "Transaction Day",
+      columnAccessor: "create_date",
+      filterOperator: 'day',
+      dataOperator: 'date',
+      data: distinctDays,
+    };
+  }, [transactions]);
+
+
+  const transactionTypeFilter = useMemo((): FilterType<string> => {
+    const distinctTransactionType: string[] = [
+      getTransactionTypeStr(0),
+      getTransactionTypeStr(1),
+    ];
+
+    return {
+      columnName: "Transaction Type",
+      columnAccessor: "transaction_type",
+      filterOperator: 'transaction_type_string',
+      dataOperator: 'transaction_type_number',
+      data: distinctTransactionType,
+    };
+  }, [transactions]);
+
+
 
   useEffect(() => {
     setFilterColumns([
+      transactionTypeFilter,
       clientNameFilter,
+      dateYearFilter,
+      dateMonthFilter,
+      dateDayFilter
     ])
   }, [transactions])
 

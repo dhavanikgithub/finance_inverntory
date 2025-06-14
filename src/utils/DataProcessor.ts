@@ -1,4 +1,5 @@
 import { DataOperatorType, FilterOperatorType, FilterType } from "@/components/FilterModal";
+import { getTransactionTypeStr } from "./helper";
 
 type SortDirection = 'asc' | 'desc';
 
@@ -53,6 +54,9 @@ class DataProcessor<T> {
         default :
             return value;
       }
+    }
+    else if(dataOperator === 'transaction_type_number' && filterOperator === 'transaction_type_string'){
+      return getTransactionTypeStr(value)
     }
   
     // Default fallback: no transformation

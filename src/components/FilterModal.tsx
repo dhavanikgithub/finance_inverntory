@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-export type FilterOperatorType = 'string' | 'year' | 'number' | 'month' | 'day'
-export type DataOperatorType = 'string' | 'date' | 'number'
+export type FilterOperatorType = 'string' | 'year' | 'number' | 'month' | 'day' | 'transaction_type_string'
+export type DataOperatorType = 'string' | 'date' | 'number' | 'transaction_type_number'
 
 export interface FilterType<T = any> {
     columnName: string;
@@ -33,8 +33,8 @@ export const getTotalFiltersCount = (filters: any) => {
 }
 
 // Get total filter count by column
-export function getFilterCountByColumn(filters:FilterType[], columnAccessor: string): number {
-    const filter = filters.find(f => f.columnAccessor === columnAccessor);
+export function getFilterCountByColumn(filters:FilterType[], columnName: string): number {
+    const filter = filters.find(f => f.columnName === columnName);
     return filter ? filter.data.length : 0;
 }
 
@@ -78,25 +78,25 @@ const FilterModal = ({
         const columnState = columnsState.find((column) => column.columnName === columnName)
         return  columnState? columnState.isOpen : false
     }
-    function getFilterByColumnAccessor<T>(
+    function getFilterByColumnName<T>(
         filters: FilterType<T>[],
-        columnAccessor: string
+        columnName: string
     ): FilterType<T> | undefined {
-        return filters.find(filter => filter.columnAccessor === columnAccessor);
+        return filters.find(filter => filter.columnName === columnName);
     }
     
 
     function invertSelectFilter<T>(
         filters:FilterType[],
-        columnAccessor: string,
+        columnName: string,
         allPossibleValues: T[]
     ) {
-        const currentFilter = getFilterByColumnAccessor(filters, columnAccessor);
+        const currentFilter = getFilterByColumnName(filters, columnName);
         if(!currentFilter){
             return;
         }
         setFilters(prev => {
-            const others = prev.filter(f => f.columnAccessor !== currentFilter.columnAccessor);
+            const others = prev.filter(f => f.columnName !== currentFilter.columnName);
             const invertedValues = allPossibleValues.filter(
                 value => !currentFilter.data.includes(value)
             );
@@ -116,14 +116,14 @@ const FilterModal = ({
         newFilter:FilterType,
     ) {
         setFilters(prev => {
-            const others = prev.filter(f => f.columnAccessor !== newFilter.columnAccessor);
+            const others = prev.filter(f => f.columnName !== newFilter.columnName);
             return [...others, newFilter];
         });
     }
 
     // Clear all filters for a column
-    function clearAllFilter(columnAccessor: string) {
-        setFilters(prev => prev.filter(f => f.columnAccessor !== columnAccessor));
+    function clearAllFilter(columnName: string) {
+        setFilters(prev => prev.filter(f => f.columnName !== columnName));
     }
 
     
@@ -133,7 +133,7 @@ const FilterModal = ({
         value: T,
     ) {
         setFilters(prev => {
-            const existing = prev.find(f => f.columnAccessor === column.columnAccessor);
+            const existing = prev.find(f => f.columnName === column.columnName);
     
             if (existing) {
                 const valueExists = existing.data.includes(value);
@@ -144,11 +144,11 @@ const FilterModal = ({
     
                     // If no values left, remove the filter entirely
                     if (newData.length === 0) {
-                        return prev.filter(f => f.columnAccessor !== column.columnAccessor);
+                        return prev.filter(f => f.columnName !== column.columnName);
                     }
     
                     return prev.map(f =>
-                        f.columnAccessor === column.columnAccessor
+                        f.columnName === column.columnName
                             ? { ...f, data: newData }
                             : f
                     );
@@ -156,7 +156,7 @@ const FilterModal = ({
     
                 // Otherwise, add the value
                 return prev.map(f =>
-                    f.columnAccessor === column.columnAccessor
+                    f.columnName === column.columnName
                         ? { ...f, data: [...f.data, value] }
                         : f
                 );
@@ -189,8 +189,8 @@ const FilterModal = ({
         selectAllFilter(column)
     };
 
-    const handleClearSelection = (columnAccessor: string) => {
-        clearAllFilter(columnAccessor)
+    const handleClearSelection = (columnName: string) => {
+        clearAllFilter(columnName)
     };
 
     const handleChange = (column:FilterType, value: string) => {
@@ -215,11 +215,11 @@ const FilterModal = ({
     }, [filters])
 
 
-    const getFilterColumn = (columnAccessor: string): any[] | null => {
+    const getFilterColumn = (columnName: string): any[] | null => {
         if(filters.length === 0){
             return null
         }
-        const filterColumns = filters.filter((filterItem) => filterItem.columnAccessor === columnAccessor)
+        const filterColumns = filters.filter((filterItem) => filterItem.columnName === columnName)
         if (filterColumns.length === 0) {
             return null
         }
@@ -255,7 +255,7 @@ const FilterModal = ({
                                     <span>
                                         {column.columnName}
                                         <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">
-                                            {getFilterCountByColumn(filters, column.columnAccessor)}
+                                            {getFilterCountByColumn(filters, column.columnName)}
                                         </span>
                                     </span>
                                     <span className="text-sm">{getColumnState(column.columnName) ? '−' : '+'}</span>
@@ -272,13 +272,13 @@ const FilterModal = ({
                                             </button>
                                             <button
                                                 className="text-purple-500 text-sm"
-                                                onClick={() => invertSelectFilter(filters, column.columnAccessor,column.data)}
+                                                onClick={() => invertSelectFilter(filters, column.columnName,column.data)}
                                             >
                                                 Invert Select
                                             </button>
                                             <button
                                                 className="text-red-500 text-sm"
-                                                onClick={() => handleClearSelection(column.columnAccessor)}
+                                                onClick={() => handleClearSelection(column.columnName)}
                                             >
                                                 Clear
                                             </button>
@@ -288,7 +288,7 @@ const FilterModal = ({
                                                 <label key={value} className="flex items-center space-x-2">
                                                     <input
                                                         type="checkbox"
-                                                        checked={getFilterColumn(column.columnAccessor)?.includes(value) || false}
+                                                        checked={getFilterColumn(column.columnName)?.includes(value) || false}
                                                         onChange={() => handleChange(column, value)}
                                                         className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                                                     />
