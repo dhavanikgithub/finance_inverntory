@@ -323,7 +323,7 @@ export default function Home() {
 
   const clientNameFilter = useMemo((): FilterType<string> => {
     const distinctClientNames: string[] = Array.from(
-      new Set(transactions.map(t => t.client_name))
+      new Set(transactions.map(t => t.client_name).sort((a, b) => a.localeCompare(b))) //sort client name by acending
     );
 
     return {
@@ -341,6 +341,7 @@ export default function Home() {
         transactions
           .filter(t => t.create_date)
           .map(t => new Date(t.create_date!).getFullYear().toString())
+          .sort((a, b) => parseInt(b) - parseInt(a)) // Sort in descending order
       )
     );
 
@@ -359,6 +360,7 @@ export default function Home() {
         transactions
           .filter(t => t.create_date)
           .map(t => getMonthNumberFromDate(t.create_date!).toString()) // returns "YYYY-MM"
+          .sort((a,b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
     );
 
@@ -377,6 +379,7 @@ export default function Home() {
         transactions
           .filter(t => t.create_date)
           .map(t => new Date(t.create_date!).getDate().toString()) // assumes ISO string: "YYYY-MM-DDTHH:mm:ss"
+          .sort((a,b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
     );
 
