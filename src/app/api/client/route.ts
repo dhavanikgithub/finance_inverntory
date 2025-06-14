@@ -6,7 +6,7 @@ import { Client } from '@/app/model/Client';
 // Handler to get all clients
 export async function GET(): Promise<NextResponse> {
   try {
-    const result = await pool.query<Client>('SELECT * FROM public.client');
+    const result = await pool.query<Client>('SELECT * FROM public.client ORDER BY name');
     return NextResponse.json(result.rows);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -45,7 +45,7 @@ export default function BankScreen() {
   const [bankToEdit, setBankToEdit] = useState<null | Bank>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortedData, setSortedData] = useState<Bank[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: string }>({ key: '', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: string }>({ key: 'name', direction: 'asc' });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<null | Bank>(null);
   const rowsPerPage = 10;
 
@@ -82,7 +82,6 @@ export default function BankScreen() {
   };
 
   const columns = [
-    { Header: 'ID', accessor: 'id' },
     { Header: 'Bank Name', accessor: 'name' },
     { Header: 'Created On', accessor: 'create_date' },
     { Header: 'Action', accessor: 'action', sorting: false },
@@ -155,7 +154,6 @@ export default function BankScreen() {
           <TableBody>
             {currentRows.map((row) => (
               <TableRow key={row.id}>
-                <TableData>{row.id}</TableData>
                 <TableData>{row.name}</TableData>
                 <TableData>
                   <span>{formatDate(row.create_date!.toString())}<br /><span className="text-gray-500">{formatTime(row.create_time!)}</span></span>

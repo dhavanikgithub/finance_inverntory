@@ -5,7 +5,7 @@ import pool from '../../../lib/db';
 // GET all card types
 export async function GET(): Promise<NextResponse> {
   try {
-    const result = await pool.query<Card>('SELECT * FROM public.card ORDER BY id');
+    const result = await pool.query<Card>('SELECT * FROM public.card ORDER BY name');
     return NextResponse.json(result.rows);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

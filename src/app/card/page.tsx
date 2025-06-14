@@ -27,7 +27,7 @@ export default function CardTypeScreen() {
     const cards = useSelector((state: RootState) => state.card.cards);
     const loading = useSelector((state: RootState) => state.card.loading);
     const [sortedData, setSortedData] = useState<Card[]>([]);
-    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "", direction: "asc" });
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "name", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [currentRows, setCurrentRows] = useState<Card[]>([]);
     const rowsPerPage = 10;
@@ -115,11 +115,6 @@ export default function CardTypeScreen() {
 
     const columns: Column[] = [
         {
-            Header: "ID",
-            accessor: "id",
-            type: "string"
-        },
-        {
             Header: "Name",
             accessor: "name",
             type: "string"
@@ -169,7 +164,6 @@ export default function CardTypeScreen() {
         const renderTableData = (row: Card) => {
             return (
                 <>
-                    <TableData>{row.id}</TableData>
                     <TableData>{row.name}</TableData>
                     <TableData>
                         <span className='text-sm'>

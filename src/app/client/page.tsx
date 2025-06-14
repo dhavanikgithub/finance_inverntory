@@ -27,7 +27,7 @@ export default function ClientScreen() {
     const clients = useSelector((state: RootState) => state.client.clients);
     const loading = useSelector((state: RootState) => state.client.loading);
     const [sortedData, setSortedData] = useState<Client[]>([]);
-    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "", direction: "asc" });
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "name", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [currentRows, setCurrentRows] = useState<Client[]>([]);
     const rowsPerPage = 10;
@@ -136,11 +136,6 @@ export default function ClientScreen() {
 
     const columns = [
         {
-            Header: "ID",
-            accessor: "id",
-            type: "string"
-        },
-        {
             Header: "Name",
             accessor: "name",
             type: "string"
@@ -189,9 +184,6 @@ export default function ClientScreen() {
         const renderTableData = (row:Client) => {
             return (
                 <>
-                    <TableData>
-                        {row.id}
-                    </TableData>
                     <TableData>
                         {row.name}
                     </TableData>

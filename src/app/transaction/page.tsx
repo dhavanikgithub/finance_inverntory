@@ -36,7 +36,7 @@ export default function Home() {
   const clientsLoading = useSelector((state: RootState) => state.client.loading);
   const [transactionToEdit, setTransactionToEdit] = useState<null | Transaction>(null);
   const [sortedData, setSortedData] = useState<Transaction[]>([]);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "", direction: "asc" });
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "create_date", direction: "desc" });
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [currentRows, setCurrentRows] = useState<Transaction[]>([]);
   const rowsPerPage: number = 10;
