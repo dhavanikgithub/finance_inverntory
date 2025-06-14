@@ -8,7 +8,7 @@ import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableR
 import { useDispatch, useSelector } from 'react-redux';
 import { addTransaction, deleteTransaction, fetchTransactions, updateTransaction } from '@/store/actions/transactionActions';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
-import { baseFuseOptions, formatAmount, formatDate, formatTime, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
+import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
@@ -335,14 +335,14 @@ export default function Home() {
   }
 
   const handleApplyFilters = (filters: FilterType[]) => {
-    setAppliedFilters(filters);    
+    setAppliedFilters(filters);
   };
 
-  useEffect(()=>{
-    const dataProcessor = new DataProcessor(transactions,[])
+  useEffect(() => {
+    const dataProcessor = new DataProcessor(transactions, [])
     dataProcessor.applyFilter(appliedFilters)
     setSortedData(dataProcessor.getData())
-  },[appliedFilters])
+  }, [appliedFilters])
 
   const clientNameFilter = useMemo((): FilterType<string> => {
     const distinctClientNames: string[] = Array.from(
@@ -358,30 +358,13 @@ export default function Home() {
     }
   }, [transactions])
 
-  const dateMonthFilter = useMemo((): FilterType<string> => {
-    const distinctMonths: string[] = Array.from(
-      new Set(
-        transactions
-          .filter(t => t.create_date)
-          .map(t => (new Date(t.create_date!).getMonth() + 1).toString()) // Extracts "YYYY-MM"
-      )
-    );
+  
 
-    return {
-      columnName: "Transaction Month",
-      columnAccessor: "create_date",
-      filterOperator: 'month',
-      dataOperator: 'date',
-      data: distinctMonths,
-    }
-  }, [transactions])
-
-  useEffect(()=>{
+  useEffect(() => {
     setFilterColumns([
       clientNameFilter,
-      dateMonthFilter
     ])
-  },[transactions])
+  }, [transactions])
 
 
   const totalFilterCount = useMemo(() => {
@@ -487,7 +470,7 @@ export default function Home() {
         <div className="container mx-auto">
           <CustomTable
             currentPage={currentPage}
-            totalRows={transactions.length}
+            totalRows={sortedData.length}
             onPageChange={setCurrentPage}
             rowsPerPage={rowsPerPage}
           >

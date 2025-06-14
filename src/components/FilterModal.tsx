@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-export type FilterOperatorType = 'string' | 'year' | 'number' | 'month'
+export type FilterOperatorType = 'string' | 'year' | 'number' | 'month' | 'day'
 export type DataOperatorType = 'string' | 'date' | 'number'
 
 export interface FilterType<T = any> {

@@ -40,10 +40,12 @@ class DataProcessor<T> {
     dataOperator: DataOperatorType,
     filterOperator: FilterOperatorType
   ): any {
-    if (dataOperator === 'date' && (filterOperator === 'year' || filterOperator === 'month')) {
+    if (dataOperator === 'date' && (filterOperator === 'year' || filterOperator === 'month' || filterOperator === 'day')) {
       const date = value instanceof Date ? value : new Date(value);
       if (isNaN(date.getTime())) return null;
       switch(filterOperator){
+        case 'day':
+            return date.getDate();
         case 'month': 
             return date.getMonth()+1;
         case 'year':

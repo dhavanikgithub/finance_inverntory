@@ -95,19 +95,28 @@ const baseFuseOptions = {
 	isCaseSensitive: false,
 	includeScore: false,
     shouldSort: true,
-	// ignoreDiacritics: false,
-	// shouldSort: true,
-	// includeMatches: false,
-	// findAllMatches: false,
-	// minMatchCharLength: 1,
-	// location: 0,
 	threshold: 0.6,
-	// distance: 100,
-	// useExtendedSearch: false,
-	// ignoreLocation: false,
-	// ignoreFieldNorm: false,
-	// fieldNormWeight: 1,
 };
 
+const monthMapping = {
+    1:"January",
+    2:"February",
+    3:"March",
+    4:"April",
+    5:"May",
+    6:"June",
+    7:"July",
+    8:"August",
+    9:"September",
+    10:"October",
+    11:"November",
+    12:"December"
+}
 
-export {formatAmount, parseFormattedAmount, baseFuseOptions}
+const getMonthNumberFromDate = (dateString:string) => {
+    return new Date(dateString).getMonth() + 1;
+}
+
+
+
+export {formatAmount, parseFormattedAmount, baseFuseOptions, getMonthNumberFromDate, monthMapping}
