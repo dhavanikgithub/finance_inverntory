@@ -4,6 +4,7 @@ import Dropdown from './Dropdown';
 import { File, X } from 'lucide-react';
 import { Client } from '@/app/model/Client';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
+import CustomCheckbox from './CustomCheckbox';
 interface GenerateReportModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -117,20 +118,17 @@ const GenerateReportModal: React.FC<GenerateReportModalProps> = ({ isOpen, onClo
                     <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6 dark:text-gray-200">Generate Report</h2>
                     {error && <p className="text-red-600 text-center mb-4">{error}</p>}
                     <div className="grid space-y-2 mb-2">
-                        <label
+                        <div
                             onClick={() => setIsClientSpecific(!isClientSpecific)}
-                            htmlFor="vertical-checkbox-checked-in-form"
-                            className="cursor-pointer max-w-xs flex p-3 w-full bg-white border border-gray-300 rounded-lg text-sm focus:border-black focus:ring-black dark:bg-gray-900 dark:border-gray-700 dark:text-neutral-400">
-                            <input
-                                type="checkbox"
-                                value=""
+                            className="cursor-pointer max-w-xs p-3 w-full bg-white border border-gray-300 rounded-lg focus:border-black focus:ring-black dark:bg-gray-900 dark:border-gray-700 dark:text-neutral-400">
+                            <CustomCheckbox
+                                key={""}
+                                value={"Generate for specific client."}
                                 checked={isClientSpecific}
                                 onChange={() => setIsClientSpecific(!isClientSpecific)}
-                                className="accent-black cursor-pointer shrink-0 mt-0.5 border-gray-200 rounded peer  disabled:opacity-50 disabled:pointer-events-none
-                                dark:accent-white dark:bg-gray-800 dark:border-gray-700
-                                " />
-                            <span className="cursor-pointer text-sm text-gray-500 ms-3 dark:text-neutral-400">Generate for specific client.</span>
-                        </label>
+                            />
+                        </div>
+
                     </div>
 
 

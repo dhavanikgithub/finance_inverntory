@@ -1,6 +1,7 @@
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 import { X } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
+import CustomCheckbox from './CustomCheckbox';
 export type FilterOperatorType = 'string' | 'year' | 'number' | 'month' | 'day' | 'transaction_type_string'
 export type DataOperatorType = 'string' | 'date' | 'number' | 'transaction_type_number'
 
@@ -288,15 +289,13 @@ const FilterModal = ({
                                         </div>
                                         <div className="space-y-1 max-h-40 overflow-y-auto pr-2">
                                             {column.data.map((value) => (
-                                                <label key={value} className="flex items-center space-x-2">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={getFilterColumn(column.columnName)?.includes(value) || false}
-                                                        onChange={() => handleChange(column, value)}
-                                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                                                    />
-                                                    <span>{value}</span>
-                                                </label>
+                                                <CustomCheckbox
+                                                    key={value}
+                                                    value={value}
+                                                    checked={getFilterColumn(column.columnName)?.includes(value) || false}
+                                                    onChange={() => handleChange(column, value)}
+                                                />
+
                                             ))}
                                         </div>
                                     </div>
