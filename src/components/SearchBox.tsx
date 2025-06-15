@@ -44,6 +44,8 @@ const SearchBox: React.FC<SearchBoxProps> = ({ handleOnSearch }) => {
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
           placeholder="Search"
+          autoComplete='off'
+          autoCorrect='off'
         />
         {searchInput && (
           <button
