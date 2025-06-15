@@ -21,9 +21,50 @@ export async function POST(req: Request): Promise<NextResponse> {
     const data: Client = await req.json();
     const { name, email, contact, address } = data;
 
+    // Optional field validations
+    const errors: string[] = [];
+
+    if (email !== '' && email !== undefined && !isValidEmail(email)) {
+      errors.push('Invalid email format');
+    }
+
+    if (contact !== '' && contact !== undefined && !isValidContact(contact)) {
+      errors.push('Invalid contact number');
+    }
+    const values: any[] = [];
+    values.push(name);
+    if (email !== undefined) { // Allow email to be optional
+      if (email === '') {
+        values.push(null); // Handle empty email as null
+      }
+      else {
+        values.push(email);
+      }
+    }
+
+    if (contact !== undefined) {
+      if (contact === '') {
+        values.push(null); // Handle empty contact as null
+      }
+      else {
+        values.push(contact);
+      }
+    }
+    if (address !== undefined) { // Allow address to be optional
+      if (address === '') {
+        values.push(null); // Handle empty address as null
+      }
+      else {
+        values.push(address);
+      }
+    }
+
+    if (errors.length > 0) {
+      return NextResponse.json({ error: errors.join(', ') }, { status: 400 });
+    }
+
     const result = await pool.query<Client>(
-      'INSERT INTO public.client (name, email, contact, address) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, email, contact, address]
+      'INSERT INTO public.client (name, email, contact, address) VALUES ($1, $2, $3, $4) RETURNING *',values
     );
 
     return NextResponse.json(result.rows[0], { status: 201 });
@@ -48,7 +89,7 @@ export async function PUT(req: Request): Promise<NextResponse> {
       errors.push('Invalid email format');
     }
 
-    if (contact !=='' && contact !== undefined && !isValidContact(contact)) {
+    if (contact !== '' && contact !== undefined && !isValidContact(contact)) {
       errors.push('Invalid contact number');
     }
 
@@ -68,29 +109,29 @@ export async function PUT(req: Request): Promise<NextResponse> {
 
     if (email !== undefined) { // Allow email to be optional
       fields.push(`email = $${index++}`);
-      if(email === ''){
+      if (email === '') {
         values.push(null); // Handle empty email as null
       }
-      else{
+      else {
         values.push(email);
       }
     }
 
     if (contact !== undefined) {
       fields.push(`contact = $${index++}`);
-      if(contact === '') {
+      if (contact === '') {
         values.push(null); // Handle empty contact as null
       }
-      else{
+      else {
         values.push(contact);
       }
     }
     if (address !== undefined) { // Allow address to be optional
       fields.push(`address = $${index++}`);
-      if(address === ''){
+      if (address === '') {
         values.push(null); // Handle empty address as null
       }
-      else{
+      else {
         values.push(address);
       }
     }

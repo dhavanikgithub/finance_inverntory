@@ -47,20 +47,29 @@ export default function CardTypeScreen() {
         sorting?: boolean;
     }
 
-    const sortData = (key: keyof Card) => {
-        let direction = "asc";
+    const sortDataToggle = (key: keyof Card, direction = "asc") => {
         if (sortConfig.key === key && sortConfig.direction === "asc") {
             direction = "desc";
         }
+        sortData(key, direction);
+        setSortConfig({ key, direction });
+    };
 
+    const sortData = (key: keyof Card, direction = "asc") => {
+        if (!cards || cards.length === 0) {
+            setSortedData([]);
+            return;
+        }
         const sorted = [...cards].sort((a, b) => {
-            if (a[key]! < b[key]!) return direction === "asc" ? -1 : 1;
-            if (a[key]! > b[key]!) return direction === "asc" ? 1 : -1;
+            const aVal = String(a[key] || '').toLowerCase();
+            const bVal = String(b[key] || '').toLowerCase();
+
+            if (aVal < bVal) return direction === "asc" ? -1 : 1;
+            if (aVal > bVal) return direction === "asc" ? 1 : -1;
             return 0;
         });
 
         setSortedData(sorted);
-        setSortConfig({ key, direction });
     };
 
     useEffect(() => {
@@ -81,7 +90,7 @@ export default function CardTypeScreen() {
     }, [dispatch]);
 
     useEffect(() => {
-        setSortedData(cards);
+        sortData(sortConfig.key as keyof Card, sortConfig.direction);
     }, [cards])
 
     const openModalForEdit = (cardType: Card) => {
@@ -98,7 +107,7 @@ export default function CardTypeScreen() {
         if (cardToEdit) {
             dispatch(updateCardData(cardTypeData))
         } else {
-            
+
             dispatch(addNewCard(cardTypeData))
         }
     };
@@ -145,11 +154,11 @@ export default function CardTypeScreen() {
         return (
             <>
                 {columns.map((column) => (
-                    <TableHeaderItem 
-                        key={column.accessor} 
-                        onClick={() => column.sorting !== false && sortData(column.accessor as keyof Card)}
+                    <TableHeaderItem
+                        key={column.accessor}
+                        onClick={() => column.sorting !== false && sortDataToggle(column.accessor as keyof Card)}
                     >
-                        {column.Header} 
+                        {column.Header}
                         {column.sorting !== false && <span>{getSortIcon(column.accessor)}</span>}
                     </TableHeaderItem>
                 ))}
@@ -204,7 +213,7 @@ export default function CardTypeScreen() {
                         <CreditCard className='w-3 h-3' />
                         Add Card
                     </button>
-                    
+
                     <CardManagementModal
                         isOpen={isModalOpen}
                         cardToEdit={cardToEdit}
@@ -213,7 +222,7 @@ export default function CardTypeScreen() {
                     />
                 </SectionHeaderRight>
             </SectionHeader>
-            
+
             <SectionContent>
                 <div className="container mx-auto">
                     <CustomTable

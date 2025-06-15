@@ -55,7 +55,7 @@ export default function BankScreen() {
   }, [dispatch]);
 
   useEffect(() => {
-    setSortedData(banks);
+    sortData(sortConfig.key as keyof Bank, sortConfig.direction);
   }, [banks]);
 
   const openModalForAdd = () => {
@@ -96,10 +96,18 @@ export default function BankScreen() {
     },
   ];
 
-  const sortData = (key: keyof Bank) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+  const sortDataToggle = (key: keyof Card, direction = "asc") => {
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    sortData(key, direction);
+    setSortConfig({ key, direction });
+  };
+
+  const sortData = (key: keyof Bank, direction = "asc") => {
+    if (!banks || banks.length === 0) {
+      setSortedData([]);
+      return;
     }
     const sorted = [...banks].sort((a, b) => {
       if (a[key]! < b[key]!) return direction === 'asc' ? -1 : 1;
@@ -107,14 +115,13 @@ export default function BankScreen() {
       return 0;
     });
     setSortedData(sorted);
-    setSortConfig({ key, direction });
   };
 
   const renderTableHeaders = () => (
     columns.map((col) => (
       <TableHeaderItem
         key={col.accessor}
-        onClick={() => col.sorting !== false && sortData(col.accessor as keyof Bank)}>
+        onClick={() => col.sorting !== false && sortDataToggle(col.accessor as keyof Bank)}>
         {col.Header} {col.sorting !== false && (sortConfig.key === col.accessor ? (sortConfig.direction === 'asc' ? '↑' : '↓') : '')}
       </TableHeaderItem>
     ))
