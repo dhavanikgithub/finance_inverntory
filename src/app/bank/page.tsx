@@ -79,15 +79,6 @@ export default function BankScreen() {
 
   const handleDeleteBank = (bank: Bank) => {
     dispatch(deleteBankData(bank.id))
-      .then(() => {
-        if(error){
-          showToastError('Error Deleting Bank', error);
-          setIsDeleteDialogOpen(null); // Close the dialog on error
-        }
-        else{
-          showToastSuccess('Bank Deleted', 'Successfully deleted.')
-        }
-      })
   };
 
   const columns = [
