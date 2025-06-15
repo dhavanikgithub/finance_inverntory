@@ -12,7 +12,7 @@ import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthNumberFr
 import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
-import { showToastError, showToastSuccess } from '@/utils/toast';
+import { showToastError, showToastNote, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
 import { SortConfig } from '../client/page';
 import Fuse from 'fuse.js';
@@ -56,21 +56,31 @@ export default function Home() {
     setIsDeleteRecordDialogOpen(null);
   };
 
-  // Sorting Function
-  const sortData = (key: keyof Transaction) => {
-    let direction = "asc";
+  const sortDataToggle = (key: keyof Transaction, direction = "asc") => {
     if (sortConfig.key === key && sortConfig.direction === "asc") {
       direction = "desc";
     }
+    sortData(key, direction);
+    setSortConfig({ key, direction });
+  };
 
+  // Sorting Function
+  const sortData = (key: keyof Transaction, direction = "asc") => {
+    if (!transactions || transactions.length === 0) {
+      setSortedData([]);
+      return;
+    }
     const sorted = [...transactions].sort((a, b) => {
-      if (a[key]! < b[key]!) return direction === "asc" ? -1 : 1;
-      if (a[key]! > b[key]!) return direction === "asc" ? 1 : -1;
+      const aVal = String(a[key] || '').toLowerCase();
+      const bVal = String(b[key] || '').toLowerCase();
+
+      if (aVal < bVal) return direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return direction === "asc" ? 1 : -1;
       return 0;
     });
 
     setSortedData(sorted);
-    setSortConfig({ key, direction });
+
   };
 
 
@@ -96,7 +106,7 @@ export default function Home() {
 
 
   useEffect(() => {
-    setSortedData(transactions);
+    sortData(sortConfig.key as keyof Transaction, sortConfig.direction);
   }, [transactions]);
 
 
@@ -181,7 +191,7 @@ export default function Home() {
         {columns.map((column) => (
           <TableHeaderItem key={column.accessor} onClick={() => {
             if (column.sorting != false) {
-              sortData(column.accessor as keyof Transaction)
+              sortDataToggle(column.accessor as keyof Transaction)
             }
           }
           }>
@@ -468,7 +478,7 @@ export default function Home() {
         </SectionHeaderRight>
       </SectionHeader>
       <div className='w-full flex items-baseline justify-end gap-2'>
-        
+
         <SearchBox handleOnSearch={handleOnSearch} />
         <button
           onClick={() => handleOnSearch(searchInput)}

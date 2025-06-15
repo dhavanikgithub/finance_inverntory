@@ -10,7 +10,7 @@ import ClientManagementModal from '@/components/ClientManagementModal';
 import { formatDate, formatTime } from '@/utils/helper';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
-import { showToastError, showToastSuccess } from '@/utils/toast';
+import { showToastError, showToastNote, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
 import { Action } from '@/app/model/Action';
 import { Client } from '@/app/model/Client';
@@ -34,7 +34,7 @@ export default function ClientScreen() {
     const rowsPerPage = 10;
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Client>(null);
 
-    const openDeleteRecordDialog = (data:Client) => {
+    const openDeleteRecordDialog = (data: Client) => {
         setIsDeleteRecordDialogOpen(data);
     };
 
@@ -44,27 +44,37 @@ export default function ClientScreen() {
 
     // Define the type for a column object
     interface Column {
-    Header: string;
-    accessor: keyof Client | string; // Change this from string to keyof Transaction
-    type?: string;        // Optional property for custom column types (like "action")
-    sorting?: boolean;    // Optional property for sorting control
+        Header: string;
+        accessor: keyof Client | string; // Change this from string to keyof Transaction
+        type?: string;        // Optional property for custom column types (like "action")
+        sorting?: boolean;    // Optional property for sorting control
     }
 
-    // Sorting Function
-    const sortData = (key: keyof Client) => {
-        let direction = "asc";
+    const sortDataToggle = (key: keyof Client, direction = "asc") => {
         if (sortConfig.key === key && sortConfig.direction === "asc") {
             direction = "desc";
         }
+        setSortConfig({ key, direction });
+        sortData(key, direction);
+    };
+
+    // Sorting Function
+    const sortData = (key: keyof Client, direction = "asc") => {
+        if (!clients || clients.length === 0) {
+            setSortedData([]);
+            return;
+        }
 
         const sorted = [...clients].sort((a, b) => {
-            if (a[key]! < b[key]!) return direction === "asc" ? -1 : 1;
-            if (a[key]! > b[key]!) return direction === "asc" ? 1 : -1;
+            const aVal = String(a[key] || '').toLowerCase();
+            const bVal = String(b[key] || '').toLowerCase();
+
+            if (aVal < bVal) return direction === "asc" ? -1 : 1;
+            if (aVal > bVal) return direction === "asc" ? 1 : -1;
             return 0;
         });
 
         setSortedData(sorted);
-        setSortConfig({ key, direction });
     };
 
     useEffect(() => {
@@ -85,10 +95,10 @@ export default function ClientScreen() {
     }, [dispatch]);
 
     useEffect(() => {
-        setSortedData(clients);
+        sortData(sortConfig.key as keyof Client, sortConfig.direction);
     }, [clients])
 
-    const openModalForEdit = (client:Client) => {
+    const openModalForEdit = (client: Client) => {
         setClientToEdit(client);
         setIsModalOpen(true);
     };
@@ -99,18 +109,19 @@ export default function ClientScreen() {
     };
 
 
-    const handleSaveClient = (clientData:Client) => {
+    const handleSaveClient = (clientData: Client) => {
         if (clientToEdit) {
             // Update existing client
-            dispatch(updateClientData(clientData))
+            dispatch(updateClientData(clientData));
         } else {
             // Add new client
-            dispatch(addNewClient(clientData))
+            dispatch(addNewClient(clientData));
         }
+
     };
 
-    const handleDeleteClient = (clientData:Client) => {
-        dispatch(deleteClientData(clientData.id!))
+    const handleDeleteClient = (clientData: Client) => {
+        dispatch(deleteClientData(clientData.id!));
     }
 
 
@@ -148,7 +159,7 @@ export default function ClientScreen() {
 
     ];
 
-    const actions:Action[] = [
+    const actions: Action[] = [
         {
             icon: <SquarePen className='w-4 h-4' />,
             label: "Edit",
@@ -162,11 +173,11 @@ export default function ClientScreen() {
         }
     ]
 
-    function renderTableHeaders(columns:Column[]) {
+    function renderTableHeaders(columns: Column[]) {
         return (
             <>
                 {columns.map((column) => (
-                    <TableHeaderItem key={column.accessor} onClick={() => sortData(column.accessor as keyof Client)}>
+                    <TableHeaderItem key={column.accessor} onClick={() => sortDataToggle(column.accessor as keyof Client)}>
                         {column.Header} <span>{getSortIcon(column.accessor, column?.sorting)}</span>
                     </TableHeaderItem>
                 ))}
@@ -174,9 +185,9 @@ export default function ClientScreen() {
         )
     }
 
-    function renderTableRows(currentRows:Client[], columns:Column[]) {
+    function renderTableRows(currentRows: Client[], columns: Column[]) {
 
-        const renderTableData = (row:Client) => {
+        const renderTableData = (row: Client) => {
             return (
                 <>
                     <TableData>
