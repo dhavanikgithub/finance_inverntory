@@ -16,6 +16,8 @@ interface Transaction {
     remark: string;
     create_date?: string;
     create_time?: string;
+    modify_date?: string;
+    modify_time?: string;
 }
 
 
