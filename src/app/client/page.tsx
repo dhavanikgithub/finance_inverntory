@@ -14,6 +14,7 @@ import { showToastError, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
 import { Action } from '@/app/model/Action';
 import { Client } from '@/app/model/Client';
+import ViewMore from '@/components/ViewMore';
 
 export interface SortConfig {
     key: string;
@@ -120,6 +121,21 @@ export default function ClientScreen() {
             type: "string"
         },
         {
+            Header: "Email",
+            accessor: "email",
+            type: "string"
+        },
+        {
+            Header: "Contact",
+            accessor: "contact",
+            type: "string"
+        },
+        {
+            Header: "Address",
+            accessor: "address",
+            type: "string"
+        },
+        {
             Header: "Date",
             accessor: "create_date"
         },
@@ -165,6 +181,15 @@ export default function ClientScreen() {
                 <>
                     <TableData>
                         {row.name}
+                    </TableData>
+                    <TableData>
+                        {row.email || ''}
+                    </TableData>
+                    <TableData>
+                        {row.contact || ''}
+                    </TableData>
+                    <TableData>
+                        <ViewMore title={"Address"} text={row.address || ''} charLimit={20} />
                     </TableData>
                     <TableData>
                         <span className='text-sm'>

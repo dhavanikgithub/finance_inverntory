@@ -468,16 +468,6 @@ export default function Home() {
         </SectionHeaderRight>
       </SectionHeader>
       <div className='w-full flex items-baseline justify-end gap-2'>
-        {/* <div className="form-search m-0 p-0">
-          <label htmlFor="topbar-search" className="form-search-label">Search</label>
-          <div className="form-search-wrapper">
-            <input type="text" name="email" id="topbar-search"
-              className="form-search-input ps-3"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search" />
-          </div>
-        </div> */}
         
         <SearchBox handleOnSearch={handleOnSearch} />
         <button
@@ -505,13 +495,6 @@ export default function Home() {
           }
         </div>
 
-        {/* <button
-          onClick={() => setIsFilterModalOpen(true)}
-          className="btn-secondary-outline p-3"
-          type="button">
-          <Filter className='w-3 h-3' />
-          Filter
-        </button> */}
         <FilterModal
           isOpen={isFilterModalOpen}
           onClose={() => setIsFilterModalOpen(false)}
