@@ -35,17 +35,6 @@ const InputField: React.FC<InputFieldProps> = ({
     e.target.select();
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const form = e.currentTarget.form;
-      if (!form) return;
-
-      const index = Array.prototype.indexOf.call(form, e.currentTarget);
-      const nextElement = form.elements[index + 1] as HTMLElement | null;
-      nextElement?.focus();
-    }
-  };
 
   const handleClear = () => {
     onChange({ target: { value: '' } } as ChangeEvent<HTMLInputElement>);
@@ -83,7 +72,6 @@ const InputField: React.FC<InputFieldProps> = ({
           value={value}
           onChange={onChange}
           onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
           placeholder={placeholder}
           required={required}
           disabled={disabled}
