@@ -7,6 +7,7 @@ import Transaction, { Deposit, TransactionType } from '@/app/model/Transaction';
 import { Card } from '@/app/model/Card';
 import { Bank } from '@/app/model/Bank';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
+import InputField from './InputField';
 
 const TransactionModal = ({
     clients,
@@ -127,8 +128,8 @@ const TransactionModal = ({
             transaction_type: tempFormData.action === Deposit ? 0 : 1,
             create_date: transactionToEdit?.create_date || undefined,
             create_time: transactionToEdit?.create_time || undefined,
-            card_id: selectedCardObj.id || undefined,
-            bank_id: selectedBankObj.id || undefined
+            card_id: selectedCardObj?.id || undefined,
+            bank_id: selectedBankObj?.id || undefined
         };
 
         // If all fields are valid, save the transaction
@@ -216,55 +217,50 @@ const TransactionModal = ({
                 {formData.action === Deposit ? (
 
                     <div className="mt-4">
-                        <label htmlFor="depositAmount" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit Amount</label>
-                        <div className="relative mb-6">
-                            <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                                <IndianRupee className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                id="depositAmount"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Enter deposit amount"
-                                value={formData.transactionAmount}
-                                onInput={(e) => setFormData((prevState) => ({ ...prevState, transactionAmount: formatAmount((e.target as HTMLInputElement).value) }))}
-                            />
-                        </div>
+                        <InputField
+                            type='text'
+                            label="Deposit Amount"
+                            value={formData.transactionAmount === '0' ? '' : formData.transactionAmount}
+                            onChange={(e) => setFormData((prevState) => ({ ...prevState, transactionAmount: formatAmount((e.target as HTMLInputElement).value) }))}
+                            placeholder="e.g., 5,000/-"
+                            icon={<IndianRupee />}
+                        />
                     </div>
                 ) : (
                     <div className="mt-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="withdrawAmount" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Widthdraw Amount</label>
-                                <div className="relative mb-6">
-                                    <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                                        <IndianRupee className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        id="withdrawAmount"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Enter withdraw amount"
-                                        value={formData.transactionAmount}
-                                        onInput={(e) => setFormData((prevState) => ({ ...prevState, transactionAmount: formatAmount((e.target as HTMLInputElement).value) }))}
-                                    />
-                                </div>
+                                <InputField
+                                    type='text'
+                                    label="Widthdraw Amount"
+                                    value={formData.transactionAmount === '0' ? '' : formData.transactionAmount}
+                                    onChange={(e) => setFormData((prevState) => ({ ...prevState, transactionAmount: formatAmount((e.target as HTMLInputElement).value) }))}
+                                    placeholder="e.g., 5,000/-"
+                                    icon={<IndianRupee />}
+                                />
                             </div>
                             <div>
-                                <label htmlFor="rateDeduction" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rate Deduction (%)</label>
-                                <div className="relative mb-6">
-                                    <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                                        <Percent className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                                    </div>
-                                    <input
-                                        type="number"
-                                        id="rateDeduction"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Enter rate deduction"
-                                        value={formData.widthdrawCharge}
-                                        onInput={(e) => setFormData((prevState) => ({ ...prevState, widthdrawCharge: parseFloat((e.target as HTMLInputElement).value) }))}
-                                    />
-                                </div>
+                                <InputField
+                                    type="number"
+                                    label="Rate Deduction"
+                                    value={formData.widthdrawCharge === 0 ? '' : formData.widthdrawCharge.toString()}
+                                    onChange={(e) => {
+                                        const inputValue = parseFloat((e.target as HTMLInputElement).value);
+                                        const min = 0;      // ✅ Set your desired minimum
+                                        const max = 100;    // ✅ Set your desired maximum
+
+                                        const validatedValue = isNaN(inputValue)
+                                            ? 0
+                                            : Math.min(Math.max(inputValue, min), max); // Clamp value
+
+                                        setFormData((prevState) => ({
+                                            ...prevState,
+                                            widthdrawCharge: validatedValue,
+                                        }));
+                                    }}
+                                    placeholder="e.g., 1.8"
+                                    icon={<Percent />}
+                                />
                             </div>
 
                         </div>

@@ -23,6 +23,7 @@ import DataProcessor from '@/utils/DataProcessor';
 import { fetchBanks } from '@/store/actions/bankActions';
 import { fetchCards } from '@/store/actions/cardActions';
 import ViewMore from '@/components/ViewMore';
+import SearchBox from '@/components/SearchBox';
 
 
 export default function Home() {
@@ -467,7 +468,7 @@ export default function Home() {
         </SectionHeaderRight>
       </SectionHeader>
       <div className='w-full flex items-baseline justify-end gap-2'>
-        <div className="form-search m-0 p-0">
+        {/* <div className="form-search m-0 p-0">
           <label htmlFor="topbar-search" className="form-search-label">Search</label>
           <div className="form-search-wrapper">
             <input type="text" name="email" id="topbar-search"
@@ -476,7 +477,9 @@ export default function Home() {
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search" />
           </div>
-        </div>
+        </div> */}
+        
+        <SearchBox handleOnSearch={handleOnSearch} />
         <button
           onClick={() => handleOnSearch(searchInput)}
           className="btn-secondary-outline p-3"

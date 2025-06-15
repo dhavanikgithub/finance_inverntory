@@ -1,8 +1,9 @@
 // components/ClientManagementModal.jsx
 import React, { useState, useEffect } from 'react';
-import { Save, X } from 'lucide-react';
+import { Save, Text, X } from 'lucide-react';
 import { Client } from '@/app/model/Client';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
+import InputField from './InputField';
 
 const ClientManagementModal = ({
     isOpen,
@@ -64,14 +65,13 @@ const ClientManagementModal = ({
                 </button>
                 <h1 className="text-2xl font-bold mb-6">{isEditing ? 'Update Client' : 'Add Client'}</h1>
                 <div className="mt-4">
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Name:</label>
-                    <input
-                        type="text"
-                        id="name"
+                    <InputField
+                        label="Client Name"
                         value={name}
-                        placeholder='Client name...'
                         onChange={(e) => setName(e.target.value)}
-                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                        required
+                        placeholder="e.g., John Doe"
+                        icon={<Text/>}
                     />
                 </div>
                 <div className="mt-6 flex space-x-2">
