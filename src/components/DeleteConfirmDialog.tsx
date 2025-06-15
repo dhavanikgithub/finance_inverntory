@@ -1,5 +1,6 @@
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 import { CircleX } from 'lucide-react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const DeleteConfirmDialog = ({
   title,
@@ -10,16 +11,17 @@ const DeleteConfirmDialog = ({
   onClose,
   onDelete,
 }
-:{
-  title:string,
-  description:string,
-  positiveButtonText:string,
-  negativeButtonText:string,
-  isOpen:any,
-  onClose:()=>void,
-  onDelete:(data:any)=>void,
-}
+  : {
+    title: string,
+    description: string,
+    positiveButtonText: string,
+    negativeButtonText: string,
+    isOpen: any,
+    onClose: () => void,
+    onDelete: (data: any) => void,
+  }
 ) => {
+  useBodyScrollLock(isOpen);
   if (!isOpen) return null;
 
   return (
@@ -28,7 +30,7 @@ const DeleteConfirmDialog = ({
       <div className="relative mb-4 mx-4 md:relative bg-white rounded-lg md:max-w-md md:mx-auto p-4 dark:bg-gray-800">
         <div className="md:flex items-center">
           <div className="rounded-full border border-gray-300 flex items-center justify-center w-16 h-16 flex-shrink-0 mx-auto">
-            <CircleX className="bx bx-error text-3xl text-red-500"/>
+            <CircleX className="bx bx-error text-3xl text-red-500" />
           </div>
           <div className="mt-4 md:mt-0 md:ml-6 text-center md:text-left">
             <p className="font-bold">{title}</p>

@@ -3,38 +3,36 @@ import React, { useEffect, useState } from 'react';
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeading, SectionContent } from '@/components/Section';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNewClient, deleteClientData, fetchClients, updateClientData } from '@/store/actions/clientActions';
+import { addNewCard, deleteCardData, fetchCards, updateCardData } from '@/store/actions/cardActions';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
-import { SquarePen, Trash, UserRound } from 'lucide-react';
-import ClientManagementModal from '@/components/ClientManagementModal';
+import { SquarePen, Trash, CreditCard } from 'lucide-react';
+import CardManagementModal from '@/components/CardManagementModal';
 import { formatDate, formatTime } from '@/utils/helper';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { showToastError, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
 import { Action } from '@/app/model/Action';
-import { Client } from '@/app/model/Client';
-import ViewMore from '@/components/ViewMore';
+import { Card } from '@/app/model/Card';
 
 export interface SortConfig {
     key: string;
     direction: string
 }
-export default function ClientScreen() {
 
+export default function CardTypeScreen() {
     const dispatch: AppDispatch = useDispatch();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [clientToEdit, setClientToEdit] = useState<null | Client>(null);
-    const clients = useSelector((state: RootState) => state.client.clients);
-    const loading = useSelector((state: RootState) => state.client.loading);
-    const [sortedData, setSortedData] = useState<Client[]>([]);
+    const [cardToEdit, setCardToEdit] = useState<null | Card>(null);
+    const cards = useSelector((state: RootState) => state.card.cards);
+    const [sortedData, setSortedData] = useState<Card[]>([]);
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "name", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [currentRows, setCurrentRows] = useState<Client[]>([]);
+    const [currentRows, setCurrentRows] = useState<Card[]>([]);
     const rowsPerPage = 10;
-    const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Client>(null);
+    const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Card>(null);
 
-    const openDeleteRecordDialog = (data:Client) => {
+    const openDeleteRecordDialog = (data: Card) => {
         setIsDeleteRecordDialogOpen(data);
     };
 
@@ -42,22 +40,20 @@ export default function ClientScreen() {
         setIsDeleteRecordDialogOpen(null);
     };
 
-    // Define the type for a column object
     interface Column {
-    Header: string;
-    accessor: keyof Client | string; // Change this from string to keyof Transaction
-    type?: string;        // Optional property for custom column types (like "action")
-    sorting?: boolean;    // Optional property for sorting control
+        Header: string;
+        accessor: keyof Card | string;
+        type?: string;
+        sorting?: boolean;
     }
 
-    // Sorting Function
-    const sortData = (key: keyof Client) => {
+    const sortData = (key: keyof Card) => {
         let direction = "asc";
         if (sortConfig.key === key && sortConfig.direction === "asc") {
             direction = "desc";
         }
 
-        const sorted = [...clients].sort((a, b) => {
+        const sorted = [...cards].sort((a, b) => {
             if (a[key]! < b[key]!) return direction === "asc" ? -1 : 1;
             if (a[key]! > b[key]!) return direction === "asc" ? 1 : -1;
             return 0;
@@ -71,7 +67,7 @@ export default function ClientScreen() {
         const indexOfLastRow = currentPage * rowsPerPage;
         const indexOfFirstRow = indexOfLastRow - rowsPerPage;
         setCurrentRows(sortedData.slice(indexOfFirstRow, indexOfLastRow));
-    }, [currentPage, sortedData, clients])
+    }, [currentPage, sortedData, cards])
 
     const getSortIcon = (columnKey: string, sorting = true) => {
         if (sorting && sortConfig.key === columnKey) {
@@ -81,62 +77,47 @@ export default function ClientScreen() {
     };
 
     useEffect(() => {
-        dispatch(fetchClients());
+        dispatch(fetchCards());
     }, [dispatch]);
 
     useEffect(() => {
-        setSortedData(clients);
-    }, [clients])
+        setSortedData(cards);
+    }, [cards])
 
-    const openModalForEdit = (client:Client) => {
-        setClientToEdit(client);
+    const openModalForEdit = (cardType: Card) => {
+        setCardToEdit(cardType);
         setIsModalOpen(true);
     };
 
     const openModalForAdd = () => {
-        setClientToEdit(null); // Clear clientToEdit for adding new
+        setCardToEdit(null);
         setIsModalOpen(true);
     };
 
-
-    const handleSaveClient = (clientData:Client) => {
-        if (clientToEdit) {
-            // Update existing client
-            dispatch(updateClientData(clientData))
+    const handleSaveCard = (cardTypeData: Card) => {
+        if (cardToEdit) {
+            dispatch(updateCardData(cardTypeData))
         } else {
-            // Add new client
-            dispatch(addNewClient(clientData))
+            
+            dispatch(addNewCard(cardTypeData))
         }
     };
 
-    const handleDeleteClient = (clientData:Client) => {
-        dispatch(deleteClientData(clientData.id!))
+    const handleDeleteCardType = (cardTypeData: Card) => {
+        dispatch(deleteCardData(cardTypeData.id!))
+            .then(() => {
+                closeDeleteRecordDialog();
+            })
     }
 
-
-    const columns = [
+    const columns: Column[] = [
         {
             Header: "Name",
             accessor: "name",
             type: "string"
         },
         {
-            Header: "Email",
-            accessor: "email",
-            type: "string"
-        },
-        {
-            Header: "Contact",
-            accessor: "contact",
-            type: "string"
-        },
-        {
-            Header: "Address",
-            accessor: "address",
-            type: "string"
-        },
-        {
-            Header: "Date",
+            Header: "Created On",
             accessor: "create_date"
         },
         {
@@ -145,10 +126,9 @@ export default function ClientScreen() {
             type: "action",
             sorting: false,
         },
-
     ];
 
-    const actions:Action[] = [
+    const actions: Action[] = [
         {
             icon: <SquarePen className='w-4 h-4' />,
             label: "Edit",
@@ -158,52 +138,43 @@ export default function ClientScreen() {
             icon: <Trash className='w-4 h-4' />,
             label: "Delete",
             onClick: openDeleteRecordDialog,
-
         }
     ]
 
-    function renderTableHeaders(columns:Column[]) {
+    function renderTableHeaders(columns: Column[]) {
         return (
             <>
                 {columns.map((column) => (
-                    <TableHeaderItem key={column.accessor} onClick={() => sortData(column.accessor as keyof Client)}>
-                        {column.Header} <span>{getSortIcon(column.accessor, column?.sorting)}</span>
+                    <TableHeaderItem 
+                        key={column.accessor} 
+                        onClick={() => column.sorting !== false && sortData(column.accessor as keyof Card)}
+                    >
+                        {column.Header} 
+                        {column.sorting !== false && <span>{getSortIcon(column.accessor)}</span>}
                     </TableHeaderItem>
                 ))}
             </>
         )
     }
 
-    function renderTableRows(currentRows:Client[], columns:Column[]) {
-
-        const renderTableData = (row:Client) => {
+    function renderTableRows(currentRows: Card[], columns: Column[]) {
+        const renderTableData = (row: Card) => {
             return (
                 <>
-                    <TableData>
-                        {row.name}
-                    </TableData>
-                    <TableData>
-                        {row.email || ''}
-                    </TableData>
-                    <TableData>
-                        {row.contact || ''}
-                    </TableData>
-                    <TableData>
-                        <ViewMore title={"Address"} text={row.address || ''} charLimit={20} />
-                    </TableData>
+                    <TableData>{row.name}</TableData>
                     <TableData>
                         <span className='text-sm'>
-                            <span className=''>{formatDate(row.create_date!)}</span><br />
+                            <span>{formatDate(row.create_date!.toString())}</span><br />
                             <span className='text-gray-500'>{formatTime(row.create_time!)}</span>
                         </span>
                     </TableData>
                     <TableData>
                         <MoreOptionsMenu options={actions} data={row} />
                     </TableData>
-
                 </>
             )
         }
+
         return (
             <>
                 {currentRows.map((row, rowIndex) => (
@@ -218,36 +189,31 @@ export default function ClientScreen() {
     return (
         <Dashboard>
             <SectionHeader>
-
                 <SectionHeaderLeft>
-                    <Heading>Clients</Heading>
+                    <Heading>Card</Heading>
                     <SubHeading>
-                        Manage, review, add, update, or delete client records and their transactions.
+                        Manage all payment card in the system
                     </SubHeading>
                 </SectionHeaderLeft>
                 <SectionHeaderRight>
-                    {/* <button
-                        className="rounded border border-slate-300 py-2.5 px-3 text-center text-xs font-semibold text-slate-600 transition-all hover:opacity-75 focus:ring focus:ring-slate-300 active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                        type="button">
-                        Report
-                    </button> */}
                     <button
                         onClick={openModalForAdd}
                         className="btn-secondary"
-                        type="button">
-                        <UserRound className='w-3 h-3' />
-                        Add Client
+                        type="button"
+                    >
+                        <CreditCard className='w-3 h-3' />
+                        Add Card
                     </button>
-                    {/* Client Management Modal */}
-                    <ClientManagementModal
+                    
+                    <CardManagementModal
                         isOpen={isModalOpen}
-                        clientToEdit={clientToEdit}
+                        cardToEdit={cardToEdit}
                         onClose={() => setIsModalOpen(false)}
-                        onSave={handleSaveClient}
+                        onSave={handleSaveCard}
                     />
-
                 </SectionHeaderRight>
             </SectionHeader>
+            
             <SectionContent>
                 <div className="container mx-auto">
                     <CustomTable
@@ -256,32 +222,29 @@ export default function ClientScreen() {
                         onPageChange={setCurrentPage}
                         rowsPerPage={rowsPerPage}
                     >
-                        {/* Table Header */}
                         <TableHeader>
                             {renderTableHeaders(columns)}
                         </TableHeader>
 
-                        {/* Table Body */}
                         <TableBody>
                             {renderTableRows(currentRows, columns)}
                         </TableBody>
                     </CustomTable>
+
                     <DeactivateAccountModal
-                        title={"Delete Client"}
+                        title={"Delete Card"}
                         description={
-                            "You are about to delete this client and all their associated transactions. " +
-                            "This action cannot be undone. All records related to this client, including their transactions, will be permanently removed from the system."
+                            "You are about to delete this card. " +
+                            "This action cannot be undone. All records associated with this card will be updated."
                         }
-                        positiveButtonText={"Delete Client"}
+                        positiveButtonText={"Delete Card"}
                         negativeButtonText={"Cancel"}
                         isOpen={isDeleteRecordDialogOpen}
                         onClose={closeDeleteRecordDialog}
-                        onDelete={handleDeleteClient}
+                        onDelete={handleDeleteCardType}
                     />
-
                 </div>
             </SectionContent>
-
         </Dashboard>
     );
 }

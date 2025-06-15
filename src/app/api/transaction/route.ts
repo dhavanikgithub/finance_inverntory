@@ -6,9 +6,11 @@ import Transaction from '@/app/model/Transaction';
 export async function GET(): Promise<NextResponse> {
     try {
         const { rows }: { rows: Transaction[] } = await pool.query<Transaction>(`
-      SELECT tr.*, c.name as client_name 
+      SELECT tr.*, c.name AS client_name, bk.name AS bank_name, ct.name AS card_name
       FROM public.transaction_records tr 
       JOIN public.client c ON tr.client_id = c.id 
+      LEFT JOIN public.bank bk ON tr.bank_id = bk.id
+      LEFT JOIN public.card ct ON tr.card_id = ct.id
       ORDER BY tr.create_date DESC, tr.create_time DESC;
     `);
 
@@ -25,13 +27,15 @@ interface PostRequestBody {
     transaction_type?: number;
     widthdraw_charges?: number;
     transaction_amount?: number;
+    bank_id?: number;
+    card_id?: number;
     remark?: string;  // remark is optional
 }
 
 // Handler to create a new transaction and return it with client name
 export async function POST(req: Request): Promise<NextResponse> {
     try {
-        const { client_id, transaction_type, widthdraw_charges, transaction_amount, remark }: PostRequestBody = await req.json();
+        const { client_id, transaction_type, widthdraw_charges, transaction_amount, remark, bank_id, card_id }: PostRequestBody = await req.json();
 
         // Step 1: Validate required fields
         if (client_id === undefined) {
@@ -54,18 +58,20 @@ export async function POST(req: Request): Promise<NextResponse> {
 
         // Step 3: Insert the new transaction into the database
         const newTransaction = await pool.query(
-            `INSERT INTO public.transaction_records(client_id, transaction_type, widthdraw_charges, transaction_amount, remark) 
-         VALUES ($1, $2, $3, $4, $5) 
+            `INSERT INTO public.transaction_records(client_id, transaction_type, widthdraw_charges, transaction_amount, remark, bank_id, card_id) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7) 
          RETURNING *`,
-            [client_id, transaction_type, widthdraw_charges, transaction_amount, remark || '']
+            [client_id, transaction_type, widthdraw_charges, transaction_amount, remark || '', bank_id, card_id]
         );
 
         // Step 4: Get the client name for the inserted transaction
         const transactionWithClientName = await pool.query<Transaction>(
-            `SELECT tr.*, c.name AS client_name 
-         FROM public.transaction_records tr 
-         JOIN public.client c ON tr.client_id = c.id 
-         WHERE tr.id = $1`,
+            `SELECT tr.*, c.name AS client_name, bk.name AS bank_name, ct.name AS card_name
+      FROM public.transaction_records tr 
+      JOIN public.client c ON tr.client_id = c.id 
+      LEFT JOIN public.bank bk ON tr.bank_id = bk.id
+      LEFT JOIN public.card ct ON tr.card_id = ct.id
+         WHERE tr.id = $1;`,
             [newTransaction.rows[0].id]
         );
 
@@ -84,12 +90,14 @@ interface PutRequestBody {
     widthdraw_charges?: number;
     transaction_amount?: number;
     remark?: string; // remark is optional
+    bank_id?:number;
+    card_id?:number;
 }
 
 // Handler to update a transaction
 export async function PUT(req: Request): Promise<NextResponse> {
     try {
-        const { id, client_id, transaction_type, widthdraw_charges, transaction_amount, remark }: PutRequestBody = await req.json();
+        const { id, client_id, transaction_type, widthdraw_charges, transaction_amount, remark, bank_id, card_id }: PutRequestBody = await req.json();
 
         // Check for required field (id is mandatory for updating a transaction)
         if (!id) {
@@ -134,7 +142,20 @@ export async function PUT(req: Request): Promise<NextResponse> {
             setClause.push("transaction_amount = $" + (values.length + 1));
             values.push(transaction_amount);
         }
-
+        if (bank_id !== undefined) {
+            if (typeof bank_id !== 'number' || isNaN(bank_id)) {
+                return NextResponse.json({ error: 'Invalid value for "bank_id". It should be a number.' }, { status: 400 });
+            }
+            setClause.push("bank_id = $" + (values.length + 1));
+            values.push(bank_id);
+        }
+        if (card_id !== undefined) {
+            if (typeof card_id !== 'number' || isNaN(card_id)) {
+                return NextResponse.json({ error: 'Invalid value for "card_id". It should be a number.' }, { status: 400 });
+            }
+            setClause.push("card_id = $" + (values.length + 1));
+            values.push(card_id);
+        }
         if (remark !== undefined) {
             setClause.push("remark = $" + (values.length + 1));
             values.push(remark);
@@ -156,10 +177,12 @@ export async function PUT(req: Request): Promise<NextResponse> {
 
         // Step 4: Get the client name for the updated transaction
         const updatedTransactionWithClientName = await pool.query(
-            `SELECT tr.*, c.name AS client_name 
-         FROM public.transaction_records tr 
-         JOIN public.client c ON tr.client_id = c.id 
-         WHERE tr.id = $1`,
+            `SELECT tr.*, c.name AS client_name, bk.name AS bank_name, ct.name AS card_name
+      FROM public.transaction_records tr 
+      JOIN public.client c ON tr.client_id = c.id 
+      LEFT JOIN public.bank bk ON tr.bank_id = bk.id
+      LEFT JOIN public.card ct ON tr.card_id = ct.id
+         WHERE tr.id = $1;`,
             [updatedTransaction.rows[0].id]
         );
 

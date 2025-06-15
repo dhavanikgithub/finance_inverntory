@@ -28,6 +28,8 @@ interface GroupedData {
     date: string;
     time: string;
     is_widthdraw_transaction: boolean;
+    bank_name:string;
+    card_name:string;
   }>;
 }
 
@@ -46,11 +48,11 @@ export async function POST(req: Request): Promise<NextResponse> {
   try {
     // SQL query to fetch the transaction data based on filters
     let query = `
-      SELECT 
-        tr.*, 
-        c.name AS client_name
-      FROM public.transaction_records tr
-      JOIN public.client c ON tr.client_id = c.id
+      SELECT tr.*, c.name AS client_name, bk.name AS bank_name, ct.name AS card_name
+      FROM public.transaction_records tr 
+      JOIN public.client c ON tr.client_id = c.id 
+      LEFT JOIN public.bank bk ON tr.bank_id = bk.id
+      LEFT JOIN public.card ct ON tr.card_id = ct.id
       WHERE tr.create_date BETWEEN $1 AND $2
     `;
 
@@ -83,7 +85,9 @@ export async function POST(req: Request): Promise<NextResponse> {
         widthdraw_charges_pr: `${row.widthdraw_charges.toString()}%`,
         date: row.create_date ? formatDate(row.create_date): '-',
         time: row.create_time ? formatTime(row.create_time): '-',
-        is_widthdraw_transaction: isTransactionTypeWidthdraw(row.transaction_type)
+        is_widthdraw_transaction: isTransactionTypeWidthdraw(row.transaction_type),
+        bank_name: row.bank_name || '',
+        card_name: row.card_name || '',
       });
 
       // Update totals
@@ -130,7 +134,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       startDate: formatDate(startDate),
       endDate: formatDate(endDate),
       groupedData,
-      columns: ['transaction_type', 'transaction_amount', 'widthdraw_charges', 'date_and_time'],
+      columns: ['transaction_type', 'transaction_amount', 'widthdraw_charges', 'bank_name','card_name','date_and_time'],
     };
 
     // Create JSReport client instance

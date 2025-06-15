@@ -32,14 +32,22 @@ interface TableHeaderItemProps {
   onClick: () => void;
 }
 
-
-const CustomTable:React.FC<CustomTableProps> = ({ children, currentPage,  totalRows, onPageChange, rowsPerPage}) => {
-
+const CustomTable: React.FC<CustomTableProps> = ({
+  children,
+  currentPage,
+  totalRows,
+  onPageChange,
+  rowsPerPage,
+}) => {
   return (
-    <div className="p-0 overflow-y-hidden overflow-x-auto">
-      <table className="w-full mt-4 text-left table-auto min-w-max">
-        {children}
-      </table>
+    <div className="w-full mt-4 ">
+      <div className="overflow-x-auto">
+        <div className="max-h-[420px] overflow-y-auto">
+          <table className="w-full text-left table-auto min-w-max">
+            {children}
+          </table>
+        </div>
+      </div>
 
       {/* Pagination */}
       <Pagination
@@ -73,7 +81,7 @@ const TableBody:React.FC<TableBodyProps> = ({ children }) => {
 const TableHeaderItem:React.FC<TableHeaderItemProps> = ({ children, onClick }) => {
   return (
     <th
-      className="p-4 transition-colors cursor-pointer border-y border-slate-200 bg-slate-50 hover:bg-slate-100 sticky top-0 dark:bg-gray-800 dark:border-slate-600"
+      className="p-4 transition-colors cursor-pointer border-y border-slate-200 bg-slate-50 hover:bg-slate-100 sticky top-0 z-10 dark:bg-gray-800 dark:border-slate-600"
       onClick={onClick}
     >
       <p className="flex items-center justify-between gap-2 font-sans text-sm font-normal leading-none text-slate-500">

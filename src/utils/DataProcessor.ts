@@ -1,4 +1,5 @@
 import { DataOperatorType, FilterOperatorType, FilterType } from "@/components/FilterModal";
+import { getTransactionTypeStr } from "./helper";
 
 type SortDirection = 'asc' | 'desc';
 
@@ -40,10 +41,12 @@ class DataProcessor<T> {
     dataOperator: DataOperatorType,
     filterOperator: FilterOperatorType
   ): any {
-    if (dataOperator === 'date' && (filterOperator === 'year' || filterOperator === 'month')) {
+    if (dataOperator === 'date' && (filterOperator === 'year' || filterOperator === 'month' || filterOperator === 'day')) {
       const date = value instanceof Date ? value : new Date(value);
       if (isNaN(date.getTime())) return null;
       switch(filterOperator){
+        case 'day':
+            return date.getDate();
         case 'month': 
             return date.getMonth()+1;
         case 'year':
@@ -51,6 +54,9 @@ class DataProcessor<T> {
         default :
             return value;
       }
+    }
+    else if(dataOperator === 'transaction_type_number' && filterOperator === 'transaction_type_string'){
+      return getTransactionTypeStr(value)
     }
   
     // Default fallback: no transformation

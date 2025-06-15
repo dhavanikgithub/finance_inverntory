@@ -1,4 +1,5 @@
-import React from "react";
+import useBodyScrollLock from "@/hooks/useBodyScrollLock";
+import React, { useEffect } from "react";
 
 
 const DeactivateAccountModal = (
@@ -10,16 +11,17 @@ const DeactivateAccountModal = (
         isOpen,
         onClose,
         onDelete,
-    }:{
-        title:string,
-        description:string,
-        positiveButtonText:string,
-        negativeButtonText:string,
-        isOpen:any,
-        onClose:()=>void,
-        onDelete:(data:any)=>void,
+    }: {
+        title: string,
+        description: string,
+        positiveButtonText: string,
+        negativeButtonText: string,
+        isOpen: any,
+        onClose: () => void,
+        onDelete: (data: any) => void,
     }
 ) => {
+    useBodyScrollLock(isOpen);
     if (!isOpen) return null;
     return (
         <main className="fixed inset-0 antialiased flex items-center justify-center z-50 bg-gray-800 bg-opacity-50  text-gray-900 font-sans overflow-x-hidden">
@@ -68,9 +70,9 @@ const DeactivateAccountModal = (
                                 <button onClick={() => {
                                     onDelete(isOpen); // Perform the delete action
                                     onClose(); // Close the dialog after the delete action
-                                }} 
-                                type="button" 
-                                className="inline-flex w-full justify-center rounded-md bg-red-600 dark:bg-red-800 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:ml-3 sm:w-auto ">
+                                }}
+                                    type="button"
+                                    className="inline-flex w-full justify-center rounded-md bg-red-600 dark:bg-red-800 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 sm:ml-3 sm:w-auto ">
                                     {positiveButtonText}
                                 </button>
                                 <button onClick={onClose} type="button" className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto dark:bg-gray-900 dark:text-gray-400 dark:ring-gray-500">{negativeButtonText}</button>

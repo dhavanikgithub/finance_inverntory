@@ -1,19 +1,21 @@
 import { formatDate } from '@/utils/helper';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Dropdown from './Dropdown';
 import { File, X } from 'lucide-react';
 import { Client } from '@/app/model/Client';
+import useBodyScrollLock from '@/hooks/useBodyScrollLock';
+import CustomCheckbox from './CustomCheckbox';
 interface GenerateReportModalProps {
-    isOpen:boolean;
-    onClose:() => void;
-    clients:Client[];
+    isOpen: boolean;
+    onClose: () => void;
+    clients: Client[];
 }
-const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClose, clients }) => {
+const GenerateReportModal: React.FC<GenerateReportModalProps> = ({ isOpen, onClose, clients }) => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [isClientSpecific, setIsClientSpecific] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedClient, setSelectedClient] = useState<string|null>(null);
+    const [selectedClient, setSelectedClient] = useState<string | null>(null);
     const [error, setError] = useState('');
 
     // Validation function
@@ -50,10 +52,10 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
             return;
         }
         setIsLoading(true);
-        
+
         const selectedClientObj = clients.find((element) => element.name === selectedClient) as Client;
         const requestData = {
-            clientId:selectedClientObj?.id||null,
+            clientId: selectedClientObj?.id || null,
             startDate,
             endDate,
         };
@@ -68,10 +70,10 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
 
             // Generate the filename with the formatted date and time
             let filename = `finance_inverntory_report_${formatDate(startDate)}_${formatDate(endDate)}.pdf`;
-            if(isClientSpecific && selectedClient){
+            if (isClientSpecific && selectedClient) {
                 filename = `${selectedClientObj.name}_${filename}`;
             }
-            else{
+            else {
                 filename = `al_client_data_${filename}`;
             }
 
@@ -91,7 +93,7 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
             setIsLoading(false);
         }
     };
-    const onItemSelect = (item:string) => {
+    const onItemSelect = (item: string) => {
         setSelectedClient(item)
     }
 
@@ -105,7 +107,7 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
     }
     // Dropdown items list
     const items = clients.map((item) => item.name);
-
+    useBodyScrollLock(isOpen);
     if (!isOpen) return null;
     return (
         <main className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50 text-gray-900 font-sans overflow-hidden">
@@ -116,20 +118,17 @@ const GenerateReportModal:React.FC<GenerateReportModalProps> = ({ isOpen, onClos
                     <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6 dark:text-gray-200">Generate Report</h2>
                     {error && <p className="text-red-600 text-center mb-4">{error}</p>}
                     <div className="grid space-y-2 mb-2">
-                        <label
+                        <div
                             onClick={() => setIsClientSpecific(!isClientSpecific)}
-                            htmlFor="vertical-checkbox-checked-in-form"
-                            className="cursor-pointer max-w-xs flex p-3 w-full bg-white border border-gray-300 rounded-lg text-sm focus:border-black focus:ring-black dark:bg-gray-900 dark:border-gray-700 dark:text-neutral-400">
-                            <input
-                                type="checkbox"
-                                value=""
+                            className="cursor-pointer max-w-xs p-3 w-full bg-white border border-gray-300 rounded-lg focus:border-black focus:ring-black dark:bg-gray-900 dark:border-gray-700 dark:text-neutral-400">
+                            <CustomCheckbox
+                                key={""}
+                                value={"Generate for specific client."}
                                 checked={isClientSpecific}
                                 onChange={() => setIsClientSpecific(!isClientSpecific)}
-                                className="accent-black cursor-pointer shrink-0 mt-0.5 border-gray-200 rounded peer  disabled:opacity-50 disabled:pointer-events-none
-                                dark:accent-white dark:bg-gray-800 dark:border-gray-700
-                                " />
-                            <span className="cursor-pointer text-sm text-gray-500 ms-3 dark:text-neutral-400">Generate for specific client.</span>
-                        </label>
+                            />
+                        </div>
+
                     </div>
 
 

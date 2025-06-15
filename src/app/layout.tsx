@@ -27,6 +27,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
+  const setInitialTheme = `
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  `;
+
   
 
   return (
@@ -34,7 +49,9 @@ export default function RootLayout({
       <StoreProvider>
         <html lang="en">
           <head>
+            <title>Finance Invetory</title>
             <link id="favicon" rel="icon" href="/favicon-light.svg" />
+            <script dangerouslySetInnerHTML={{ __html: setInitialTheme }} />
           </head>
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-gray-800`}

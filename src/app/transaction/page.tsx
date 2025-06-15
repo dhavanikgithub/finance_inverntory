@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react';
-import AmountManagementModal from '../../components/AmountManagementModal';
+import TransactionModal from '../../components/TransactionModal';
 import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Search, SquarePen, Trash } from "lucide-react";
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
@@ -8,7 +8,7 @@ import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableR
 import { useDispatch, useSelector } from 'react-redux';
 import { addTransaction, deleteTransaction, fetchTransactions, updateTransaction } from '@/store/actions/transactionActions';
 import MoreOptionsMenu from '@/components/MoreOptionsMenu';
-import { baseFuseOptions, formatAmount, formatDate, formatTime, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
+import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
@@ -20,6 +20,10 @@ import { Action } from '../model/Action';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
 import FilterModal, { FilterType, getTotalFilterCount, getTotalFiltersCount } from '@/components/FilterModal';
 import DataProcessor from '@/utils/DataProcessor';
+import { fetchBanks } from '@/store/actions/bankActions';
+import { fetchCards } from '@/store/actions/cardActions';
+import ViewMore from '@/components/ViewMore';
+import SearchBox from '@/components/SearchBox';
 
 
 export default function Home() {
@@ -28,11 +32,13 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<null | TransactionType>(null);
   const transactions = useSelector((state: RootState) => state.transaction.transactions);
   const clients = useSelector((state: RootState) => state.client.clients);
+  const banks = useSelector((state: RootState) => state.bank.banks);
+  const cards = useSelector((state: RootState) => state.card.cards);
   const loading = useSelector((state: RootState) => state.transaction.loading);
   const clientsLoading = useSelector((state: RootState) => state.client.loading);
   const [transactionToEdit, setTransactionToEdit] = useState<null | Transaction>(null);
   const [sortedData, setSortedData] = useState<Transaction[]>([]);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "", direction: "asc" });
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "create_date", direction: "desc" });
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [currentRows, setCurrentRows] = useState<Transaction[]>([]);
   const rowsPerPage: number = 10;
@@ -41,7 +47,7 @@ export default function Home() {
   const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Transaction>(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterType[]>([]);
-  const [filterColumns, setFilterColumns] = useState<FilterType[]>([])
+  const [filterColumns, setFilterColumns] = useState<FilterType[]>([]);
   const openDeleteRecordDialog = (data: Transaction) => {
     setIsDeleteRecordDialogOpen(data);
   };
@@ -83,7 +89,9 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(fetchTransactions());
-    dispatch(fetchClients())
+    dispatch(fetchClients());
+    dispatch(fetchBanks());
+    dispatch(fetchCards());
   }, [dispatch]);
 
 
@@ -106,41 +114,18 @@ export default function Home() {
 
     if (transactionToEdit) {
       // Update existing Transaction
-      dispatch(updateTransaction(transactionData))
-        .then(() => {
-          // Show success toast after successful update
-          showToastSuccess('Transaction Updated', 'The transaction was updated successfully.');
-        })
-        .catch((error) => {
-          // Show error toast if the update failed
-          showToastError('Error Updating Transaction', `Something went wrong: ${error.message}`);
-        });
+      dispatch(updateTransaction(transactionData));
 
       setTransactionToEdit(null);
     } else {
       // Add new Transaction
-      dispatch(addTransaction(transactionData))
-        .then(() => {
-          // Show success toast after successful add
-          showToastSuccess('Transaction Added', 'The new transaction has been added successfully.');
-        })
-        .catch((error) => {
-          // Show error toast if the add failed
-          showToastError('Error Adding Transaction', `Something went wrong: ${error.message}`);
-        });
+      dispatch(addTransaction(transactionData));
     }
   };
 
   const handleDeleteTransaction = (transactionData: Transaction) => {
     if (transactionData?.id) {
-      dispatch(deleteTransaction(transactionData.id)).then(() => {
-        // Show success toast after successful update
-        showToastSuccess('Transaction Deleted', 'The transaction was deleted successfully.');
-      })
-        .catch((error) => {
-          // Show error toast if the update failed
-          showToastError('Error Deleting Transaction', `Something went wrong: ${error.message}`);
-        });
+      dispatch(deleteTransaction(transactionData.id));
     }
   }
 
@@ -158,6 +143,8 @@ export default function Home() {
     { Header: "Type", accessor: "transaction_type" },
     { Header: "Amount", accessor: "transaction_amount" },
     { Header: "Charges", accessor: "widthdraw_charges" },
+    { Header: "Bank", accessor: "bank_name" },
+    { Header: "Card", accessor: "card_name" },
     { Header: "Date", accessor: "create_date" },
     { Header: "Remarks", accessor: "remark" },
     {
@@ -219,15 +206,15 @@ export default function Home() {
           <TableData>
             {isTransactionTypeDeposit(row.transaction_type) ?
               <div
-                className="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20
-                dark:bg-green-900 dark:text-green-300 dark:bg-opacity-30
+                className="grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20
+                dark:bg-green-900 dark:text-green-300 dark:bg-opacity-25
                 ">
                 <span className="">Deposit</span>
               </div>
               :
               <div
-                className="relative grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20
-                dark:bg-red-900 dark:text-red-300 dark:bg-opacity-30
+                className="grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20
+                dark:bg-red-900 dark:text-red-300 dark:bg-opacity-25
                 ">
                 <span className="">Widthdraw</span>
               </div>
@@ -261,7 +248,16 @@ export default function Home() {
               </>
             )}
           </TableData>
-
+          <TableData>
+            <p className="text-sm font-semibold text-slate-700 dark:text-gray-200">
+              {row.bank_name}
+            </p>
+          </TableData>
+          <TableData>
+            <p className="text-sm font-semibold text-slate-700 dark:text-gray-200">
+              {row.card_name}
+            </p>
+          </TableData>
           <TableData>
             <span className='text-sm'>
               <span className=''>{formatDate(row.create_date!)}</span><br />
@@ -269,13 +265,9 @@ export default function Home() {
             </span>
           </TableData>
           <TableData>
-
-            <textarea
-              rows={1}
-              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              value={row.remark}
-              readOnly />
+            <ViewMore title={"Remark"} text={row.remark} charLimit={20} />
           </TableData>
+
           <TableData>
             <MoreOptionsMenu options={actions} data={row} />
           </TableData>
@@ -307,29 +299,29 @@ export default function Home() {
   const fuse = new Fuse(transactions, fuseOptions);
   const handleOnSearch = (searchText: string) => {
     if (searchText === "") {
-      setCurrentRows([...transactions])
+      setSortedData([...transactions])
       return
     }
     const fuseSearchResult = fuse.search(searchText);
     const searchResultList = fuseSearchResult.map((fuseItem) => {
       return fuseItem.item
     })
-    setCurrentRows([...searchResultList])
+    setSortedData([...searchResultList])
   }
 
   const handleApplyFilters = (filters: FilterType[]) => {
-    setAppliedFilters(filters);    
+    setAppliedFilters(filters);
   };
 
-  useEffect(()=>{
-    const dataProcessor = new DataProcessor(transactions,[])
+  useEffect(() => {
+    const dataProcessor = new DataProcessor(transactions, [])
     dataProcessor.applyFilter(appliedFilters)
     setSortedData(dataProcessor.getData())
-  },[appliedFilters])
+  }, [appliedFilters])
 
   const clientNameFilter = useMemo((): FilterType<string> => {
     const distinctClientNames: string[] = Array.from(
-      new Set(transactions.map(t => t.client_name))
+      new Set(transactions.map(t => t.client_name).sort((a, b) => a.localeCompare(b))) //sort client name by acending
     );
 
     return {
@@ -339,14 +331,34 @@ export default function Home() {
       dataOperator: 'string',
       data: distinctClientNames,
     }
-  }, [transactions])
+  }, [transactions]);
+
+  const dateYearFilter = useMemo((): FilterType<string> => {
+    const distinctYears: string[] = Array.from(
+      new Set(
+        transactions
+          .filter(t => t.create_date)
+          .map(t => new Date(t.create_date!).getFullYear().toString())
+          .sort((a, b) => parseInt(b) - parseInt(a)) // Sort in descending order
+      )
+    );
+
+    return {
+      columnName: "Transaction Year",
+      columnAccessor: "create_date",
+      filterOperator: 'year',
+      dataOperator: 'date',
+      data: distinctYears,
+    };
+  }, [transactions]);
 
   const dateMonthFilter = useMemo((): FilterType<string> => {
     const distinctMonths: string[] = Array.from(
       new Set(
         transactions
           .filter(t => t.create_date)
-          .map(t => (new Date(t.create_date!).getMonth() + 1).toString()) // Extracts "YYYY-MM"
+          .map(t => getMonthNumberFromDate(t.create_date!).toString()) // returns "YYYY-MM"
+          .sort((a, b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
     );
 
@@ -356,15 +368,55 @@ export default function Home() {
       filterOperator: 'month',
       dataOperator: 'date',
       data: distinctMonths,
-    }
-  }, [transactions])
+    };
+  }, [transactions]);
 
-  useEffect(()=>{
+  const dateDayFilter = useMemo((): FilterType<string> => {
+    const distinctDays: string[] = Array.from(
+      new Set(
+        transactions
+          .filter(t => t.create_date)
+          .map(t => new Date(t.create_date!).getDate().toString()) // assumes ISO string: "YYYY-MM-DDTHH:mm:ss"
+          .sort((a, b) => parseInt(a) - parseInt(b)) // Sort in ascending order
+      )
+    );
+
+    return {
+      columnName: "Transaction Day",
+      columnAccessor: "create_date",
+      filterOperator: 'day',
+      dataOperator: 'date',
+      data: distinctDays,
+    };
+  }, [transactions]);
+
+
+  const transactionTypeFilter = useMemo((): FilterType<string> => {
+    const distinctTransactionType: string[] = [
+      getTransactionTypeStr(0),
+      getTransactionTypeStr(1),
+    ];
+
+    return {
+      columnName: "Transaction Type",
+      columnAccessor: "transaction_type",
+      filterOperator: 'transaction_type_string',
+      dataOperator: 'transaction_type_number',
+      data: distinctTransactionType,
+    };
+  }, [transactions]);
+
+
+
+  useEffect(() => {
     setFilterColumns([
+      transactionTypeFilter,
       clientNameFilter,
-      dateMonthFilter
+      dateYearFilter,
+      dateMonthFilter,
+      dateDayFilter
     ])
-  },[transactions])
+  }, [transactions])
 
 
   const totalFilterCount = useMemo(() => {
@@ -402,8 +454,10 @@ export default function Home() {
           </button>
 
           {isModalOpen != null &&
-            <AmountManagementModal
+            <TransactionModal
               clients={clients}
+              cards={cards}
+              banks={banks}
               transactionToEdit={transactionToEdit}
               isOpen={isModalOpen != null}
               onClose={onCloseAmountManagementModal}
@@ -414,16 +468,8 @@ export default function Home() {
         </SectionHeaderRight>
       </SectionHeader>
       <div className='w-full flex items-baseline justify-end gap-2'>
-        <div className="form-search m-0 p-0">
-          <label htmlFor="topbar-search" className="form-search-label">Search</label>
-          <div className="form-search-wrapper">
-            <input type="text" name="email" id="topbar-search"
-              className="form-search-input ps-3"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search" />
-          </div>
-        </div>
+        
+        <SearchBox handleOnSearch={handleOnSearch} />
         <button
           onClick={() => handleOnSearch(searchInput)}
           className="btn-secondary-outline p-3"
@@ -449,13 +495,6 @@ export default function Home() {
           }
         </div>
 
-        {/* <button
-          onClick={() => setIsFilterModalOpen(true)}
-          className="btn-secondary-outline p-3"
-          type="button">
-          <Filter className='w-3 h-3' />
-          Filter
-        </button> */}
         <FilterModal
           isOpen={isFilterModalOpen}
           onClose={() => setIsFilterModalOpen(false)}
@@ -468,7 +507,7 @@ export default function Home() {
         <div className="container mx-auto">
           <CustomTable
             currentPage={currentPage}
-            totalRows={transactions.length}
+            totalRows={sortedData.length}
             onPageChange={setCurrentPage}
             rowsPerPage={rowsPerPage}
           >

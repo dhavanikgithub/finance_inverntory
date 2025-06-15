@@ -9,6 +9,10 @@ interface Transaction {
     widthdraw_charges: number;
     transaction_amount: number;
     client_name: string;
+    bank_name?: string;
+    card_name?: string;
+    bank_id?: number;
+    card_id?: number;
     remark: string;
     create_date?: string;
     create_time?: string;
