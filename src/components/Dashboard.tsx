@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef, ReactNode } from 'react';
-import { House, UserRound, ArrowLeftRight, LayoutDashboard, BadgeHelp, Search, Sun, Moon, Facebook, Instagram, Twitter, Github, Dribbble, CreditCard, Landmark, SquareSigma } from 'lucide-react'
+import { UserRound, ArrowLeftRight, BadgeHelp, Search, Sun, Moon, Github, CreditCard, Landmark, SquareSigma } from 'lucide-react'
 import { Section } from './Section';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
@@ -114,8 +114,8 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                     </svg>
                                 </button>
                                 <a href="#" className="text-xl font-bold flex items-center lg:ml-2.5">
-                                    <Logo className="h-6 mr-2 text-black dark:text-white" />
-                                    <span className="self-center whitespace-nowrap">Finance</span>
+                                    <Logo className="h-8 mr-2 dark:fill-white" />
+                                    <span className="self-center whitespace-nowrap">Fintrack Pro</span>
                                 </a>
                                 {/* <form action="#" method="GET" className="form-search">
                                     <label htmlFor="topbar-search" className="form-search-label">Search</label>
