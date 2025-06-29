@@ -113,7 +113,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
                                     </svg>
                                 </button>
-                                <a href="#" className="text-xl font-bold flex items-center lg:ml-2.5">
+                                <a href="/" className="text-xl font-bold flex items-center lg:ml-2.5">
                                     <Logo className="h-8 mr-2 dark:fill-white" />
                                     <span className="self-center whitespace-nowrap">Fintrack Pro</span>
                                 </a>
@@ -214,7 +214,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                                 <span className="sidebar-link-text">Card</span>
                                             </Link>
                                         </li>
-                                         <li>
+                                        <li>
                                             <Link href="/bank" className="sidebar-link group">
                                                 <Landmark className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Bank</span>
@@ -266,7 +266,12 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                 <a href="#" className="footer-social-icon">
                                     <Twitter className="h-5 w-5" />
                                 </a> */}
-                                <a href="https://github.com/dhavanikgithub/finance_inverntory" className="footer-social-icon">
+                                <a
+                                    href="https://github.com/dhavanikgithub/finance_inverntory"
+                                    className="footer-social-icon"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
                                     <Github className="h-5 w-5" />
                                 </a>
                                 {/* <a href="#" className="footer-social-icon">
