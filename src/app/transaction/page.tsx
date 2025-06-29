@@ -1,22 +1,19 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react';
 import TransactionModal from '../../components/TransactionModal';
-import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Search, SquarePen, Trash } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, SquarePen, Trash, Trash2 } from "lucide-react";
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTransaction, deleteTransaction, fetchTransactions, updateTransaction } from '@/store/actions/transactionActions';
-import MoreOptionsMenu from '@/components/MoreOptionsMenu';
 import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
-import { showToastError, showToastNote, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
 import { SortConfig } from '../client/page';
 import Fuse from 'fuse.js';
-import { Action } from '../model/Action';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
 import FilterModal, { FilterType, getTotalFilterCount, getTotalFiltersCount } from '@/components/FilterModal';
 import DataProcessor from '@/utils/DataProcessor';
@@ -24,6 +21,7 @@ import { fetchBanks } from '@/store/actions/bankActions';
 import { fetchCards } from '@/store/actions/cardActions';
 import ViewMore from '@/components/ViewMore';
 import SearchBox from '@/components/SearchBox';
+import ActionMenu from '@/components/ActionMenu';
 
 
 export default function Home() {
@@ -166,20 +164,6 @@ export default function Home() {
   ];
 
 
-
-  const actions: Action[] = [
-    {
-      icon: <SquarePen className='w-4 h-4' />,
-      label: "Edit",
-      onClick: openModalForEdit,
-    },
-    {
-      icon: <Trash className='w-4 h-4' />,
-      label: "Delete",
-      onClick: openDeleteRecordDialog,
-    }
-  ]
-
   const openGenerateReport = () => {
     setIsGenerateReportModalOpen(true)
   }
@@ -279,7 +263,8 @@ export default function Home() {
           </TableData>
 
           <TableData>
-            <MoreOptionsMenu options={actions} data={row} />
+            {/* <MoreOptionsMenu options={actions} data={row} /> */}
+            <ActionMenu<Transaction> items={menuItems} data={row} />
           </TableData>
         </>
       )
@@ -432,6 +417,19 @@ export default function Home() {
   const totalFilterCount = useMemo(() => {
     return getTotalFilterCount(appliedFilters)
   }, [appliedFilters])
+
+  const menuItems = [
+    {
+      label: 'Edit',
+      icon: Pencil,
+      onClick: openModalForEdit,
+    },
+    {
+      label: 'Delete',
+      icon: Trash2,
+      onClick: openDeleteRecordDialog,
+    },
+  ];
 
   return (
     <Dashboard>

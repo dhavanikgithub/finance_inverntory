@@ -5,15 +5,13 @@ import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeadi
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewCard, deleteCardData, fetchCards, updateCardData } from '@/store/actions/cardActions';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
-import { SquarePen, Trash, CreditCard } from 'lucide-react';
+import { CreditCard, Pencil, Trash2 } from 'lucide-react';
 import CardManagementModal from '@/components/CardManagementModal';
 import { formatDate, formatTime } from '@/utils/helper';
-import MoreOptionsMenu from '@/components/MoreOptionsMenu';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
-import { showToastError, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
-import { Action } from '@/app/model/Action';
 import { Card } from '@/app/model/Card';
+import ActionMenu from '@/components/ActionMenu';
 
 export interface SortConfig {
     key: string;
@@ -137,18 +135,18 @@ export default function CardTypeScreen() {
         },
     ];
 
-    const actions: Action[] = [
+    const menuItems = [
         {
-            icon: <SquarePen className='w-4 h-4' />,
-            label: "Edit",
+            label: 'Edit',
+            icon: Pencil,
             onClick: openModalForEdit,
         },
         {
-            icon: <Trash className='w-4 h-4' />,
-            label: "Delete",
+            label: 'Delete',
+            icon: Trash2,
             onClick: openDeleteRecordDialog,
-        }
-    ]
+        },
+    ];
 
     function renderTableHeaders(columns: Column[]) {
         return (
@@ -178,7 +176,7 @@ export default function CardTypeScreen() {
                         </span>
                     </TableData>
                     <TableData>
-                        <MoreOptionsMenu options={actions} data={row} />
+                        <ActionMenu<Card> items={menuItems} data={row}/>
                     </TableData>
                 </>
             )
