@@ -140,25 +140,32 @@ const GenerateReportModal: React.FC<GenerateReportModalProps> = ({ isOpen, onClo
                     )}
                     <div className="flex justify-between items-center mb-6 space-x-2">
                         <div className="w-full">
-                            <label className="block text-gray-700 font-medium mb-2 text-sm">Start Date:</label>
+                            <label className="block text-gray-700 font-medium mb-2 text-sm">
+                                Start Date:
+                            </label>
                             <input
                                 type="date"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full h-10 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black dark:bg-gray-800 dark:border-gray-600"
+                                onClick={(e) => e.currentTarget.showPicker?.()}
+                                className="w-full h-10 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black dark:bg-gray-800 dark:border-gray-600 cursor-pointer"
                             />
                         </div>
 
                         <div className="w-full">
-                            <label className="block text-gray-700 font-medium mb-2 text-sm">End Date:</label>
+                            <label className="block text-gray-700 font-medium mb-2 text-sm">
+                                End Date:
+                            </label>
                             <input
                                 type="date"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full h-10 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black dark:bg-gray-800 dark:border-gray-600"
+                                onClick={(e) => e.currentTarget.showPicker?.()}
+                                className="w-full h-10 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-black dark:bg-gray-800 dark:border-gray-600 cursor-pointer"
                             />
                         </div>
                     </div>
+
 
 
                     <div className="mt-6 flex space-x-2">
