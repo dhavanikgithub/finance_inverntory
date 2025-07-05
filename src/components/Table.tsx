@@ -101,9 +101,12 @@ const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading 
 
 const TableRow: React.FC<TableRowProps> = ({ children }) => {
   return (
-    <tr>{children}</tr>
-  )
-}
+    <tr className="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+      {children}
+    </tr>
+  );
+};
+
 
 const TableBody: React.FC<TableBodyProps> = ({ children }) => {
   return (<tbody>{children}</tbody>)
