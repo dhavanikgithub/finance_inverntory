@@ -1,14 +1,21 @@
 import { DataOperatorType, FilterOperatorType, FilterType } from "@/components/FilterModal";
 import { getTransactionTypeStr } from "./helper";
+import Fuse from "fuse.js";
+import { fuseSearch } from "./FuseSearch";
 
 type SortDirection = 'asc' | 'desc';
 
+export type SearchColumn = {
+  name: string;
+  weight?: number;
+}
+
 class DataProcessor<T> {
   private originalData: T[];
-  private searchColumns: (keyof T)[];
+  private searchColumns: SearchColumn[];
   private processedData: T[];
 
-  constructor(data: T[], searchColumns: (keyof T)[]) {
+  constructor(data: T[], searchColumns: SearchColumn[]) {
     this.originalData = data;
     this.searchColumns = searchColumns;
     this.processedData = [...data]; // make a copy to process
@@ -17,11 +24,7 @@ class DataProcessor<T> {
 
   applySearch(searchTerm: string): this {
     const term = searchTerm.toLowerCase();
-    this.processedData = this.originalData.filter(item =>
-      this.searchColumns.some(column =>
-        String(item[column]).toLowerCase().includes(term)
-      )
-    );
+    this.processedData = fuseSearch(this.originalData,term, this.searchColumns)
     return this;
   }
 

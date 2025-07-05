@@ -16,7 +16,7 @@ import { SortConfig } from '../client/page';
 import Fuse from 'fuse.js';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
 import FilterModal, { FilterData, FilterType, getTotalFilterCount } from '@/components/FilterModal';
-import DataProcessor from '@/utils/DataProcessor';
+import DataProcessor, { SearchColumn } from '@/utils/DataProcessor';
 import { fetchBanks } from '@/store/actions/bankActions';
 import { fetchCards } from '@/store/actions/cardActions';
 import ViewMore from '@/components/ViewMore';
@@ -54,34 +54,34 @@ export default function Home() {
   const userInfoModalRef = useRef<InfoModalRef>(null);
   const contextMenuRef = useRef<ContextMenuHandle>(null);
 
-  const contextItems:ContextMenuItem[] = [
-      {
-          label: "User Info",
-          icon: User2,
-          onClick: (data) => {
-            handleClientNameClick(data.client.id)
-          }
-      },
-      {
-          label: "Edit",
-          icon: Pencil,
-          onClick: (data) => {
-            openModalForEdit(data.transaction)
-          }
-      },
-      {
-          label: "Delete",
-          icon: Trash2,
-          onClick: (data) => {
-            openDeleteRecordDialog(data.transaction)
-          }
+  const contextItems: ContextMenuItem[] = [
+    {
+      label: "User Info",
+      icon: User2,
+      onClick: (data) => {
+        handleClientNameClick(data.client.id)
       }
+    },
+    {
+      label: "Edit",
+      icon: Pencil,
+      onClick: (data) => {
+        openModalForEdit(data.transaction)
+      }
+    },
+    {
+      label: "Delete",
+      icon: Trash2,
+      onClick: (data) => {
+        openDeleteRecordDialog(data.transaction)
+      }
+    }
   ];
 
-  const handleRightClick = (e: React.MouseEvent, transaction:Transaction) => {
+  const handleRightClick = (e: React.MouseEvent, transaction: Transaction) => {
     e.preventDefault();
     const client = clients.find(c => c.id === transaction.client_id);
-    contextMenuRef.current?.show(e, { transaction: {...transaction}, client: {...client} });
+    contextMenuRef.current?.show(e, { transaction: { ...transaction }, client: { ...client } });
   };
 
   const openDeleteRecordDialog = (data: Transaction) => {
@@ -330,24 +330,25 @@ export default function Home() {
     setIsModalOpen(null)
     setTransactionToEdit(null)
   }
-  const fuseOptions = {
-    ...baseFuseOptions,
-    keys: [
-      "remark",
-      "client_name"
-    ]
-  }
-  const fuse = new Fuse(transactions, fuseOptions);
-  const handleOnSearch = (searchText: string) => {
-    if (searchText === "") {
-      setSortedData([...transactions])
-      return
+  const searchColumn:SearchColumn[] = [
+    {
+      name: "client_name"
+    },
+    {
+      name: "remark"
+    },
+    {
+      name: "bank_name"
+    },
+    {
+      name: "card_name"
     }
-    const fuseSearchResult = fuse.search(searchText);
-    const searchResultList = fuseSearchResult.map((fuseItem) => {
-      return fuseItem.item
-    })
-    setSortedData([...searchResultList])
+  ]
+
+  const handleOnSearch = (searchText: string) => {
+    const dataProcessor = new DataProcessor<Transaction>(sortedData, searchColumn);
+    dataProcessor.applySearch(searchText);
+    setSortedData(dataProcessor.getData());
   }
 
   const handleApplyFilters = (filters: FilterType[]) => {
@@ -550,7 +551,7 @@ export default function Home() {
       </SectionHeader>
       <div className='w-full flex items-baseline justify-end gap-2'>
 
-        <SearchBox handleOnSearch={handleOnSearch} />
+        <SearchBox handleOnSearch={handleOnSearch} searchInput={searchInput} setSearchInput={setSearchInput} />
         <button
           onClick={() => handleOnSearch(searchInput)}
           className="btn-secondary-outline p-3"

@@ -5,14 +5,17 @@ import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeadi
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewClient, deleteClientData, fetchClients, updateClientData } from '@/store/actions/clientActions';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
-import { Pencil, Trash2, UserRound } from 'lucide-react';
+import { Pencil, Search, Trash2, UserRound } from 'lucide-react';
 import ClientManagementModal from '@/components/ClientManagementModal';
-import { formatDate, formatTime } from '@/utils/helper';
+import { baseFuseOptions, formatDate, formatTime } from '@/utils/helper';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { AppDispatch, RootState } from '@/store/store';
 import { Client } from '@/app/model/Client';
 import ViewMore from '@/components/ViewMore';
 import ActionMenu from '@/components/ActionMenu';
+import SearchBox from '@/components/SearchBox';
+import Fuse from 'fuse.js';
+import DataProcessor, { SearchColumn } from '@/utils/DataProcessor';
 
 export interface SortConfig {
     key: string;
@@ -31,6 +34,7 @@ export default function ClientScreen() {
     const [currentRows, setCurrentRows] = useState<Client[]>([]);
     const rowsPerPage = 10;
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Client>(null);
+    const [searchInput, setSearchInput] = useState<string>("");
 
     const openDeleteRecordDialog = (data: Client) => {
         setIsDeleteRecordDialogOpen(data);
@@ -193,7 +197,7 @@ export default function ClientScreen() {
                         </span>
                     </TableData>
                     <TableData>
-                        <ActionMenu<Client> items={menuItems} data={row}/>
+                        <ActionMenu<Client> items={menuItems} data={row} />
                     </TableData>
 
                 </>
@@ -222,6 +226,27 @@ export default function ClientScreen() {
             onClick: openDeleteRecordDialog,
         },
     ];
+    const searchColumn:SearchColumn[] = [
+        {
+            name:"name"
+        },
+        {
+            name:"email"
+        },
+        {
+            name:"contact"
+        },
+        {
+            name:"address"
+        },
+    ];
+    
+
+    const handleOnSearch = (searchText: string) => {
+        const dataProcessor = new DataProcessor<Client>(clients,searchColumn); 
+        dataProcessor.applySearch(searchText);
+        setSortedData(dataProcessor.getData());
+    }
 
     return (
         <Dashboard>
@@ -256,6 +281,18 @@ export default function ClientScreen() {
 
                 </SectionHeaderRight>
             </SectionHeader>
+            <div className='w-full flex items-baseline justify-end gap-2'>
+
+                <SearchBox handleOnSearch={handleOnSearch} searchInput={searchInput} setSearchInput={setSearchInput}/>
+                <button
+                    onClick={() => handleOnSearch(searchInput)}
+                    className="btn-secondary-outline p-3"
+                    type="button">
+                    <Search className='w-3 h-3' />
+                    Search
+                </button>
+
+            </div>
             <SectionContent>
                 <div className="container mx-auto">
                     <CustomTable
