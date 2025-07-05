@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useMemo, useRef, useState } from 'react';
 import TransactionModal from '../../components/TransactionModal';
-import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, Trash2 } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, Trash2, User2 } from "lucide-react";
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
@@ -57,18 +57,21 @@ export default function Home() {
   const contextItems:ContextMenuItem[] = [
       {
           label: "User Info",
+          icon: User2,
           onClick: (data) => {
             handleClientNameClick(data.client.id)
           }
       },
       {
           label: "Edit",
+          icon: Pencil,
           onClick: (data) => {
             openModalForEdit(data.transaction)
           }
       },
       {
           label: "Delete",
+          icon: Trash2,
           onClick: (data) => {
             openDeleteRecordDialog(data.transaction)
           }

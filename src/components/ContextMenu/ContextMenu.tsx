@@ -1,6 +1,5 @@
 import React from "react";
 import { ContextMenuItem, ContextMenuProps } from "./types";
-import { SquareChevronRight } from "lucide-react";
 
 const ContextMenu: React.FC<ContextMenuProps> = ({ items, onItemClick }) => {
   const renderItems = (menuItems: ContextMenuItem[], depth = 0) => (
@@ -29,7 +28,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ items, onItemClick }) => {
                 }
               }}
             >
-              {item.icon && <span className="text-lg">{item.icon}</span>}
+              {item.icon ? <item.icon className="w-4 h-4 mr-2" /> : ""}
               <span className="flex-1">{item.label}</span>
             </div>
           </li>

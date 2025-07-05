@@ -1,12 +1,12 @@
-import { ReactNode } from "react";
+import { LucideIcon } from "lucide-react";
 
 export interface ContextMenuItem {
     label: string;
-    icon?: ReactNode;
+    icon?: LucideIcon;
     onClick?: (data: any) => void;
     children?: ContextMenuItem[];
     disabled?: boolean; // Alias for isDisabled
-    
+
 }
 
 export interface ContextMenuProps {
