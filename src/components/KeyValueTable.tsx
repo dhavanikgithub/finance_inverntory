@@ -1,4 +1,4 @@
-import { formatDate, formatTime } from '@/utils/helper';
+import { formatDate, formatTime, getTransactionTypeStr } from '@/utils/helper';
 import React from 'react';
 
 interface KeyValueTableProps {
@@ -30,7 +30,16 @@ const KeyValueTable: React.FC<KeyValueTableProps> = ({ data }) => {
             } 
             else if (key.toLowerCase().includes('time')) {
               displayValue = formatTime(value);
-            } 
+            }
+            else if (key.toLowerCase() === 'transaction_type') {
+              displayValue = getTransactionTypeStr(value);
+            }
+            else if (key.toLowerCase().includes('amount')) {
+              displayValue = `₹${value.toLocaleString()}/-`;
+            }
+            else if(key.toLocaleLowerCase() === 'widthdraw_charges'){
+              displayValue = `${value}%`
+            }
             else if (typeof value === 'object' && value !== null) {
               displayValue = JSON.stringify(value, null, 2);
             }
