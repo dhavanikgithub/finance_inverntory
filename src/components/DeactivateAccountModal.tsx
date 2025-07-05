@@ -1,5 +1,7 @@
 import useBodyScrollLock from "@/hooks/useBodyScrollLock";
+import { formatDate, formatTime } from "@/utils/helper";
 import React, { useEffect } from "react";
+import KeyValueTable from "./KeyValueTable";
 
 
 const DeactivateAccountModal = (
@@ -10,7 +12,7 @@ const DeactivateAccountModal = (
         negativeButtonText,
         isOpen,
         onClose,
-        onDelete,
+        onDelete
     }: {
         title: string,
         description: string,
@@ -18,7 +20,8 @@ const DeactivateAccountModal = (
         negativeButtonText: string,
         isOpen: any,
         onClose: () => void,
-        onDelete: (data: any) => void,
+        onDelete: (data: any) => void
+
     }
 ) => {
     useBodyScrollLock(isOpen);
@@ -66,6 +69,11 @@ const DeactivateAccountModal = (
                                     </div>
                                 </div>
                             </div>
+                            {isOpen && typeof isOpen === 'object' && (
+                                <KeyValueTable data={isOpen} />
+                            )}
+
+
                             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 dark:bg-gray-800">
                                 <button onClick={() => {
                                     onDelete(isOpen); // Perform the delete action
