@@ -72,7 +72,7 @@ class DataProcessor<T> {
         const extracted = this.extractFromData(itemValue, filter.dataOperator, filter.filterOperator);
   
         // Convert all filter values to string for consistent comparison
-        const match = filter.data.some(filterVal => String(extracted) === String(filterVal));
+        const match = filter.data.some(filterVal => String(extracted) === String(filterVal.value));
   
         return match;
       })

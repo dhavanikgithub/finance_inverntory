@@ -5,12 +5,17 @@ import CustomCheckbox from './CustomCheckbox';
 export type FilterOperatorType = 'string' | 'year' | 'number' | 'month' | 'day' | 'transaction_type_string'
 export type DataOperatorType = 'string' | 'date' | 'number' | 'transaction_type_number'
 
-export interface FilterType<T = any> {
+export type FilterData = {
+    label: string;
+    value: string;
+}
+
+export interface FilterType {
     columnName: string;
     columnAccessor: string;
     filterOperator: FilterOperatorType;
     dataOperator: DataOperatorType;
-    data: T[];
+    data: FilterData[];
 }
 
 interface ColumnStateType {
@@ -80,18 +85,18 @@ const FilterModal = ({
         const columnState = columnsState.find((column) => column.columnName === columnName)
         return columnState ? columnState.isOpen : false
     }
-    function getFilterByColumnName<T>(
-        filters: FilterType<T>[],
+    function getFilterByColumnName(
+        filters: FilterType[],
         columnName: string
-    ): FilterType<T> | undefined {
+    ): FilterType | undefined {
         return filters.find(filter => filter.columnName === columnName);
     }
 
 
-    function invertSelectFilter<T>(
+    function invertSelectFilter(
         filters: FilterType[],
         columnName: string,
-        allPossibleValues: T[]
+        allPossibleValues: FilterData[]
     ) {
         const currentFilter = getFilterByColumnName(filters, columnName);
         if (!currentFilter) {
@@ -103,7 +108,7 @@ const FilterModal = ({
                 value => !currentFilter.data.includes(value)
             );
 
-            const invertedFilter: FilterType<T> = {
+            const invertedFilter: FilterType = {
                 ...currentFilter,
                 data: invertedValues,
             };
@@ -130,9 +135,9 @@ const FilterModal = ({
 
 
 
-    function toggleFilter<T>(
+    function toggleFilter(
         column: FilterType,
-        value: T,
+        value: FilterData,
     ) {
         setFilters(prev => {
             const existing = prev.find(f => f.columnName === column.columnName);
@@ -165,7 +170,7 @@ const FilterModal = ({
             }
 
             // No existing filter for this column, create new
-            const newFilter: FilterType<T> = {
+            const newFilter: FilterType = {
                 columnAccessor: column.columnAccessor,
                 columnName: column.columnName,
                 filterOperator: column.filterOperator,
@@ -195,7 +200,7 @@ const FilterModal = ({
         clearAllFilter(columnName)
     };
 
-    const handleChange = (column: FilterType, value: string) => {
+    const handleChange = (column: FilterType, value: FilterData) => {
         toggleFilter(column, value)
     };
 
@@ -288,12 +293,12 @@ const FilterModal = ({
                                             </button>
                                         </div>
                                         <div className="space-y-1 max-h-40 overflow-y-auto pr-2">
-                                            {column.data.map((value) => (
+                                            {column.data.map((dataItem) => (
                                                 <CustomCheckbox
-                                                    key={value}
-                                                    value={value}
-                                                    checked={getFilterColumn(column.columnName)?.includes(value) || false}
-                                                    onChange={() => handleChange(column, value)}
+                                                    key={dataItem.value}
+                                                    value={dataItem.label}
+                                                    checked={getFilterColumn(column.columnName)?.includes(dataItem) || false}
+                                                    onChange={() => handleChange(column, dataItem)}
                                                 />
 
                                             ))}

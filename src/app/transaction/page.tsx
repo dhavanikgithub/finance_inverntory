@@ -7,7 +7,7 @@ import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, H
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTransaction, deleteTransaction, fetchTransactions, updateTransaction } from '@/store/actions/transactionActions';
-import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
+import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthName, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
@@ -15,7 +15,7 @@ import { AppDispatch, RootState } from '@/store/store';
 import { SortConfig } from '../client/page';
 import Fuse from 'fuse.js';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
-import FilterModal, { FilterType, getTotalFilterCount, getTotalFiltersCount } from '@/components/FilterModal';
+import FilterModal, { FilterData, FilterType, getTotalFilterCount, getTotalFiltersCount } from '@/components/FilterModal';
 import DataProcessor from '@/utils/DataProcessor';
 import { fetchBanks } from '@/store/actions/bankActions';
 import { fetchCards } from '@/store/actions/cardActions';
@@ -263,7 +263,6 @@ export default function Home() {
           </TableData>
 
           <TableData>
-            {/* <MoreOptionsMenu options={actions} data={row} /> */}
             <ActionMenu<Transaction> items={menuItems} data={row} />
           </TableData>
         </>
@@ -314,10 +313,15 @@ export default function Home() {
     setSortedData(dataProcessor.getData())
   }, [appliedFilters])
 
-  const clientNameFilter = useMemo((): FilterType<string> => {
-    const distinctClientNames: string[] = Array.from(
+  const clientNameFilter = useMemo((): FilterType => {
+    const distinctClientNames: FilterData[] = Array.from(
       new Set(transactions.map(t => t.client_name).sort((a, b) => a.localeCompare(b))) //sort client name by acending
-    );
+    ).map(clientName => {
+      return {
+        label: clientName,
+        value: clientName,
+      }
+    });
 
     return {
       columnName: "Client Name",
@@ -328,15 +332,20 @@ export default function Home() {
     }
   }, [transactions]);
 
-  const dateYearFilter = useMemo((): FilterType<string> => {
-    const distinctYears: string[] = Array.from(
+  const dateYearFilter = useMemo((): FilterType => {
+    const distinctYears: FilterData[] = Array.from(
       new Set(
         transactions
           .filter(t => t.create_date)
           .map(t => new Date(t.create_date!).getFullYear().toString())
           .sort((a, b) => parseInt(b) - parseInt(a)) // Sort in descending order
       )
-    );
+    ).map(yearStr => {
+      return {
+        label: yearStr,
+        value: yearStr,
+      };
+    });
 
     return {
       columnName: "Transaction Year",
@@ -347,15 +356,21 @@ export default function Home() {
     };
   }, [transactions]);
 
-  const dateMonthFilter = useMemo((): FilterType<string> => {
-    const distinctMonths: string[] = Array.from(
+  const dateMonthFilter = useMemo((): FilterType => {
+    const distinctMonths: FilterData[] = Array.from(
       new Set(
         transactions
           .filter(t => t.create_date)
           .map(t => getMonthNumberFromDate(t.create_date!).toString()) // returns "YYYY-MM"
           .sort((a, b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
-    );
+    ).map(monthStr => {
+      const label = `${getMonthName(parseInt(monthStr))} (${monthStr})`;
+      return {
+        label,
+        value: monthStr,
+      };
+    });
 
     return {
       columnName: "Transaction Month",
@@ -366,15 +381,20 @@ export default function Home() {
     };
   }, [transactions]);
 
-  const dateDayFilter = useMemo((): FilterType<string> => {
-    const distinctDays: string[] = Array.from(
+  const dateDayFilter = useMemo((): FilterType => {
+    const distinctDays: FilterData[] = Array.from(
       new Set(
         transactions
           .filter(t => t.create_date)
           .map(t => new Date(t.create_date!).getDate().toString()) // assumes ISO string: "YYYY-MM-DDTHH:mm:ss"
           .sort((a, b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
-    );
+    ).map(dayStr => {
+      return {
+        label: `Day ${dayStr}`,
+        value: dayStr,
+      }
+    });
 
     return {
       columnName: "Transaction Day",
@@ -386,10 +406,16 @@ export default function Home() {
   }, [transactions]);
 
 
-  const transactionTypeFilter = useMemo((): FilterType<string> => {
-    const distinctTransactionType: string[] = [
-      getTransactionTypeStr(0),
-      getTransactionTypeStr(1),
+  const transactionTypeFilter = useMemo((): FilterType => {
+    const distinctTransactionType: FilterData[] = [
+      {
+        label: getTransactionTypeStr(0),
+        value: getTransactionTypeStr(0),
+      },
+      {
+        label: getTransactionTypeStr(1),
+        value: getTransactionTypeStr(1),
+      }
     ];
 
     return {
@@ -526,7 +552,14 @@ export default function Home() {
 
             {/* Table Body */}
             <TableBody>
-              {renderTableRows(currentRows)}
+              {loading || currentRows.length === 0 ?
+                (
+                  <TableData colSpan={9} isLoading={loading} noData={transactions.length === 0}>
+                    {""}
+                  </TableData>
+                )
+                : renderTableRows(currentRows)
+              }
             </TableBody>
           </CustomTable>
           <DeactivateAccountModal

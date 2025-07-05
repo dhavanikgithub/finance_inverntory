@@ -2,17 +2,21 @@
 
 import React, { ReactNode, useEffect, useState } from "react";
 import Pagination from "./Pagination";
+import Spinner from "./Spinner";
 
 interface CustomTableProps {
   children: ReactNode;
   currentPage: number;
   totalRows: number;
-  rowsPerPage:number;
-  onPageChange: (pageNumber:number)=> void;
+  rowsPerPage: number;
+  onPageChange: (pageNumber: number) => void;
 
 }
 interface TableDataProps {
   children: ReactNode;
+  colSpan?: number;
+  isLoading?: boolean;
+  noData?: boolean;
 }
 
 interface TableRowProps {
@@ -60,25 +64,52 @@ const CustomTable: React.FC<CustomTableProps> = ({
   );
 };
 
-const TableData:React.FC<TableDataProps> = ({ children }) => {
-  return (
-    <td className="p-4 border-b border-slate-200 dark:border-slate-600">
-      <div className="flex flex-col text-black dark:text-gray-200">{children}</div>
-    </td>
-  )
-}
+// const TableData:React.FC<TableDataProps> = ({ children }) => {
+//   return (
+//     <td className="p-4 border-b border-slate-200 dark:border-slate-600">
+//       <div className="flex flex-col text-black dark:text-gray-200">{children}</div>
+//     </td>
+//   )
+// }
+const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading = false, noData = false }) => {
+  let content = children;
 
-const TableRow:React.FC<TableRowProps> = ({ children }) => {
+  if (isLoading) {
+    return (
+      <td colSpan={colSpan} className="p-4 text-center border-b border-slate-200 dark:border-slate-600">
+        <Spinner />
+      </td>
+    );
+  }
+
+  else if (noData && !isLoading) {
+    return (
+      <td colSpan={colSpan} className="p-4 text-center border-b border-slate-200 dark:border-slate-600">
+        <div className="flex flex-col text-black dark:text-gray-200 w-full">No records found.</div>
+      </td>
+    );
+  }
+
+  else {
+    return (
+      <td colSpan={colSpan} className="p-4 border-b border-slate-200 dark:border-slate-600">
+        <div className="flex flex-col text-black dark:text-gray-200 w-full">{content}</div>
+      </td>
+    );
+  }
+};
+
+const TableRow: React.FC<TableRowProps> = ({ children }) => {
   return (
     <tr>{children}</tr>
   )
 }
 
-const TableBody:React.FC<TableBodyProps> = ({ children }) => {
+const TableBody: React.FC<TableBodyProps> = ({ children }) => {
   return (<tbody>{children}</tbody>)
 }
 
-const TableHeaderItem:React.FC<TableHeaderItemProps> = ({ children, onClick }) => {
+const TableHeaderItem: React.FC<TableHeaderItemProps> = ({ children, onClick }) => {
   return (
     <th
       className="p-4 transition-colors cursor-pointer border-y border-slate-200 bg-slate-50 hover:bg-slate-100 sticky top-0 z-10 dark:bg-gray-800 dark:border-slate-600"
@@ -90,7 +121,7 @@ const TableHeaderItem:React.FC<TableHeaderItemProps> = ({ children, onClick }) =
     </th>
   )
 }
-const TableHeader:React.FC<TableHeaderProps> = ({ children }) => {
+const TableHeader: React.FC<TableHeaderProps> = ({ children }) => {
   return (
     <thead>
       <tr>
@@ -100,6 +131,6 @@ const TableHeader:React.FC<TableHeaderProps> = ({ children }) => {
   );
 };
 
-export { TableHeader, TableHeaderItem, TableBody, TableRow, TableData};
+export { TableHeader, TableHeaderItem, TableBody, TableRow, TableData };
 
 export default CustomTable;

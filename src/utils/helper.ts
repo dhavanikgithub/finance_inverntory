@@ -117,6 +117,8 @@ const getMonthNumberFromDate = (dateString:string) => {
     return new Date(dateString).getMonth() + 1;
 }
 
+const getMonthName = (monthNumber: number) => {
+  return new Date(2000, monthNumber - 1, 1).toLocaleString('default', { month: 'long' });
+};
 
-
-export {formatAmount, parseFormattedAmount, baseFuseOptions, getMonthNumberFromDate, monthMapping}
+export {formatAmount, parseFormattedAmount, baseFuseOptions, getMonthNumberFromDate, monthMapping, getMonthName}
