@@ -1,7 +1,7 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import TransactionModal from '../../components/TransactionModal';
-import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, SquarePen, Trash, Trash2 } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, Trash2 } from "lucide-react";
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
@@ -15,13 +15,18 @@ import { AppDispatch, RootState } from '@/store/store';
 import { SortConfig } from '../client/page';
 import Fuse from 'fuse.js';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
-import FilterModal, { FilterData, FilterType, getTotalFilterCount, getTotalFiltersCount } from '@/components/FilterModal';
+import FilterModal, { FilterData, FilterType, getTotalFilterCount } from '@/components/FilterModal';
 import DataProcessor from '@/utils/DataProcessor';
 import { fetchBanks } from '@/store/actions/bankActions';
 import { fetchCards } from '@/store/actions/cardActions';
 import ViewMore from '@/components/ViewMore';
 import SearchBox from '@/components/SearchBox';
 import ActionMenu from '@/components/ActionMenu';
+import InfoModalWrapper from '@/components/InfoModal/InfoModalWrapper';
+import ContextMenuWrapper from '@/components/ContextMenu/ContextMenuWrapper';
+import { ContextMenuHandle, ContextMenuItem } from '@/components/ContextMenu/types';
+import { InfoModalRef } from '@/components/InfoModal/types';
+import { Client } from '../model/Client';
 
 
 export default function Home() {
@@ -46,6 +51,36 @@ export default function Home() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterType[]>([]);
   const [filterColumns, setFilterColumns] = useState<FilterType[]>([]);
+  const userInfoModalRef = useRef<InfoModalRef>(null);
+  const contextMenuRef = useRef<ContextMenuHandle>(null);
+
+  const contextItems:ContextMenuItem[] = [
+      {
+          label: "User Info",
+          onClick: (data) => {
+            handleClientNameClick(data.client.id)
+          }
+      },
+      {
+          label: "Edit",
+          onClick: (data) => {
+            openModalForEdit(data.transaction)
+          }
+      },
+      {
+          label: "Delete",
+          onClick: (data) => {
+            openDeleteRecordDialog(data.transaction)
+          }
+      }
+  ];
+
+  const handleRightClick = (e: React.MouseEvent, transaction:Transaction) => {
+    e.preventDefault();
+    const client = clients.find(c => c.id === transaction.client_id);
+    contextMenuRef.current?.show(e, { transaction: {...transaction}, client: {...client} });
+  };
+
   const openDeleteRecordDialog = (data: Transaction) => {
     setIsDeleteRecordDialogOpen(data);
   };
@@ -79,6 +114,15 @@ export default function Home() {
 
     setSortedData(sorted);
 
+  };
+
+  const handleClientNameClick = (clientId: number) => {
+    const client = clients.find((c) => c.id === clientId);
+    if (client) {
+      userInfoModalRef.current?.open(client, `Client Info: ${client.name}`);
+    } else {
+      console.warn(`Client not found: ${clientId}`);
+    }
   };
 
 
@@ -193,7 +237,7 @@ export default function Home() {
       return (
         <>
 
-          <TableData>
+          <TableData onClick={() => handleClientNameClick(row.client_id)}>
             {row.client_name}
           </TableData>
 
@@ -271,7 +315,7 @@ export default function Home() {
     return (
       <>
         {currentRows.map((row, rowIndex) => (
-          <TableRow key={rowIndex}>
+          <TableRow key={rowIndex} onContextMenu={(e) => handleRightClick(e, row)}>
             {renderTableData(row)}
           </TableRow>
         ))}
@@ -574,6 +618,8 @@ export default function Home() {
             onClose={closeDeleteRecordDialog}
             onDelete={handleDeleteTransaction}
           />
+          <InfoModalWrapper ref={userInfoModalRef} />
+          <ContextMenuWrapper ref={contextMenuRef} items={contextItems} />
           <GenerateReportModal clients={clients} isOpen={isGenerateReportModalOpen} onClose={() => setIsGenerateReportModalOpen(false)} />
         </div>
 

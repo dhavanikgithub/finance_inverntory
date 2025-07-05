@@ -17,10 +17,12 @@ interface TableDataProps {
   colSpan?: number;
   isLoading?: boolean;
   noData?: boolean;
+  onClick?: () => void;
 }
 
 interface TableRowProps {
   children: ReactNode;
+  onContextMenu?: (e: React.MouseEvent) => void;
 }
 
 interface TableBodyProps {
@@ -71,7 +73,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
 //     </td>
 //   )
 // }
-const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading = false, noData = false }) => {
+const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading = false, noData = false, onClick }) => {
   let content = children;
 
   if (isLoading) {
@@ -92,16 +94,16 @@ const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading 
 
   else {
     return (
-      <td colSpan={colSpan} className="p-4 border-b border-slate-200 dark:border-slate-600">
+      <td colSpan={colSpan} className="p-4 border-b border-slate-200 dark:border-slate-600 cursor-pointer" onClick={onClick}>
         <div className="flex flex-col text-black dark:text-gray-200 w-full">{content}</div>
       </td>
     );
   }
 };
 
-const TableRow: React.FC<TableRowProps> = ({ children }) => {
+const TableRow: React.FC<TableRowProps> = ({ children, onContextMenu }) => {
   return (
-    <tr className="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+    <tr className="hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors" onContextMenu={onContextMenu}>
       {children}
     </tr>
   );
