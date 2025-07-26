@@ -92,6 +92,10 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
         }
     }, [pathname, navItems, isMounted]);
 
+    const isActive = (path: string) => pathname === path ?
+        "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white" :
+        "text-gray-600 dark:text-gray-300";
+
     return (
         <>
             <div>
@@ -191,44 +195,44 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                             </form>
                                         </li>
                                         {/* <li>
-                                            <Link href="/" className="sidebar-link group">
+                                            <Link href="/" className={`sidebar-link group ${isActive('/')}`}>
                                                 <LayoutDashboard className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Dashboard</span>
                                             </Link>
                                         </li> */}
                                         <li>
-                                            <Link href="/client" className="sidebar-link group">
+                                            <Link href="/client" className={`sidebar-link group ${isActive('/client')}`}>
                                                 <UserRound className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Clients</span>
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link href="/transaction" className="sidebar-link group">
+                                            <Link href="/transaction" className={`sidebar-link group ${isActive('/transaction')}`}>
                                                 <ArrowLeftRight className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Transactions</span>
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link href="/card" className="sidebar-link group">
+                                            <Link href="/card" className={`sidebar-link group ${isActive('/card')}`}>
                                                 <CreditCard className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Card</span>
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link href="/bank" className="sidebar-link group">
+                                            <Link href="/bank" className={`sidebar-link group ${isActive('/bank')}`}>
                                                 <Landmark className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Bank</span>
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link href="/charge-calculator" className="sidebar-link group">
+                                            <Link href="/charge-calculator" className={`sidebar-link group ${isActive('/charge-calculator')}`}>
                                                 <SquareSigma className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Charge Calculator</span>
                                             </Link>
                                         </li>
                                     </ul>
                                     <div className="space-y-2 pt-2">
-                                        <a href="#" target="_blank" className="sidebar-link group">
+                                        <a href="#" target="_blank" className={`sidebar-link group ${isActive('/help')}`}>
                                             <BadgeHelp className="sidebar-link-icon group-hover:text-gray-900 dark:group-hover:text-gray-200" />
                                             <span className="ml-3">Help</span>
                                         </a>
