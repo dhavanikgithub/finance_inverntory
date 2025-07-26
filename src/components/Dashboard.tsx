@@ -230,6 +230,12 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                                 <span className="sidebar-link-text">Charge Calculator</span>
                                             </Link>
                                         </li>
+                                        <li>
+                                            <Link href="/finkeda-calculator" className={`sidebar-link group ${isActive('/finkeda-calculator')}`}>
+                                                <SquareSigma className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
+                                                <span className="sidebar-link-text">Finkeda Calculator</span>
+                                            </Link>
+                                        </li>
                                     </ul>
                                     <div className="space-y-2 pt-2">
                                         <a href="#" target="_blank" className={`sidebar-link group ${isActive('/help')}`}>
