@@ -6,7 +6,7 @@ import InputField from '@/components/InputField';
 import Dashboard from '@/components/Dashboard';
 import { SectionContent, SectionHeader, SectionHeaderLeft, SectionHeaderRight, SubHeading, Heading } from '@/components/Section';
 import { IndianRupee, Percent, Settings } from 'lucide-react';
-import SegmentSelector, { SegmentSelectorRef } from '@/components/SegmentSelector/SegmentSelector';
+import SegmentSelector from '@/components/SegmentSelector/SegmentSelector';
 import SettingsModal from './SettingsModal';
 import { AppDispatch, RootState } from '@/store/store';
 import { useDispatch, useSelector } from 'react-redux';
