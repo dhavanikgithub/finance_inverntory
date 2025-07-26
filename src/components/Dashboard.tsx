@@ -119,7 +119,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                 </button>
                                 <a href="/" className="text-xl font-bold flex items-center lg:ml-2.5">
                                     <Logo className="h-8 mr-2 dark:fill-white" />
-                                    <span className="self-center whitespace-nowrap">Fintrack Pro</span>
+                                    <span className="self-center whitespace-nowrap">Bapa Sitaram</span>
                                 </a>
                                 {/* <form action="#" method="GET" className="form-search">
                                     <label htmlFor="topbar-search" className="form-search-label">Search</label>
