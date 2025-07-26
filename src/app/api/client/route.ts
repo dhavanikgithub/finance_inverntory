@@ -2,13 +2,18 @@ import { NextResponse } from 'next/server';
 import pool from '../../../lib/db';
 import { Client } from '@/app/model/Client';
 import { isValidContact, isValidEmail } from '@/utils/validators';
+import kysely from '@/lib/kysely-db';
 
 
 // Handler to get all clients
 export async function GET(): Promise<NextResponse> {
   try {
-    const result = await pool.query<Client>('SELECT * FROM public.client ORDER BY name');
-    return NextResponse.json(result.rows);
+    // const result = await pool.query<Client>('SELECT * FROM public.client ORDER BY name');
+    const clients = await kysely.selectFrom('client')
+      .selectAll()
+      .orderBy('name', 'asc')
+      .execute();
+    return NextResponse.json(clients, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -63,11 +68,18 @@ export async function POST(req: Request): Promise<NextResponse> {
       return NextResponse.json({ error: errors.join(', ') }, { status: 400 });
     }
 
-    const result = await pool.query<Client>(
-      'INSERT INTO public.client (name, email, contact, address) VALUES ($1, $2, $3, $4) RETURNING *',values
-    );
+    const [insertedClient] = await kysely
+      .insertInto('client')
+      .values({
+        name: values[0],
+        email: values[1],
+        contact: values[2],
+        address: values[3],
+      })
+      .returningAll() // equivalent to RETURNING *
+      .execute();
 
-    return NextResponse.json(result.rows[0], { status: 201 });
+    return NextResponse.json(insertedClient, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -97,58 +109,40 @@ export async function PUT(req: Request): Promise<NextResponse> {
       return NextResponse.json({ error: errors.join(', ') }, { status: 400 });
     }
 
-    // Build dynamic query
-    const fields: string[] = [];
-    const values: any[] = [];
-    let index = 1;
+    const updateData: Record<string, any> = {};
 
-    if (name) {
-      fields.push(`name = $${index++}`);
-      values.push(name);
+    if (name !== undefined) {
+      updateData.name = name;
     }
 
-    if (email !== undefined) { // Allow email to be optional
-      fields.push(`email = $${index++}`);
-      if (email === '') {
-        values.push(null); // Handle empty email as null
-      }
-      else {
-        values.push(email);
-      }
+    if (email !== undefined) {
+      updateData.email = email === '' ? null : email;
     }
 
     if (contact !== undefined) {
-      fields.push(`contact = $${index++}`);
-      if (contact === '') {
-        values.push(null); // Handle empty contact as null
-      }
-      else {
-        values.push(contact);
-      }
-    }
-    if (address !== undefined) { // Allow address to be optional
-      fields.push(`address = $${index++}`);
-      if (address === '') {
-        values.push(null); // Handle empty address as null
-      }
-      else {
-        values.push(address);
-      }
+      updateData.contact = contact === '' ? null : contact;
     }
 
-    if (fields.length === 0) {
+    if (address !== undefined) {
+      updateData.address = address === '' ? null : address;
+    }
+
+    if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
-    values.push(id); // Last parameter is always the ID
-    const query = `UPDATE public.client SET ${fields.join(', ')} WHERE id = $${index} RETURNING *`;
-    const result = await pool.query<Client>(query, values);
+    const updated = await kysely
+      .updateTable('client')
+      .set(updateData)
+      .where('id', '=', id)
+      .returningAll()
+      .execute();
 
-    if (result.rowCount === 0) {
+    if (updated.length === 0) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
 
-    return NextResponse.json(result.rows[0]);
+    return NextResponse.json(updated[0]);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -159,9 +153,13 @@ export async function DELETE(req: Request): Promise<NextResponse> {
   try {
     const { id }: { id: number } = await req.json();
 
-    const result = await pool.query('DELETE FROM public.client WHERE id = $1 RETURNING *', [id]);
+    const deleted = await kysely
+      .deleteFrom('client')
+      .where('id', '=', id)
+      .returningAll()
+      .execute();
 
-    if (result.rowCount === 0) {
+    if (deleted.length === 0) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
 
