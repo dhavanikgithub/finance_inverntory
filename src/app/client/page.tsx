@@ -5,16 +5,17 @@ import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeadi
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewClient, deleteClientData, fetchClients, updateClientData } from '@/store/actions/clientActions';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
-import { SquarePen, Trash, UserRound } from 'lucide-react';
+import { Pencil, Search, Trash2, UserRound } from 'lucide-react';
 import ClientManagementModal from '@/components/ClientManagementModal';
-import { formatDate, formatTime } from '@/utils/helper';
-import MoreOptionsMenu from '@/components/MoreOptionsMenu';
+import { baseFuseOptions, formatDate, formatTime } from '@/utils/helper';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
-import { showToastError, showToastNote, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
-import { Action } from '@/app/model/Action';
 import { Client } from '@/app/model/Client';
 import ViewMore from '@/components/ViewMore';
+import ActionMenu from '@/components/ActionMenu';
+import SearchBox from '@/components/SearchBox';
+import Fuse from 'fuse.js';
+import DataProcessor, { SearchColumn } from '@/utils/DataProcessor';
 
 export interface SortConfig {
     key: string;
@@ -33,6 +34,7 @@ export default function ClientScreen() {
     const [currentRows, setCurrentRows] = useState<Client[]>([]);
     const rowsPerPage = 10;
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Client>(null);
+    const [searchInput, setSearchInput] = useState<string>("");
 
     const openDeleteRecordDialog = (data: Client) => {
         setIsDeleteRecordDialogOpen(data);
@@ -159,20 +161,6 @@ export default function ClientScreen() {
 
     ];
 
-    const actions: Action[] = [
-        {
-            icon: <SquarePen className='w-4 h-4' />,
-            label: "Edit",
-            onClick: openModalForEdit,
-        },
-        {
-            icon: <Trash className='w-4 h-4' />,
-            label: "Delete",
-            onClick: openDeleteRecordDialog,
-
-        }
-    ]
-
     function renderTableHeaders(columns: Column[]) {
         return (
             <>
@@ -209,7 +197,7 @@ export default function ClientScreen() {
                         </span>
                     </TableData>
                     <TableData>
-                        <MoreOptionsMenu options={actions} data={row} />
+                        <ActionMenu<Client> items={menuItems} data={row} />
                     </TableData>
 
                 </>
@@ -224,6 +212,40 @@ export default function ClientScreen() {
                 ))}
             </>
         )
+    }
+
+    const menuItems = [
+        {
+            label: 'Edit',
+            icon: Pencil,
+            onClick: openModalForEdit,
+        },
+        {
+            label: 'Delete',
+            icon: Trash2,
+            onClick: openDeleteRecordDialog,
+        },
+    ];
+    const searchColumn:SearchColumn[] = [
+        {
+            name:"name"
+        },
+        {
+            name:"email"
+        },
+        {
+            name:"contact"
+        },
+        {
+            name:"address"
+        },
+    ];
+    
+
+    const handleOnSearch = (searchText: string) => {
+        const dataProcessor = new DataProcessor<Client>(clients,searchColumn); 
+        dataProcessor.applySearch(searchText);
+        setSortedData(dataProcessor.getData());
     }
 
     return (
@@ -259,6 +281,18 @@ export default function ClientScreen() {
 
                 </SectionHeaderRight>
             </SectionHeader>
+            <div className='w-full flex items-baseline justify-end gap-2'>
+
+                <SearchBox handleOnSearch={handleOnSearch} searchInput={searchInput} setSearchInput={setSearchInput}/>
+                <button
+                    onClick={() => handleOnSearch(searchInput)}
+                    className="btn-secondary-outline p-3"
+                    type="button">
+                    <Search className='w-3 h-3' />
+                    Search
+                </button>
+
+            </div>
             <SectionContent>
                 <div className="container mx-auto">
                     <CustomTable

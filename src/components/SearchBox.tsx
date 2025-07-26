@@ -3,10 +3,11 @@ import { Search, X } from 'lucide-react';
 
 interface SearchBoxProps {
   handleOnSearch: (query: string) => void;
+  searchInput: string;
+  setSearchInput: (value: string) => void;
 }
 
-const SearchBox: React.FC<SearchBoxProps> = ({ handleOnSearch }) => {
-  const [searchInput, setSearchInput] = useState<string>('');
+const SearchBox: React.FC<SearchBoxProps> = ({ handleOnSearch, searchInput, setSearchInput }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {

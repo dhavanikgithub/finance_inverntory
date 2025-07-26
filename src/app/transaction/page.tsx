@@ -1,29 +1,32 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import TransactionModal from '../../components/TransactionModal';
-import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Search, SquarePen, Trash } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, Trash2, User2 } from "lucide-react";
 import Dashboard from '@/components/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { addTransaction, deleteTransaction, fetchTransactions, updateTransaction } from '@/store/actions/transactionActions';
-import MoreOptionsMenu from '@/components/MoreOptionsMenu';
-import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
+import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthName, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
-import { showToastError, showToastNote, showToastSuccess } from '@/utils/toast';
 import { AppDispatch, RootState } from '@/store/store';
 import { SortConfig } from '../client/page';
 import Fuse from 'fuse.js';
-import { Action } from '../model/Action';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
-import FilterModal, { FilterType, getTotalFilterCount, getTotalFiltersCount } from '@/components/FilterModal';
-import DataProcessor from '@/utils/DataProcessor';
+import FilterModal, { FilterData, FilterType, getTotalFilterCount } from '@/components/FilterModal';
+import DataProcessor, { SearchColumn } from '@/utils/DataProcessor';
 import { fetchBanks } from '@/store/actions/bankActions';
 import { fetchCards } from '@/store/actions/cardActions';
 import ViewMore from '@/components/ViewMore';
 import SearchBox from '@/components/SearchBox';
+import ActionMenu from '@/components/ActionMenu';
+import InfoModalWrapper from '@/components/InfoModal/InfoModalWrapper';
+import ContextMenuWrapper from '@/components/ContextMenu/ContextMenuWrapper';
+import { ContextMenuHandle, ContextMenuItem } from '@/components/ContextMenu/types';
+import { InfoModalRef } from '@/components/InfoModal/types';
+import { Client } from '../model/Client';
 
 
 export default function Home() {
@@ -48,6 +51,39 @@ export default function Home() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterType[]>([]);
   const [filterColumns, setFilterColumns] = useState<FilterType[]>([]);
+  const userInfoModalRef = useRef<InfoModalRef>(null);
+  const contextMenuRef = useRef<ContextMenuHandle>(null);
+
+  const contextItems: ContextMenuItem[] = [
+    {
+      label: "User Info",
+      icon: User2,
+      onClick: (data) => {
+        handleClientNameClick(data.client.id)
+      }
+    },
+    {
+      label: "Edit",
+      icon: Pencil,
+      onClick: (data) => {
+        openModalForEdit(data.transaction)
+      }
+    },
+    {
+      label: "Delete",
+      icon: Trash2,
+      onClick: (data) => {
+        openDeleteRecordDialog(data.transaction)
+      }
+    }
+  ];
+
+  const handleRightClick = (e: React.MouseEvent, transaction: Transaction) => {
+    e.preventDefault();
+    const client = clients.find(c => c.id === transaction.client_id);
+    contextMenuRef.current?.show(e, { transaction: { ...transaction }, client: { ...client } });
+  };
+
   const openDeleteRecordDialog = (data: Transaction) => {
     setIsDeleteRecordDialogOpen(data);
   };
@@ -81,6 +117,15 @@ export default function Home() {
 
     setSortedData(sorted);
 
+  };
+
+  const handleClientNameClick = (clientId: number) => {
+    const client = clients.find((c) => c.id === clientId);
+    if (client) {
+      userInfoModalRef.current?.open(client, `Client Info: ${client.name}`);
+    } else {
+      console.warn(`Client not found: ${clientId}`);
+    }
   };
 
 
@@ -166,20 +211,6 @@ export default function Home() {
   ];
 
 
-
-  const actions: Action[] = [
-    {
-      icon: <SquarePen className='w-4 h-4' />,
-      label: "Edit",
-      onClick: openModalForEdit,
-    },
-    {
-      icon: <Trash className='w-4 h-4' />,
-      label: "Delete",
-      onClick: openDeleteRecordDialog,
-    }
-  ]
-
   const openGenerateReport = () => {
     setIsGenerateReportModalOpen(true)
   }
@@ -209,7 +240,7 @@ export default function Home() {
       return (
         <>
 
-          <TableData>
+          <TableData onClick={() => handleClientNameClick(row.client_id)}>
             {row.client_name}
           </TableData>
 
@@ -279,7 +310,7 @@ export default function Home() {
           </TableData>
 
           <TableData>
-            <MoreOptionsMenu options={actions} data={row} />
+            <ActionMenu<Transaction> items={menuItems} data={row} />
           </TableData>
         </>
       )
@@ -287,7 +318,7 @@ export default function Home() {
     return (
       <>
         {currentRows.map((row, rowIndex) => (
-          <TableRow key={rowIndex}>
+          <TableRow key={rowIndex} onContextMenu={(e) => handleRightClick(e, row)}>
             {renderTableData(row)}
           </TableRow>
         ))}
@@ -299,24 +330,25 @@ export default function Home() {
     setIsModalOpen(null)
     setTransactionToEdit(null)
   }
-  const fuseOptions = {
-    ...baseFuseOptions,
-    keys: [
-      "remark",
-      "client_name"
-    ]
-  }
-  const fuse = new Fuse(transactions, fuseOptions);
-  const handleOnSearch = (searchText: string) => {
-    if (searchText === "") {
-      setSortedData([...transactions])
-      return
+  const searchColumn:SearchColumn[] = [
+    {
+      name: "client_name"
+    },
+    {
+      name: "remark"
+    },
+    {
+      name: "bank_name"
+    },
+    {
+      name: "card_name"
     }
-    const fuseSearchResult = fuse.search(searchText);
-    const searchResultList = fuseSearchResult.map((fuseItem) => {
-      return fuseItem.item
-    })
-    setSortedData([...searchResultList])
+  ]
+
+  const handleOnSearch = (searchText: string) => {
+    const dataProcessor = new DataProcessor<Transaction>(sortedData, searchColumn);
+    dataProcessor.applySearch(searchText);
+    setSortedData(dataProcessor.getData());
   }
 
   const handleApplyFilters = (filters: FilterType[]) => {
@@ -329,10 +361,15 @@ export default function Home() {
     setSortedData(dataProcessor.getData())
   }, [appliedFilters])
 
-  const clientNameFilter = useMemo((): FilterType<string> => {
-    const distinctClientNames: string[] = Array.from(
+  const clientNameFilter = useMemo((): FilterType => {
+    const distinctClientNames: FilterData[] = Array.from(
       new Set(transactions.map(t => t.client_name).sort((a, b) => a.localeCompare(b))) //sort client name by acending
-    );
+    ).map(clientName => {
+      return {
+        label: clientName,
+        value: clientName,
+      }
+    });
 
     return {
       columnName: "Client Name",
@@ -343,15 +380,20 @@ export default function Home() {
     }
   }, [transactions]);
 
-  const dateYearFilter = useMemo((): FilterType<string> => {
-    const distinctYears: string[] = Array.from(
+  const dateYearFilter = useMemo((): FilterType => {
+    const distinctYears: FilterData[] = Array.from(
       new Set(
         transactions
           .filter(t => t.create_date)
           .map(t => new Date(t.create_date!).getFullYear().toString())
           .sort((a, b) => parseInt(b) - parseInt(a)) // Sort in descending order
       )
-    );
+    ).map(yearStr => {
+      return {
+        label: yearStr,
+        value: yearStr,
+      };
+    });
 
     return {
       columnName: "Transaction Year",
@@ -362,15 +404,21 @@ export default function Home() {
     };
   }, [transactions]);
 
-  const dateMonthFilter = useMemo((): FilterType<string> => {
-    const distinctMonths: string[] = Array.from(
+  const dateMonthFilter = useMemo((): FilterType => {
+    const distinctMonths: FilterData[] = Array.from(
       new Set(
         transactions
           .filter(t => t.create_date)
           .map(t => getMonthNumberFromDate(t.create_date!).toString()) // returns "YYYY-MM"
           .sort((a, b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
-    );
+    ).map(monthStr => {
+      const label = `${getMonthName(parseInt(monthStr))} (${monthStr})`;
+      return {
+        label,
+        value: monthStr,
+      };
+    });
 
     return {
       columnName: "Transaction Month",
@@ -381,15 +429,20 @@ export default function Home() {
     };
   }, [transactions]);
 
-  const dateDayFilter = useMemo((): FilterType<string> => {
-    const distinctDays: string[] = Array.from(
+  const dateDayFilter = useMemo((): FilterType => {
+    const distinctDays: FilterData[] = Array.from(
       new Set(
         transactions
           .filter(t => t.create_date)
           .map(t => new Date(t.create_date!).getDate().toString()) // assumes ISO string: "YYYY-MM-DDTHH:mm:ss"
           .sort((a, b) => parseInt(a) - parseInt(b)) // Sort in ascending order
       )
-    );
+    ).map(dayStr => {
+      return {
+        label: `Day ${dayStr}`,
+        value: dayStr,
+      }
+    });
 
     return {
       columnName: "Transaction Day",
@@ -401,10 +454,16 @@ export default function Home() {
   }, [transactions]);
 
 
-  const transactionTypeFilter = useMemo((): FilterType<string> => {
-    const distinctTransactionType: string[] = [
-      getTransactionTypeStr(0),
-      getTransactionTypeStr(1),
+  const transactionTypeFilter = useMemo((): FilterType => {
+    const distinctTransactionType: FilterData[] = [
+      {
+        label: getTransactionTypeStr(0),
+        value: getTransactionTypeStr(0),
+      },
+      {
+        label: getTransactionTypeStr(1),
+        value: getTransactionTypeStr(1),
+      }
     ];
 
     return {
@@ -432,6 +491,19 @@ export default function Home() {
   const totalFilterCount = useMemo(() => {
     return getTotalFilterCount(appliedFilters)
   }, [appliedFilters])
+
+  const menuItems = [
+    {
+      label: 'Edit',
+      icon: Pencil,
+      onClick: openModalForEdit,
+    },
+    {
+      label: 'Delete',
+      icon: Trash2,
+      onClick: openDeleteRecordDialog,
+    },
+  ];
 
   return (
     <Dashboard>
@@ -479,7 +551,7 @@ export default function Home() {
       </SectionHeader>
       <div className='w-full flex items-baseline justify-end gap-2'>
 
-        <SearchBox handleOnSearch={handleOnSearch} />
+        <SearchBox handleOnSearch={handleOnSearch} searchInput={searchInput} setSearchInput={setSearchInput} />
         <button
           onClick={() => handleOnSearch(searchInput)}
           className="btn-secondary-outline p-3"
@@ -528,7 +600,14 @@ export default function Home() {
 
             {/* Table Body */}
             <TableBody>
-              {renderTableRows(currentRows)}
+              {loading || currentRows.length === 0 ?
+                (
+                  <TableData colSpan={9} isLoading={loading} noData={transactions.length === 0}>
+                    {""}
+                  </TableData>
+                )
+                : renderTableRows(currentRows)
+              }
             </TableBody>
           </CustomTable>
           <DeactivateAccountModal
@@ -543,6 +622,8 @@ export default function Home() {
             onClose={closeDeleteRecordDialog}
             onDelete={handleDeleteTransaction}
           />
+          <InfoModalWrapper ref={userInfoModalRef} />
+          <ContextMenuWrapper ref={contextMenuRef} items={contextItems} />
           <GenerateReportModal clients={clients} isOpen={isGenerateReportModalOpen} onClose={() => setIsGenerateReportModalOpen(false)} />
         </div>
 

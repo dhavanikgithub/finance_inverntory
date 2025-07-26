@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useState, useEffect, useRef, ReactNode } from 'react';
-import { House, UserRound, ArrowLeftRight, LayoutDashboard, BadgeHelp, Search, Sun, Moon, Facebook, Instagram, Twitter, Github, Dribbble, CreditCard, Landmark, SquareSigma } from 'lucide-react'
+import { UserRound, ArrowLeftRight, BadgeHelp, Search, Sun, Moon, Github, CreditCard, Landmark, SquareSigma } from 'lucide-react'
 import { Section } from './Section';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
@@ -92,6 +92,10 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
         }
     }, [pathname, navItems, isMounted]);
 
+    const isActive = (path: string) => pathname === path ?
+        "bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white" :
+        "text-gray-600 dark:text-gray-300";
+
     return (
         <>
             <div>
@@ -113,9 +117,9 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
                                     </svg>
                                 </button>
-                                <a href="#" className="text-xl font-bold flex items-center lg:ml-2.5">
-                                    <Logo className="h-6 mr-2 text-black dark:text-white" />
-                                    <span className="self-center whitespace-nowrap">Finance</span>
+                                <a href="/" className="text-xl font-bold flex items-center lg:ml-2.5">
+                                    <Logo className="h-8 mr-2 dark:fill-white" />
+                                    <span className="self-center whitespace-nowrap">Bapa Sitaram</span>
                                 </a>
                                 {/* <form action="#" method="GET" className="form-search">
                                     <label htmlFor="topbar-search" className="form-search-label">Search</label>
@@ -191,44 +195,50 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                             </form>
                                         </li>
                                         {/* <li>
-                                            <Link href="/" className="sidebar-link group">
+                                            <Link href="/" className={`sidebar-link group ${isActive('/')}`}>
                                                 <LayoutDashboard className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Dashboard</span>
                                             </Link>
                                         </li> */}
                                         <li>
-                                            <Link href="/client" className="sidebar-link group">
+                                            <Link href="/client" className={`sidebar-link group ${isActive('/client')}`}>
                                                 <UserRound className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Clients</span>
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link href="/transaction" className="sidebar-link group">
+                                            <Link href="/transaction" className={`sidebar-link group ${isActive('/transaction')}`}>
                                                 <ArrowLeftRight className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Transactions</span>
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link href="/card" className="sidebar-link group">
+                                            <Link href="/card" className={`sidebar-link group ${isActive('/card')}`}>
                                                 <CreditCard className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Card</span>
                                             </Link>
                                         </li>
-                                         <li>
-                                            <Link href="/bank" className="sidebar-link group">
+                                        <li>
+                                            <Link href="/bank" className={`sidebar-link group ${isActive('/bank')}`}>
                                                 <Landmark className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Bank</span>
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link href="/charge-calculator" className="sidebar-link group">
+                                            <Link href="/charge-calculator" className={`sidebar-link group ${isActive('/charge-calculator')}`}>
                                                 <SquareSigma className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
                                                 <span className="sidebar-link-text">Charge Calculator</span>
                                             </Link>
                                         </li>
+                                        <li>
+                                            <Link href="/finkeda-calculator" className={`sidebar-link group ${isActive('/finkeda-calculator')}`}>
+                                                <SquareSigma className="sidebar-link-icon group-hover:text-gray-900  dark:group-hover:text-gray-200" />
+                                                <span className="sidebar-link-text">Finkeda Calculator</span>
+                                            </Link>
+                                        </li>
                                     </ul>
                                     <div className="space-y-2 pt-2">
-                                        <a href="#" target="_blank" className="sidebar-link group">
+                                        <a href="#" target="_blank" className={`sidebar-link group ${isActive('/help')}`}>
                                             <BadgeHelp className="sidebar-link-icon group-hover:text-gray-900 dark:group-hover:text-gray-200" />
                                             <span className="ml-3">Help</span>
                                         </a>
@@ -266,7 +276,12 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                                 <a href="#" className="footer-social-icon">
                                     <Twitter className="h-5 w-5" />
                                 </a> */}
-                                <a href="https://github.com/dhavanikgithub/finance_inverntory" className="footer-social-icon">
+                                <a
+                                    href="https://github.com/dhavanikgithub/finance_inverntory"
+                                    className="footer-social-icon"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
                                     <Github className="h-5 w-5" />
                                 </a>
                                 {/* <a href="#" className="footer-social-icon">

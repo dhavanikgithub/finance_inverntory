@@ -18,7 +18,7 @@ export default function CustomCheckbox({ value, checked, onChange }: Props) {
                    checked:bg-black checked:border-0
                    dark:bg-slate-500 dark:checked:bg-slate-200"
       />
-      <label onClick={onChange}>{value}</label>
+      <label className='cursor-pointer' onClick={onChange}>{value}</label>
       <svg
         className="absolute w-4 h-4 mt-1 hidden peer-checked:block pointer-events-none text-white dark:text-black p-[2px]"
         xmlns="http://www.w3.org/2000/svg"

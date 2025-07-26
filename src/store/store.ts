@@ -3,6 +3,7 @@ import clientReducer from './slices/clientSlice';
 import transactionReducer from './slices/transactionSlice';
 import cardReducer from './slices/cardSlice';
 import bankReducer from './slices/bankSlice';
+import finkedaSettingsReducer from './slices/finkedaSettingsSlice';
 
 // Configure the Redux store with types
 const store = configureStore({
@@ -10,7 +11,8 @@ const store = configureStore({
     client: clientReducer,
     transaction: transactionReducer,
     card: cardReducer,
-    bank: bankReducer
+    bank: bankReducer,
+    finkedaSettings: finkedaSettingsReducer,
   },
 });
 

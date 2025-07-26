@@ -27,14 +27,13 @@ import {
   deleteBankData,
 } from '@/store/actions/bankActions';
 import { fetchCards } from '@/store/actions/cardActions';
-import { showToastError, showToastSuccess } from '@/utils/toast';
-import { SquarePen, Trash, Building, Landmark } from 'lucide-react';
-import MoreOptionsMenu from '@/components/MoreOptionsMenu';
+import { Landmark, Pencil, Trash2 } from 'lucide-react';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 
 import { formatDate, formatTime } from '@/utils/helper';
 import { Card } from '@/app/model/Card';
 import BankManagementModal from '@/components/BankManagementModal';
+import ActionMenu from '@/components/ActionMenu';
 
 export default function BankScreen() {
   const dispatch: AppDispatch = useDispatch();
@@ -87,12 +86,17 @@ export default function BankScreen() {
     { Header: 'Action', accessor: 'action', sorting: false },
   ];
 
-  const actions = [
+
+  const menuItems = [
     {
-      icon: <SquarePen className="w-4 h-4" />, label: 'Edit', onClick: openModalForEdit,
+      label: 'Edit',
+      icon: Pencil,
+      onClick: openModalForEdit,
     },
     {
-      icon: <Trash className="w-4 h-4" />, label: 'Delete', onClick: (data: Bank) => setIsDeleteDialogOpen(data),
+      label: 'Delete',
+      icon: Trash2,
+      onClick: (data: Bank) => setIsDeleteDialogOpen(data)
     },
   ];
 
@@ -165,7 +169,9 @@ export default function BankScreen() {
                 <TableData>
                   <span>{formatDate(row.create_date!.toString())}<br /><span className="text-gray-500">{formatTime(row.create_time!)}</span></span>
                 </TableData>
-                <TableData><MoreOptionsMenu options={actions} data={row} /></TableData>
+                <TableData>
+                  <ActionMenu<Bank> items={menuItems} data={row}/>
+                </TableData>
               </TableRow>
             ))}
           </TableBody>
