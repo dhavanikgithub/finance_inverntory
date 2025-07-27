@@ -240,7 +240,7 @@ export default function Home() {
       return (
         <>
 
-          <TableData onClick={() => handleClientNameClick(row.client_id)}>
+          <TableData className={"underline text-blue-600 dark:text-blue-400"} onClick={() => handleClientNameClick(row.client_id)}>
             {row.client_name}
           </TableData>
 
