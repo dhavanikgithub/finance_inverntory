@@ -552,6 +552,7 @@ export default function Home() {
               onClose={onCloseAmountManagementModal}
               onSave={handleSaveTransaction}
               transactionType={isModalOpen}
+              isSelectedClient={false}
             />
           }
         </SectionHeaderRight>
