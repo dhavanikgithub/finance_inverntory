@@ -16,13 +16,13 @@ import ActionMenu from '@/components/ActionMenu';
 import SearchBox from '@/components/SearchBox';
 import Fuse from 'fuse.js';
 import DataProcessor, { SearchColumn } from '@/utils/DataProcessor';
+import { SortConfig } from '@/types/SortConfig';
+import { useRouter } from 'next/navigation';
 
-export interface SortConfig {
-    key: string;
-    direction: string
-}
+
 export default function ClientScreen() {
-
+    const router = useRouter();
+    // Redux hooks
     const dispatch: AppDispatch = useDispatch();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [clientToEdit, setClientToEdit] = useState<null | Client>(null);
@@ -161,6 +161,10 @@ export default function ClientScreen() {
 
     ];
 
+    function gotoClientTransactionPage(client: Client) {
+        router.push(`/client/${client.name}/transaction`);
+    }
+
     function renderTableHeaders(columns: Column[]) {
         return (
             <>
@@ -178,7 +182,7 @@ export default function ClientScreen() {
         const renderTableData = (row: Client) => {
             return (
                 <>
-                    <TableData>
+                    <TableData onClick={() => gotoClientTransactionPage(row)} className='cursor-pointer hover:underline text-blue-600 dark:text-blue-400'>
                         {row.name}
                     </TableData>
                     <TableData>
@@ -243,6 +247,7 @@ export default function ClientScreen() {
     
 
     const handleOnSearch = (searchText: string) => {
+        setCurrentPage(1);
         const dataProcessor = new DataProcessor<Client>(clients,searchColumn); 
         dataProcessor.applySearch(searchText);
         setSortedData(dataProcessor.getData());

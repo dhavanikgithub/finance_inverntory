@@ -96,7 +96,7 @@ const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading 
   else {
     return (
       <td colSpan={colSpan} className={`p-4 border-b border-slate-200 dark:border-slate-600 cursor-pointer`} onClick={onClick}>
-        <div className={`flex flex-col text-black dark:text-gray-200 w-full ${className}`}>{content}</div>
+        <div className={`flex flex-col w-full ${className || 'text-black dark:text-gray-200'}`}>{content}</div>
       </td>
     );
   }

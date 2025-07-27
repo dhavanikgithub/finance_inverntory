@@ -1,19 +1,18 @@
 'use client'
 import { useEffect, useMemo, useRef, useState } from 'react';
-import TransactionModal from '../../components/TransactionModal';
-import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, Trash2, User2 } from "lucide-react";
+import TransactionModal from '@/components/TransactionModal';
+import { ArrowDownLeft, ArrowLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, Trash2, User2 } from "lucide-react";
 import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { useDispatch, useSelector } from 'react-redux';
-import { addTransaction, deleteTransaction, fetchTransactions, updateTransaction } from '@/store/actions/transactionActions';
-import { baseFuseOptions, formatAmount, formatDate, formatTime, getMonthName, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
+import { addTransaction, deleteTransaction, fetchTransactionsByClient, updateTransaction } from '@/store/actions/transactionActions';
+import { formatAmount, formatDate, formatTime, getMonthName, getMonthNumberFromDate, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { AppDispatch, RootState } from '@/store/store';
-import Fuse from 'fuse.js';
-import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
+import Transaction, { Deposit, TransactionType, Widthdraw } from '../../../model/Transaction';
 import FilterModal, { FilterData, FilterType, getTotalFilterCount } from '@/components/FilterModal';
 import DataProcessor, { SearchColumn } from '@/utils/DataProcessor';
 import { fetchBanks } from '@/store/actions/bankActions';
@@ -25,12 +24,14 @@ import InfoModalWrapper from '@/components/InfoModal/InfoModalWrapper';
 import ContextMenuWrapper from '@/components/ContextMenu/ContextMenuWrapper';
 import { ContextMenuHandle, ContextMenuItem } from '@/components/ContextMenu/types';
 import { InfoModalRef } from '@/components/InfoModal/types';
-import { Client } from '../model/Client';
+import { useParams, useRouter } from 'next/navigation';
 import { SortConfig } from '@/types/SortConfig';
+import Spinner from '@/components/Spinner';
 
 
 export default function Home() {
-
+  const { name } = useParams();
+  const router = useRouter();
   const dispatch: AppDispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState<null | TransactionType>(null);
   const transactions = useSelector((state: RootState) => state.transaction.transactions);
@@ -51,6 +52,7 @@ export default function Home() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterType[]>([]);
   const [filterColumns, setFilterColumns] = useState<FilterType[]>([]);
+  const [generatingReport, setGeneratingReport] = useState<boolean>(false);
   const userInfoModalRef = useRef<InfoModalRef>(null);
   const contextMenuRef = useRef<ContextMenuHandle>(null);
 
@@ -143,7 +145,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    dispatch(fetchTransactions());
+    dispatch(fetchTransactionsByClient(name?.toString()!!));
     dispatch(fetchClients());
     dispatch(fetchBanks());
     dispatch(fetchCards());
@@ -211,8 +213,35 @@ export default function Home() {
   ];
 
 
-  const openGenerateReport = () => {
-    setIsGenerateReportModalOpen(true)
+  const generateReport = async () => {
+    if (generatingReport) return; // Prevent multiple clicks
+    setGeneratingReport(true);
+    try {
+      const response = await fetch(`/api/client/${name}/transaction/generate-report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      // Generate the filename with the formatted date and time
+      let filename = `${name}_finance_inverntory_report.pdf`;
+
+
+      if (response.ok) {
+        const link = document.createElement('a');
+        link.href = `data:application/pdf;base64,${data.pdfContent}`;
+        link.download = filename;
+        link.click();
+      } else {
+        alert('Error generating report: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while generating the report.');
+    } finally {
+      setGeneratingReport(false);
+    }
   }
 
 
@@ -240,7 +269,7 @@ export default function Home() {
       return (
         <>
 
-          <TableData className={"cursor-pointer hover:underline text-blue-600 dark:text-blue-400"} onClick={() => handleClientNameClick(row.client_id)}>
+          <TableData className={"underline text-blue-600 dark:text-blue-400"} onClick={() => handleClientNameClick(row.client_id)}>
             {row.client_name}
           </TableData>
 
@@ -330,10 +359,7 @@ export default function Home() {
     setIsModalOpen(null)
     setTransactionToEdit(null)
   }
-  const searchColumn:SearchColumn[] = [
-    {
-      name: "client_name"
-    },
+  const searchColumn: SearchColumn[] = [
     {
       name: "remark"
     },
@@ -361,25 +387,6 @@ export default function Home() {
     dataProcessor.applyFilter(appliedFilters)
     setSortedData(dataProcessor.getData())
   }, [appliedFilters])
-
-  const clientNameFilter = useMemo((): FilterType => {
-    const distinctClientNames: FilterData[] = Array.from(
-      new Set(transactions.map(t => t.client_name).sort((a, b) => a.localeCompare(b))) //sort client name by acending
-    ).map(clientName => {
-      return {
-        label: clientName,
-        value: clientName,
-      }
-    });
-
-    return {
-      columnName: "Client Name",
-      columnAccessor: "client_name",
-      filterOperator: 'string',
-      dataOperator: 'string',
-      data: distinctClientNames,
-    }
-  }, [transactions]);
 
   const dateYearFilter = useMemo((): FilterType => {
     const distinctYears: FilterData[] = Array.from(
@@ -481,7 +488,6 @@ export default function Home() {
   useEffect(() => {
     setFilterColumns([
       transactionTypeFilter,
-      clientNameFilter,
       dateYearFilter,
       dateMonthFilter,
       dateDayFilter
@@ -506,20 +512,34 @@ export default function Home() {
     },
   ];
 
+  function goBack() {
+    router.back();
+  }
+
   return (
     <Dashboard>
       <SectionHeader>
         <SectionHeaderLeft>
-          <Heading>Transactions</Heading>
-          <SubHeading>Review each person before edit</SubHeading>
+          <div className="flex items-center gap-4">
+            <ArrowLeft className="w-5 h-5 cursor-pointer text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-gray-600" onClick={goBack} />
+
+            <div>
+              <Heading>{decodeURIComponent(name?.toString()!!)} Transactions</Heading>
+              <SubHeading>Review each person before edit</SubHeading>
+            </div>
+          </div>
         </SectionHeaderLeft>
         <SectionHeaderRight>
           <button
-            onClick={openGenerateReport}
+            onClick={generateReport}
             className="btn-secondary-outline"
             type="button">
-            <File className='w-3 h-3' />
-            Report
+            {generatingReport ? <Spinner className='w-3 h-3' /> : <>
+              <File className='w-3 h-3' />
+              Report
+            </>}
+
+
           </button>
           <button
             onClick={() => openModalForAdd(Deposit)}

@@ -12,11 +12,8 @@ import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { AppDispatch, RootState } from '@/store/store';
 import { Card } from '@/app/model/Card';
 import ActionMenu from '@/components/ActionMenu';
+import { SortConfig } from '@/types/SortConfig';
 
-export interface SortConfig {
-    key: string;
-    direction: string
-}
 
 export default function CardTypeScreen() {
     const dispatch: AppDispatch = useDispatch();

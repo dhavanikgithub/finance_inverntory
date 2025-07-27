@@ -3,9 +3,35 @@ import { showToastError, showToastSuccess } from '@/utils/toast';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-
-
 const API_URL = '/api/transaction';
+
+
+export const fetchTransactionsByClient = createAsyncThunk<
+  Transaction[], // ✅ Return type
+  string,        // ✅ Accepts client name as argument
+  { rejectValue: string }
+>(
+  'transactions/fetchByClient',
+  async (clientName, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`/api/client/${clientName}/transaction`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching transactions for ${clientName}:`, error);
+      
+      if (axios.isAxiosError(error) && error.response) {
+        showToastError('Failed to fetch client transactions', error.response.data);
+        return rejectWithValue(error.response.data);
+      } else if (axios.isAxiosError(error) && error.request) {
+        showToastError('Error fetching client transactions', 'Network error or no response received');
+        return rejectWithValue('Network error or no response received');
+      } else {
+        showToastError('Error fetching client transactions', 'An error occurred while fetching data');
+        return rejectWithValue('An error occurred while fetching client transactions');
+      }
+    }
+  }
+);
 
 // Fetch transactions
 export const fetchTransactions = createAsyncThunk<
