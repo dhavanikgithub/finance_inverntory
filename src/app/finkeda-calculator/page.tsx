@@ -1,7 +1,6 @@
 import FinkedaCalculationScreen from './FinkedaCalculationScreen';
 import { FinkedaSettings } from '../model/FinkedaSettings';
-
-export const dynamic = 'force-dynamic'; // disables static optimization
+import { FinkedaService } from '@/services/finkedaService';
 
 export type ClientTransactionProps = {
   initialSettings: FinkedaSettings;
@@ -9,11 +8,12 @@ export type ClientTransactionProps = {
 
 
 export default async function Page() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/settings/finkeda`);
-  if (!res.ok) {
-    return { notFound: true }; // optional: show 404 if client not found
+  const finkedaService = new FinkedaService();
+  const finkedaSettings = await finkedaService.getLatestSettings();
+  if(!finkedaSettings) {
+    return { notFound: true }; // optional: show 404 if settings not found
   }
-  const initialSettings: FinkedaSettings[] = await res.json();
+  const initialSettings: FinkedaSettings[] = [finkedaSettings];
 
   return (
     <>

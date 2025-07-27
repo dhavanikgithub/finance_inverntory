@@ -1,7 +1,6 @@
 import { Client } from '@/app/model/Client';
 import ClientTransaction from './ClientTransaction';
-
-export const dynamic = 'force-dynamic'; // disables static optimization
+import { ClientService } from '@/services/clientService';
 
 export type ClientTransactionProps = {
   clients: Client[];
@@ -10,16 +9,15 @@ export type ClientTransactionProps = {
 
 export default async function Home(context: { params: Promise<{ name: string }> }) {
   const { name } = await context.params!;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/client/${encodeURIComponent(String(name))}`);
-  if (!res.ok) {
+  const clientService = new ClientService();
+  const client = await clientService.getClientByName(decodeURIComponent(name)); // Fetch clients using the service
+  if (!client) {
     return { notFound: true }; // optional: show 404 if client not found
   }
-  const clients: Client[] = await res.json();
-  console.log('Fetched clients:', clients);
   return (
     <>
       {/* Render client component, passing server data */}
-      <ClientTransaction clients={clients} />
+      <ClientTransaction clients={[client]} />
     </>
   );
 }
