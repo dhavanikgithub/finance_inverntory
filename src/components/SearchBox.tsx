@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useRef, KeyboardEvent, ChangeEvent, FocusEvent } from 'react';
 import { Search, X } from 'lucide-react';
 

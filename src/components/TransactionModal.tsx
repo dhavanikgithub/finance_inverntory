@@ -17,7 +17,8 @@ const TransactionModal = ({
     isOpen,
     onClose,
     onSave,
-    transactionType
+    transactionType,
+    isSelectedClient=false
 }: {
     clients: Client[];
     banks: Bank[];
@@ -27,6 +28,7 @@ const TransactionModal = ({
     onClose: () => void;
     onSave: (transactionData: Transaction) => void;
     transactionType: TransactionType;
+    isSelectedClient: boolean;
 }) => {
     // Define the type for the form data
     interface FormData {
@@ -44,7 +46,7 @@ const TransactionModal = ({
     const initialFormData: FormData = {
         action: transactionType,
         remark: '',
-        selectedClient: null,
+        selectedClient: isSelectedClient ? clients[0].name : null,
         deductionAmount: 0,
         widthdrawCharge: 0,
         transactionAmount: '0',
@@ -113,7 +115,7 @@ const TransactionModal = ({
         }
         const tempFormData = updateAmount();
         setFormData(tempFormData);
-        const selectedClientObj = clients.find((element) => element.name === tempFormData.selectedClient) as Client;
+        const selectedClientObj = isSelectedClient ? clients[0] : clients.find((element) => element.name === tempFormData.selectedClient) as Client;
         const selectedBankObj = banks.find((element) => element.name === tempFormData.selectedBank) as Bank;
         const selectedCardObj = cards.find((element) => element.name === tempFormData.selectedCard) as Card;
 
@@ -182,7 +184,6 @@ const TransactionModal = ({
         setFormData(initialFormData)
         onClose();
     }
-
     // Dropdown items list
     const items = clients.map((item) => item.name);
 

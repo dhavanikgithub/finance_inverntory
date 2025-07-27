@@ -1,3 +1,4 @@
+'use client'
 import { ChevronDown, UserRound } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 

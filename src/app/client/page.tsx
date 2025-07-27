@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeading, SectionContent } from '@/components/Section';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNewClient, deleteClientData, fetchClients, updateClientData } from '@/store/actions/clientActions';
+import { addClient, deleteClient, fetchClients, updateClient } from '@/store/actions/clientActions';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { Pencil, Search, Trash2, UserRound } from 'lucide-react';
 import ClientManagementModal from '@/components/ClientManagementModal';
@@ -114,16 +114,16 @@ export default function ClientScreen() {
     const handleSaveClient = (clientData: Client) => {
         if (clientToEdit) {
             // Update existing client
-            dispatch(updateClientData(clientData));
+            dispatch(updateClient(clientData));
         } else {
             // Add new client
-            dispatch(addNewClient(clientData));
+            dispatch(addClient(clientData));
         }
 
     };
 
     const handleDeleteClient = (clientData: Client) => {
-        dispatch(deleteClientData(clientData.id!));
+        dispatch(deleteClient(clientData.id!));
     }
 
 
