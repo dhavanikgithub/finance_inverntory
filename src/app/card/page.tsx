@@ -24,7 +24,7 @@ export default function CardTypeScreen() {
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "name", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [currentRows, setCurrentRows] = useState<Card[]>([]);
-    const rowsPerPage = 10;
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Card>(null);
 
     const openDeleteRecordDialog = (data: Card) => {
@@ -71,7 +71,7 @@ export default function CardTypeScreen() {
         const indexOfLastRow = currentPage * rowsPerPage;
         const indexOfFirstRow = indexOfLastRow - rowsPerPage;
         setCurrentRows(sortedData.slice(indexOfFirstRow, indexOfLastRow));
-    }, [currentPage, sortedData, cards])
+    }, [currentPage, sortedData, cards, rowsPerPage]);
 
     const getSortIcon = (columnKey: string, sorting = true) => {
         if (sorting && sortConfig.key === columnKey) {
@@ -173,7 +173,7 @@ export default function CardTypeScreen() {
                         </span>
                     </TableData>
                     <TableData>
-                        <ActionMenu<Card> items={menuItems} data={row}/>
+                        <ActionMenu<Card> items={menuItems} data={row} />
                     </TableData>
                 </>
             )
@@ -189,6 +189,11 @@ export default function CardTypeScreen() {
             </>
         )
     }
+
+    function onRowsPerPageChange(newRowsPerPage: number) {
+        setCurrentPage(1); // Reset to first page when rows per page changes
+        setRowsPerPage(newRowsPerPage);
+    };
 
     return (
         <Dashboard>
@@ -225,6 +230,7 @@ export default function CardTypeScreen() {
                         totalRows={sortedData.length}
                         onPageChange={setCurrentPage}
                         rowsPerPage={rowsPerPage}
+                        onRowsPerPageChange={onRowsPerPageChange}
                     >
                         <TableHeader>
                             {renderTableHeaders(columns)}

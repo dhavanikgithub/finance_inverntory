@@ -32,7 +32,7 @@ export default function ClientScreen() {
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "name", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [currentRows, setCurrentRows] = useState<Client[]>([]);
-    const rowsPerPage = 10;
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Client>(null);
     const [searchInput, setSearchInput] = useState<string>("");
 
@@ -83,7 +83,7 @@ export default function ClientScreen() {
         const indexOfLastRow = currentPage * rowsPerPage;
         const indexOfFirstRow = indexOfLastRow - rowsPerPage;
         setCurrentRows(sortedData.slice(indexOfFirstRow, indexOfLastRow));
-    }, [currentPage, sortedData, clients])
+    }, [currentPage, sortedData, clients, rowsPerPage])
 
     const getSortIcon = (columnKey: string, sorting = true) => {
         if (sorting && sortConfig.key === columnKey) {
@@ -253,6 +253,12 @@ export default function ClientScreen() {
         setSortedData(dataProcessor.getData());
     }
 
+
+  function onRowsPerPageChange(newRowsPerPage: number) {
+    setCurrentPage(1); // Reset to first page when rows per page changes
+    setRowsPerPage(newRowsPerPage);
+  };
+
     return (
         <Dashboard>
             <SectionHeader>
@@ -305,6 +311,7 @@ export default function ClientScreen() {
                         totalRows={sortedData.length}
                         onPageChange={setCurrentPage}
                         rowsPerPage={rowsPerPage}
+                        onRowsPerPageChange={onRowsPerPageChange}
                     >
                         {/* Table Header */}
                         <TableHeader>

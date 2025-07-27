@@ -5,7 +5,7 @@ interface Dropdown {
   items:string[];
   selectedItem:string|null;
   onItemSelect:(item:string)=>void;
-  className: string;
+  className?: string;
   placeholder?: string;
 }
 

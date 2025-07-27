@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Dashboard from '@/components/Dashboard/Dashboard';
 import {
   SectionHeader,
@@ -46,7 +46,7 @@ export default function BankScreen() {
   const [sortedData, setSortedData] = useState<Bank[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: string }>({ key: 'name', direction: 'asc' });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<null | Bank>(null);
-  const rowsPerPage = 10;
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
   useEffect(() => {
     dispatch(fetchBanks());
@@ -131,10 +131,16 @@ export default function BankScreen() {
     ))
   );
 
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = sortedData.slice(indexOfFirstRow, indexOfLastRow);
+  const currentRows = useMemo(() => {
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+    return sortedData.slice(indexOfFirstRow, indexOfLastRow);
+  },[rowsPerPage, currentPage, sortedData]);
 
+  function onRowsPerPageChange(newRowsPerPage: number) {
+    setCurrentPage(1); // Reset to first page when rows per page changes
+    setRowsPerPage(newRowsPerPage);
+  };
   return (
     <Dashboard>
       <SectionHeader>
@@ -160,6 +166,7 @@ export default function BankScreen() {
           totalRows={sortedData.length}
           onPageChange={setCurrentPage}
           rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={onRowsPerPageChange}
         >
           <TableHeader>{renderTableHeaders()}</TableHeader>
           <TableBody>

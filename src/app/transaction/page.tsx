@@ -44,7 +44,7 @@ export default function Home() {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "create_date", direction: "desc" });
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [currentRows, setCurrentRows] = useState<Transaction[]>([]);
-  const rowsPerPage: number = 10;
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [isGenerateReportModalOpen, setIsGenerateReportModalOpen] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>("");
   const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Transaction>(null);
@@ -133,7 +133,7 @@ export default function Home() {
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
     setCurrentRows(sortedData.slice(indexOfFirstRow, indexOfLastRow));
-  }, [currentPage, sortedData, transactions])
+  }, [currentPage, sortedData, transactions, rowsPerPage])
 
   const getSortIcon = (columnKey: string, sorting = true) => {
     if (sorting && sortConfig.key === columnKey) {
@@ -330,7 +330,7 @@ export default function Home() {
     setIsModalOpen(null)
     setTransactionToEdit(null)
   }
-  const searchColumn:SearchColumn[] = [
+  const searchColumn: SearchColumn[] = [
     {
       name: "client_name"
     },
@@ -506,6 +506,12 @@ export default function Home() {
     },
   ];
 
+
+  function onRowsPerPageChange(newRowsPerPage: number) {
+    setCurrentPage(1); // Reset to first page when rows per page changes
+    setRowsPerPage(newRowsPerPage);
+  };
+
   return (
     <Dashboard>
       <SectionHeader>
@@ -593,6 +599,7 @@ export default function Home() {
             totalRows={sortedData.length}
             onPageChange={setCurrentPage}
             rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={onRowsPerPageChange}
           >
             {/* Table Header */}
             <TableHeader>
@@ -603,9 +610,11 @@ export default function Home() {
             <TableBody>
               {loading || currentRows.length === 0 ?
                 (
-                  <TableData colSpan={9} isLoading={loading} noData={transactions.length === 0}>
-                    {""}
-                  </TableData>
+                  <TableRow>
+                    <TableData colSpan={9} isLoading={loading} noData={transactions.length === 0}>
+                      {""}
+                    </TableData>
+                  </TableRow>
                 )
                 : renderTableRows(currentRows)
               }

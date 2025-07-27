@@ -10,6 +10,7 @@ interface CustomTableProps {
   totalRows: number;
   rowsPerPage: number;
   onPageChange: (pageNumber: number) => void;
+  onRowsPerPageChange: (rowsPerPage: number) => void;
 
 }
 interface TableDataProps {
@@ -45,6 +46,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   totalRows,
   onPageChange,
   rowsPerPage,
+  onRowsPerPageChange
 }) => {
   return (
     <div className="w-full mt-4 ">
@@ -62,6 +64,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
         totalRows={totalRows}
         onPageChange={onPageChange}
         rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={onRowsPerPageChange}
       />
     </div>
   );
