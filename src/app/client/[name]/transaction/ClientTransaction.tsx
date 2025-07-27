@@ -150,7 +150,6 @@ export default function ClientTransaction({ clients }: ClientTransactionProps) {
     dispatch(fetchBanks());
     dispatch(fetchCards());
   }, [dispatch]);
-  console.log("clients", clients);
 
 
   useEffect(() => {

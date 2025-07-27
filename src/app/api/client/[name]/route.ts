@@ -11,13 +11,13 @@ export async function GET(
     try {
         const { name } = await context.params;
         const clientName = decodeURIComponent(name);
-        const transactions = await kysely
+        const clients = await kysely
             .selectFrom('client')
             .selectAll()
             .where('name', '=', clientName)
             .execute();
 
-        return NextResponse.json(transactions, { status: 200 });
+        return NextResponse.json(clients, { status: 200 });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
