@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeading, SectionContent } from '@/components/Section';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewClient, deleteClientData, fetchClients, updateClientData } from '@/store/actions/clientActions';

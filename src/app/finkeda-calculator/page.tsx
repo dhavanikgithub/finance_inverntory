@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Modal from '@/components/Modal';
 import InputField from '@/components/InputField';
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionContent, SectionHeader, SectionHeaderLeft, SectionHeaderRight, SubHeading, Heading } from '@/components/Section';
 import { IndianRupee, Percent, Settings } from 'lucide-react';
 import SegmentSelector from '@/components/SegmentSelector/SegmentSelector';

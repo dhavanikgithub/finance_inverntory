@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import TransactionModal from '../../components/TransactionModal';
 import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, Trash2, User2 } from "lucide-react";
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { useDispatch, useSelector } from 'react-redux';
