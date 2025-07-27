@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import kysely from '@/lib/kysely-db';
-import { NextApiRequest } from 'next';
+import { ClientService } from '@/services/clientService';
 
 
 // Handler to get all clients
@@ -11,13 +10,10 @@ export async function GET(
     try {
         const { name } = await context.params;
         const clientName = decodeURIComponent(name);
-        const clients = await kysely
-            .selectFrom('client')
-            .selectAll()
-            .where('name', '=', clientName)
-            .execute();
+        const clientService = new ClientService();
+        const clients = await clientService.getClientByName(clientName);
 
-        return NextResponse.json(clients, { status: 200 });
+        return NextResponse.json([clients], { status: 200 });
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }

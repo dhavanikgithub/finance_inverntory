@@ -1,6 +1,7 @@
 import { Client } from '@/app/model/Client';
 import ClientTransaction from './ClientTransaction';
 
+export const dynamic = 'force-dynamic'; // disables static optimization
 
 export type ClientTransactionProps = {
   clients: Client[];
@@ -14,7 +15,7 @@ export default async function Home(context: { params: Promise<{ name: string }> 
     return { notFound: true }; // optional: show 404 if client not found
   }
   const clients: Client[] = await res.json();
-
+  console.log('Fetched clients:', clients);
   return (
     <>
       {/* Render client component, passing server data */}

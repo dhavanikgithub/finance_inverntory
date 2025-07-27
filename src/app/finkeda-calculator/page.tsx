@@ -1,6 +1,7 @@
 import FinkedaCalculationScreen from './FinkedaCalculationScreen';
 import { FinkedaSettings } from '../model/FinkedaSettings';
 
+export const dynamic = 'force-dynamic'; // disables static optimization
 
 export type ClientTransactionProps = {
   initialSettings: FinkedaSettings;
