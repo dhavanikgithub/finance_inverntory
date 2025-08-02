@@ -381,6 +381,50 @@ export default function Home() {
     setSortedData(dataProcessor.getData())
   }, [appliedFilters])
 
+  const bankNameFilter = useMemo((): FilterType => {
+    const distinctBankNames: FilterData[] = Array.from(
+      new Set(
+        transactions
+          .map(t => t.bank_name)
+          .filter((v): v is string => !!v)
+          .sort((a, b) => a.localeCompare(b))
+      )
+    ).map(bankName => ({
+      label: bankName,
+      value: bankName,
+    }));
+
+    return {
+      columnName: "Bank Name",
+      columnAccessor: "bank_name",
+      filterOperator: 'string',
+      dataOperator: 'string',
+      data: distinctBankNames,
+    };
+  }, [transactions]);
+
+  const cardNameFilter = useMemo((): FilterType => {
+    const distinctCardNames: FilterData[] = Array.from(
+      new Set(
+        transactions
+          .map(t => t.card_name)
+          .filter((v): v is string => !!v)
+          .sort((a, b) => a.localeCompare(b))
+      )
+    ).map(cardName => ({
+      label: cardName,
+      value: cardName,
+    }));
+
+    return {
+      columnName: "Card Name",
+      columnAccessor: "card_name",
+      filterOperator: 'string',
+      dataOperator: 'string',
+      data: distinctCardNames,
+    };
+  }, [transactions]);
+
   const clientNameFilter = useMemo((): FilterType => {
     const distinctClientNames: FilterData[] = Array.from(
       new Set(transactions.map(t => t.client_name).sort((a, b) => a.localeCompare(b))) //sort client name by acending
@@ -500,6 +544,8 @@ export default function Home() {
   useEffect(() => {
     setFilterColumns([
       transactionTypeFilter,
+      bankNameFilter,
+      cardNameFilter,
       clientNameFilter,
       dateYearFilter,
       dateMonthFilter,
