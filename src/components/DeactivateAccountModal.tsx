@@ -11,6 +11,7 @@ const DeactivateAccountModal = (
         positiveButtonText,
         negativeButtonText,
         isOpen,
+        columns,
         onClose,
         onDelete
     }: {
@@ -19,6 +20,7 @@ const DeactivateAccountModal = (
         positiveButtonText: string,
         negativeButtonText: string,
         isOpen: any,
+        columns: { label: string; accessor: string }[],
         onClose: () => void,
         onDelete: (data: any) => void
 
@@ -70,7 +72,7 @@ const DeactivateAccountModal = (
                                 </div>
                             </div>
                             {isOpen && typeof isOpen === 'object' && (
-                                <KeyValueTable data={isOpen} />
+                                <KeyValueTable data={isOpen} columns={columns} />
                             )}
 
 

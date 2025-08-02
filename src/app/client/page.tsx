@@ -35,6 +35,13 @@ export default function ClientScreen() {
     const [rowsPerPage, setRowsPerPage] = useState<number>(10);
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Client>(null);
     const [searchInput, setSearchInput] = useState<string>("");
+    const columnsToShowWhileDeleteRecord = [
+        { label: 'Client', accessor: 'name' },
+        { label: 'Email', accessor: 'email' },
+        { label: 'Contact', accessor: 'contact' },
+        { label: 'Created On', accessor: 'create_date' }
+    ]
+    
 
     const openDeleteRecordDialog = (data: Client) => {
         setIsDeleteRecordDialogOpen(data);
@@ -230,34 +237,34 @@ export default function ClientScreen() {
             onClick: openDeleteRecordDialog,
         },
     ];
-    const searchColumn:SearchColumn[] = [
+    const searchColumn: SearchColumn[] = [
         {
-            name:"name"
+            name: "name"
         },
         {
-            name:"email"
+            name: "email"
         },
         {
-            name:"contact"
+            name: "contact"
         },
         {
-            name:"address"
+            name: "address"
         },
     ];
-    
+
 
     const handleOnSearch = (searchText: string) => {
         setCurrentPage(1);
-        const dataProcessor = new DataProcessor<Client>(clients,searchColumn); 
+        const dataProcessor = new DataProcessor<Client>(clients, searchColumn);
         dataProcessor.applySearch(searchText);
         setSortedData(dataProcessor.getData());
     }
 
 
-  function onRowsPerPageChange(newRowsPerPage: number) {
-    setCurrentPage(1); // Reset to first page when rows per page changes
-    setRowsPerPage(newRowsPerPage);
-  };
+    function onRowsPerPageChange(newRowsPerPage: number) {
+        setCurrentPage(1); // Reset to first page when rows per page changes
+        setRowsPerPage(newRowsPerPage);
+    };
 
     return (
         <Dashboard>
@@ -294,7 +301,7 @@ export default function ClientScreen() {
             </SectionHeader>
             <div className='w-full flex items-baseline justify-end gap-2'>
 
-                <SearchBox handleOnSearch={handleOnSearch} searchInput={searchInput} setSearchInput={setSearchInput}/>
+                <SearchBox handleOnSearch={handleOnSearch} searchInput={searchInput} setSearchInput={setSearchInput} />
                 <button
                     onClick={() => handleOnSearch(searchInput)}
                     className="btn-secondary-outline p-3"
@@ -332,6 +339,7 @@ export default function ClientScreen() {
                         positiveButtonText={"Delete Client"}
                         negativeButtonText={"Cancel"}
                         isOpen={isDeleteRecordDialogOpen}
+                        columns={columnsToShowWhileDeleteRecord}
                         onClose={closeDeleteRecordDialog}
                         onDelete={handleDeleteClient}
                     />

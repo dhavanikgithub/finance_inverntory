@@ -26,6 +26,10 @@ export default function CardTypeScreen() {
     const [currentRows, setCurrentRows] = useState<Card[]>([]);
     const [rowsPerPage, setRowsPerPage] = useState<number>(10);
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Card>(null);
+    const columnsToShowWhileDeleteRecord = [
+        { label: 'Card', accessor: 'name' },
+        { label: 'Created On', accessor: 'create_date' }
+    ]
 
     const openDeleteRecordDialog = (data: Card) => {
         setIsDeleteRecordDialogOpen(data);
@@ -250,6 +254,7 @@ export default function CardTypeScreen() {
                         positiveButtonText={"Delete Card"}
                         negativeButtonText={"Cancel"}
                         isOpen={isDeleteRecordDialogOpen}
+                        columns={columnsToShowWhileDeleteRecord}
                         onClose={closeDeleteRecordDialog}
                         onDelete={handleDeleteCardType}
                     />

@@ -119,10 +119,28 @@ export default function Home() {
 
   };
 
+  const columnsToShowWhileDeleteRecord = [
+    { label: 'Client', accessor: 'client_name' },
+    { label: 'Transaction Type', accessor: 'transaction_type' },
+    { label: 'Amount', accessor: 'transaction_amount' },
+    { label: 'Charges', accessor: 'widthdraw_charges' },
+    { label: 'Bank', accessor: 'bank_name' },
+    { label: 'Card', accessor: 'card_name' },
+    { label: 'Create Date', accessor: 'create_date' },
+    { label: 'Create Time', accessor: 'create_time' },
+  ]
+
+  const columnsToClientInfoRecord = [
+    { label: 'Client', accessor: 'name' },
+    { label: 'Email', accessor: 'email' },
+    { label: 'Contact', accessor: 'contact' },
+    { label: 'Created On', accessor: 'create_date' }
+  ]
+
   const handleClientNameClick = (clientId: number) => {
     const client = clients.find((c) => c.id === clientId);
     if (client) {
-      userInfoModalRef.current?.open(client, `Client Info: ${client.name}`);
+      userInfoModalRef.current?.open(client, columnsToClientInfoRecord, `Client Info: ${client.name}`);
     } else {
       console.warn(`Client not found: ${clientId}`);
     }
@@ -630,6 +648,7 @@ export default function Home() {
             positiveButtonText={"Delete Transaction"}
             negativeButtonText={"Cancel"}
             isOpen={isDeleteRecordDialogOpen}
+            columns={columnsToShowWhileDeleteRecord}
             onClose={closeDeleteRecordDialog}
             onDelete={handleDeleteTransaction}
           />

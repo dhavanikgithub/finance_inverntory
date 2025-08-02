@@ -47,6 +47,10 @@ export default function BankScreen() {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: string }>({ key: 'name', direction: 'asc' });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<null | Bank>(null);
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  const columnsToShowWhileDeleteRecord = [
+    { label: 'Bank', accessor: 'name' },
+    { label: 'Created On', accessor: 'create_date' }
+  ]
 
   useEffect(() => {
     dispatch(fetchBanks());
@@ -187,6 +191,7 @@ export default function BankScreen() {
           title="Delete Bank"
           description="Are you sure you want to delete this bank? This action cannot be undone."
           isOpen={isDeleteDialogOpen}
+          columns={columnsToShowWhileDeleteRecord}
           onClose={() => setIsDeleteDialogOpen(null)}
           onDelete={handleDeleteBank}
           positiveButtonText="Delete Bank"

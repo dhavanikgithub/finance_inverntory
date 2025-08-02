@@ -5,10 +5,10 @@ import { InfoModalProps } from './types';
 
 
 
-const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose, title, data }) => {
+const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose, title, columns, data }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="md" disableOutsideClick={false}>
-      <KeyValueTable data={data} />
+      <KeyValueTable data={data} columns={columns} />
     </Modal>
   );
 };
