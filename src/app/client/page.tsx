@@ -37,6 +37,7 @@ export default function ClientScreen() {
     const [searchInput, setSearchInput] = useState<string>("");
     const columnsToShowWhileDeleteRecord = [
         { label: 'Client', accessor: 'name' },
+        { label: 'Transactions', accessor: 'transaction_count' },
         { label: 'Email', accessor: 'email' },
         { label: 'Contact', accessor: 'contact' },
         { label: 'Created On', accessor: 'create_date' }
@@ -73,6 +74,8 @@ export default function ClientScreen() {
             setSortedData([]);
             return;
         }
+        console.log("Sorting data by key:", key, "in direction:", direction);
+        console.log("Current clients data:", clients);
 
         const sorted = [...clients].sort((a, b) => {
             const aVal = String(a[key] || '').toLowerCase();
@@ -151,6 +154,11 @@ export default function ClientScreen() {
             type: "string"
         },
         {
+            Header: "Transactions",
+            accessor: "transaction_count",
+            type: "number"
+        },
+        {
             Header: "Address",
             accessor: "address",
             type: "string"
@@ -197,6 +205,9 @@ export default function ClientScreen() {
                     </TableData>
                     <TableData>
                         {row.contact || ''}
+                    </TableData>
+                     <TableData>
+                        {row.transaction_count || 0}
                     </TableData>
                     <TableData>
                         <ViewMore title={"Address"} text={row.address || ''} charLimit={20} />

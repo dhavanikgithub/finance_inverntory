@@ -1,4 +1,7 @@
+import { Client } from '@/app/model/Client'
+import pool from '@/lib/db'
 import kysely from '@/lib/kysely-db'
+import { sql } from 'kysely'
 
 export class ClientService {
   async getClientById(clientId: number) {
@@ -22,13 +25,20 @@ export class ClientService {
   }
 
   async getAllClients() {
-    const clients = await kysely
-      .selectFrom('client')
-      .selectAll()
-      .orderBy('name', 'asc')
-      .execute()
+    const clients = await pool.query<Client>(`SELECT 
+    c.*, 
+    COALESCE(tr.transaction_count, 0) AS transaction_count
+FROM public.client c
+LEFT JOIN (
+    SELECT 
+        client_id, 
+        COUNT(*) AS transaction_count
+    FROM public.transaction_records
+    GROUP BY client_id
+) tr ON tr.client_id = c.id
+ORDER BY c.name ASC;`)
 
-    return clients
+    return clients.rows
   }
 
   async createClient(values: any[]) {
@@ -40,7 +50,18 @@ export class ClientService {
         contact: values[2],
         address: values[3],
       })
-      .returningAll()
+      .returning([
+    'id',
+    'name',
+    'email',
+    'contact',
+    'address',
+    'create_date',
+    'create_time',
+    'modify_date',
+    'modify_time',
+    sql<number>`0`.as('transaction_count'),
+  ])
       .execute()
 
     return insertedClient

@@ -126,11 +126,19 @@ export async function PUT(req: Request): Promise<NextResponse> {
       .returningAll()
       .execute();
 
+    const [result] = await kysely
+      .selectFrom('transaction_records')
+      .where('client_id', '=', id)
+      .select(kysely.fn.countAll().as('transaction_count'))
+      .execute();
+
+    const transaction_count = result?.transaction_count ?? 0;
+
     if (updated.length === 0) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
 
-    return NextResponse.json(updated[0]);
+    return NextResponse.json({ ...updated[0], transaction_count }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

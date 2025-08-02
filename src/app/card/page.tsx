@@ -28,6 +28,7 @@ export default function CardTypeScreen() {
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Card>(null);
     const columnsToShowWhileDeleteRecord = [
         { label: 'Card', accessor: 'name' },
+        { label: 'Transactions', accessor: 'transaction_count' },
         { label: 'Created On', accessor: 'create_date' }
     ]
 
@@ -125,6 +126,11 @@ export default function CardTypeScreen() {
             type: "string"
         },
         {
+            Header: "Transactions",
+            accessor: "transaction_count",
+            type: "number"
+        },
+        {
             Header: "Created On",
             accessor: "create_date"
         },
@@ -170,6 +176,7 @@ export default function CardTypeScreen() {
             return (
                 <>
                     <TableData>{row.name}</TableData>
+                    <TableData>{row.transaction_count || 0}</TableData>
                     <TableData>
                         <span className='text-sm'>
                             <span>{formatDate(row.create_date!.toString())}</span><br />

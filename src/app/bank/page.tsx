@@ -49,6 +49,7 @@ export default function BankScreen() {
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const columnsToShowWhileDeleteRecord = [
     { label: 'Bank', accessor: 'name' },
+    { label: 'Transactions', accessor: 'transaction_count' },
     { label: 'Created On', accessor: 'create_date' }
   ]
 
@@ -86,6 +87,7 @@ export default function BankScreen() {
 
   const columns = [
     { Header: 'Bank Name', accessor: 'name' },
+    { Header: 'Transactions', accessor: 'transaction_count' },
     { Header: 'Created On', accessor: 'create_date' },
     { Header: 'Action', accessor: 'action', sorting: false },
   ];
@@ -104,7 +106,7 @@ export default function BankScreen() {
     },
   ];
 
-  const sortDataToggle = (key: keyof Card, direction = "asc") => {
+  const sortDataToggle = (key: keyof Bank, direction = "asc") => {
     if (sortConfig.key === key && sortConfig.direction === "asc") {
       direction = "desc";
     }
@@ -177,6 +179,7 @@ export default function BankScreen() {
             {currentRows.map((row) => (
               <TableRow key={row.id}>
                 <TableData>{row.name}</TableData>
+                <TableData>{row.transaction_count}</TableData>
                 <TableData>
                   <span>{formatDate(row.create_date!.toString())}<br /><span className="text-gray-500">{formatTime(row.create_time!)}</span></span>
                 </TableData>

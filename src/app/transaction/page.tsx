@@ -132,6 +132,7 @@ export default function Home() {
 
   const columnsToClientInfoRecord = [
     { label: 'Client', accessor: 'name' },
+    { label: 'Transactions', accessor: 'transaction_count' },
     { label: 'Email', accessor: 'email' },
     { label: 'Contact', accessor: 'contact' },
     { label: 'Created On', accessor: 'create_date' }
