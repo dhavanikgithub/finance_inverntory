@@ -214,7 +214,6 @@ export default function ClientTransaction({ clients }: ClientTransactionProps) {
 
   // Define the columns array with the correct types
   const columns: Column[] = [
-    { Header: "Client", accessor: "client_name" },
     { Header: "Type", accessor: "transaction_type" },
     { Header: "Amount", accessor: "transaction_amount" },
     { Header: "Charges", accessor: "widthdraw_charges" },
@@ -286,10 +285,6 @@ export default function ClientTransaction({ clients }: ClientTransactionProps) {
 
       return (
         <>
-
-          <TableData className={"underline text-blue-600 dark:text-blue-400"} onClick={() => handleClientNameClick(row.client_id)}>
-            {row.client_name}
-          </TableData>
 
           <TableData>
             {isTransactionTypeDeposit(row.transaction_type) ?
