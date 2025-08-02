@@ -144,6 +144,11 @@ export default function ClientScreen() {
             type: "string"
         },
         {
+            Header: "Transactions",
+            accessor: "transaction_count",
+            type: "number"
+        },
+        {
             Header: "Email",
             accessor: "email",
             type: "string"
@@ -152,11 +157,6 @@ export default function ClientScreen() {
             Header: "Contact",
             accessor: "contact",
             type: "string"
-        },
-        {
-            Header: "Transactions",
-            accessor: "transaction_count",
-            type: "number"
         },
         {
             Header: "Address",
@@ -200,14 +200,14 @@ export default function ClientScreen() {
                     <TableData onClick={() => gotoClientTransactionPage(row)} className='cursor-pointer hover:underline text-blue-600 dark:text-blue-400'>
                         {row.name}
                     </TableData>
+                     <TableData>
+                        {row.transaction_count || 0}
+                    </TableData>
                     <TableData>
                         {row.email || ''}
                     </TableData>
                     <TableData>
                         {row.contact || ''}
-                    </TableData>
-                     <TableData>
-                        {row.transaction_count || 0}
                     </TableData>
                     <TableData>
                         <ViewMore title={"Address"} text={row.address || ''} charLimit={20} />
