@@ -9,12 +9,12 @@ export async function GET(): Promise<NextResponse> {
       SELECT 
     c.*, 
     COALESCE(tc.transaction_count, 0) AS transaction_count
-FROM public.card c
+FROM card c
 LEFT JOIN (
     SELECT 
         card_id, 
         COUNT(*) AS transaction_count
-    FROM public.transaction_records
+    FROM transaction_records
     GROUP BY card_id
 ) tc ON tc.card_id = c.id
 ORDER BY c.name;
@@ -40,7 +40,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const result = await pool.query<Card>(
       `
       WITH inserted_card AS (
-    INSERT INTO public.card (name)
+    INSERT INTO card (name)
     VALUES ($1)
     RETURNING *
 )
@@ -75,7 +75,7 @@ export async function PUT(request: Request): Promise<NextResponse> {
     const result = await pool.query<Card>(
       `
       WITH updated_card AS (
-    UPDATE public.card 
+    UPDATE card 
     SET name = $1
     WHERE id = $2
     RETURNING *
@@ -88,7 +88,7 @@ LEFT JOIN (
     SELECT 
         card_id, 
         COUNT(*) AS transaction_count
-    FROM public.transaction_records
+    FROM transaction_records
     GROUP BY card_id
 ) tc ON tc.card_id = uc.id
 ORDER BY uc.name;
@@ -124,7 +124,7 @@ export async function DELETE(request: Request): Promise<NextResponse> {
     }
 
     const result = await pool.query(
-      'DELETE FROM public.card WHERE id = $1 RETURNING *',
+      'DELETE FROM card WHERE id = $1 RETURNING *',
       [id]
     );
 

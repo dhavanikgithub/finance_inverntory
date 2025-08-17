@@ -10,8 +10,8 @@ export async function GET(): Promise<NextResponse> {
     SELECT 
         b.id AS bank_id, 
         COUNT(*) AS transaction_count
-    FROM public.transaction_records
-    LEFT JOIN public.bank b ON b.id = transaction_records.bank_id
+    FROM transaction_records
+    LEFT JOIN bank b ON b.id = transaction_records.bank_id
     GROUP BY b.id
 )
 SELECT 
@@ -22,7 +22,7 @@ SELECT
     bank.modify_date, 
     bank.modify_time, 
     COALESCE(bank_with_transactions.transaction_count, 0) AS transaction_count
-FROM public.bank
+FROM bank
 LEFT JOIN bank_with_transactions 
     ON bank_with_transactions.bank_id = bank.id
 ORDER BY bank.name ASC;
@@ -49,7 +49,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     // Insert and return the new bank with card type info
     const insertQuery = `
       WITH inserted_bank AS (
-        INSERT INTO public.bank (name)
+        INSERT INTO bank (name)
         VALUES ($1)
         RETURNING *
       )
@@ -80,7 +80,7 @@ export async function PUT(request: Request): Promise<NextResponse> {
 
     // Update and return the bank with card type info
     const updateQuery = `WITH updated_bank AS (
-    UPDATE public.bank 
+    UPDATE bank 
     SET name = $1
     WHERE id = $2
     RETURNING *
@@ -91,7 +91,7 @@ SELECT
 FROM updated_bank ub
 LEFT JOIN (
     SELECT bank_id, COUNT(*) AS transaction_count
-    FROM public.transaction_records
+    FROM transaction_records
     GROUP BY bank_id
 ) bt ON bt.bank_id = ub.id
 ORDER BY ub.name ASC;
@@ -126,7 +126,7 @@ export async function DELETE(request: Request): Promise<NextResponse> {
     }
 
     const result = await pool.query(
-      'DELETE FROM public.bank WHERE id = $1 RETURNING *',
+      'DELETE FROM bank WHERE id = $1 RETURNING *',
       [id]
     );
 

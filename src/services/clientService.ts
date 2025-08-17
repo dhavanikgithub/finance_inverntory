@@ -28,12 +28,12 @@ export class ClientService {
     const clients = await pool.query<Client>(`SELECT 
     c.*, 
     COALESCE(tr.transaction_count, 0) AS transaction_count
-FROM public.client c
+FROM client c
 LEFT JOIN (
     SELECT 
         client_id, 
         COUNT(*) AS transaction_count
-    FROM public.transaction_records
+    FROM transaction_records
     GROUP BY client_id
 ) tr ON tr.client_id = c.id
 ORDER BY c.name ASC;`)

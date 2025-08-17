@@ -55,7 +55,7 @@ const GenerateReportModal: React.FC<GenerateReportModalProps> = ({ isOpen, onClo
 
         const selectedClientObj = clients.find((element) => element.name === selectedClient) as Client;
         const requestData = {
-            clientId: selectedClientObj?.id || null,
+            clientId: isClientSpecific ? selectedClientObj?.id || null : null,
             startDate,
             endDate,
         };

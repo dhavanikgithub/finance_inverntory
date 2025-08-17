@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import createJsReportClient from '../../../lib/jsreport-client'; // Import the JSReport client
 import pool from '../../../lib/db'; // Database connection pool
 import { formatAmount, formatDate, formatTime, getTransactionTypeStr, isTransactionTypeDeposit, isTransactionTypeWidthdraw } from '@/utils/helper';
 import fs from 'fs';
 import path from 'path';
 import Transaction from '@/app/model/Transaction';
+import TransactionReportPDF from './templates/TransactionReportPDF';
 
 
 // Define types for the incoming request data
@@ -28,31 +28,31 @@ interface GroupedData {
     date: string;
     time: string;
     is_widthdraw_transaction: boolean;
-    bank_name:string;
-    card_name:string;
+    bank_name: string;
+    card_name: string;
   }>;
 }
 
 export async function POST(req: Request): Promise<NextResponse> {
   const { clientId, startDate, endDate }: RequestBody = await req.json();
-  
+
   const isClientSpecific = clientId !== undefined && clientId !== null;
 
-  if(!startDate){
+  if (!startDate) {
     return NextResponse.json({ error: 'Required field "startDate" is missing' }, { status: 400 });
   }
-  if(!endDate){
+  if (!endDate) {
     return NextResponse.json({ error: 'Required field "endDate" is missing' }, { status: 400 });
   }
-  
+
   try {
     // SQL query to fetch the transaction data based on filters
     let query = `
       SELECT tr.*, c.name AS client_name, bk.name AS bank_name, ct.name AS card_name
-      FROM public.transaction_records tr 
-      JOIN public.client c ON tr.client_id = c.id 
-      LEFT JOIN public.bank bk ON tr.bank_id = bk.id
-      LEFT JOIN public.card ct ON tr.card_id = ct.id
+      FROM transaction_records tr 
+      JOIN client c ON tr.client_id = c.id 
+      LEFT JOIN bank bk ON tr.bank_id = bk.id
+      LEFT JOIN card ct ON tr.card_id = ct.id
       WHERE tr.create_date BETWEEN $1 AND $2
     `;
 
@@ -76,15 +76,15 @@ export async function POST(req: Request): Promise<NextResponse> {
       }
 
       let widthdraw_charges = (row.transaction_amount * row.widthdraw_charges) / 100;
-      
+
       // Add transaction data to 'data' array
       acc[row.client_name].data.push({
         transaction_type: `${getTransactionTypeStr(row.transaction_type)}`,
-        transaction_amount: `₹${formatAmount(row.transaction_amount.toString())}/-`,
-        widthdraw_charges: `₹${formatAmount(widthdraw_charges.toString())}/-`,
+        transaction_amount: `Rs. ${formatAmount(row.transaction_amount.toString())}/-`,
+        widthdraw_charges: `Rs. ${formatAmount(widthdraw_charges.toString())}/-`,
         widthdraw_charges_pr: `${row.widthdraw_charges.toString()}%`,
-        date: row.create_date ? formatDate(row.create_date): '-',
-        time: row.create_time ? formatTime(row.create_time): '-',
+        date: row.create_date ? formatDate(row.create_date) : '-',
+        time: row.create_time ? formatTime(row.create_time) : '-',
         is_widthdraw_transaction: isTransactionTypeWidthdraw(row.transaction_type),
         bank_name: row.bank_name || '',
         card_name: row.card_name || '',
@@ -109,21 +109,21 @@ export async function POST(req: Request): Promise<NextResponse> {
       if (isOnlyWithdraw) {
         num = 0;
       }
-      return `₹${formatAmount(Math.abs(num).toString())}/-`;
+      return `Rs. ${formatAmount(Math.abs(num).toString())}/-`;
     }
 
     function finalAmountWithSign(amount: string, widthdraw_charges: string): string {
       let num = parseFloat(amount.toString());
       if (isOnlyWithdraw) {
-        return `- ₹${formatAmount(widthdraw_charges)}/-`;
+        return `Rs. ${formatAmount(widthdraw_charges)}/-`;
       } else {
-        return `+ ₹${formatAmount(Math.abs(num).toString())}/-`;
+        return `Rs. ${formatAmount(Math.abs(num).toString())}/-`;
       }
     }
 
     // Format the totals as currency
     Object.keys(groupedData).forEach(clientName => {
-      groupedData[clientName].total.widthdraw_charges = `₹${formatAmount(groupedData[clientName].total.widthdraw_charges)}/-`;
+      groupedData[clientName].total.widthdraw_charges = `Rs. ${formatAmount(groupedData[clientName].total.widthdraw_charges)}/-`;
       groupedData[clientName].total.final_amount = finalAmountWithSign(groupedData[clientName].total.final_amount, groupedData[clientName].total.widthdraw_charges);
       groupedData[clientName].total.transaction_amount = transactionAmountWithSign(groupedData[clientName].total.transaction_amount);
     });
@@ -134,40 +134,42 @@ export async function POST(req: Request): Promise<NextResponse> {
       startDate: formatDate(startDate),
       endDate: formatDate(endDate),
       groupedData,
-      columns: ['transaction_type', 'transaction_amount', 'widthdraw_charges', 'bank_name','card_name','date_and_time'],
+      columns: ['transaction_type', 'transaction_amount', 'widthdraw_charges', 'bank_name', 'card_name', 'date_and_time'],
     };
-
-    // Create JSReport client instance
-    const jsReportClient = createJsReportClient();
-
-    // Join the current working directory (CWD) with the relative path to the HTML file
-    const filePath = path.join(process.cwd(), 'public', 'templates', 'report.html');
-
-    // Read the HTML file content
-    let htmlContent = '';
-
     try {
-      htmlContent = fs.readFileSync(filePath, 'utf8');
+      // Create PDF generator instance
+      const reportGenerator = new TransactionReportPDF();
+
+      // Generate temporary file path
+      const tempFileName = `transaction_report_${Date.now()}.pdf`;
+      const tempFilePath = path.join(process.cwd(), 'temp', tempFileName);
+
+      // Ensure temp directory exists
+      const tempDir = path.dirname(tempFilePath);
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir, { recursive: true });
+      }
+
+      // Generate PDF file
+      await reportGenerator.generatePDF(reportData, tempFilePath);
+
+      // Read the generated PDF file
+      const pdfBuffer = fs.readFileSync(tempFilePath);
+
+      // Convert to base64
+      const bodyBufferBase64 = pdfBuffer.toString('base64');
+
+      // Clean up temporary file
+      fs.unlinkSync(tempFilePath);
+
+      // Return the PDF content as a buffer in the response
+      return NextResponse.json({ pdfContent: bodyBufferBase64 }, { status: 200 });
+
     } catch (error) {
-      console.error('Error reading HTML file:', error);
+      console.error('Error generating PDF:', error);
+      return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
     }
 
-    // Generate report using JSReport
-    const report = await jsReportClient.render({
-      template: {
-        content: htmlContent,
-        engine: 'handlebars',
-        recipe: 'chrome-pdf',
-      },
-      data: reportData,
-    });
-
-    // Get the PDF body buffer
-    const bodyBuffer = await report.body(); // Get the body as a buffer
-    const bodyBufferBase64 = bodyBuffer.toString('base64');
-
-    // Return the PDF content as a buffer in the response
-    return NextResponse.json({ pdfContent: bodyBufferBase64 }, { status: 200 }); // Encode to base64 to send as JSON
   } catch (error) {
     console.error('Error generating report:', error);
     return NextResponse.json({ error: 'Error generating report' }, { status: 500 });
