@@ -1,7 +1,7 @@
 import { formatDate } from '@/utils/helper';
 import React, { useEffect, useState } from 'react';
 import Dropdown from './Dropdown';
-import { File, X } from 'lucide-react';
+import { File, UserRound, X } from 'lucide-react';
 import { Client } from '@/app/model/Client';
 import useBodyScrollLock from '@/hooks/useBodyScrollLock';
 import CustomCheckbox from './CustomCheckbox';
@@ -55,7 +55,7 @@ const GenerateReportModal: React.FC<GenerateReportModalProps> = ({ isOpen, onClo
 
         const selectedClientObj = clients.find((element) => element.name === selectedClient) as Client;
         const requestData = {
-            clientId: selectedClientObj?.id || null,
+            clientId: isClientSpecific ? selectedClientObj?.id || null : null,
             startDate,
             endDate,
         };
@@ -135,7 +135,7 @@ const GenerateReportModal: React.FC<GenerateReportModalProps> = ({ isOpen, onClo
                     {isClientSpecific && (
                         <div className="mb-4">
                             <label className="block text-gray-700 font-medium mb-2 text-sm">Client:</label>
-                            <Dropdown className='mb-3 mt-2' items={items} selectedItem={selectedClient} onItemSelect={onItemSelect} />
+                            <Dropdown className='mb-3 mt-2' items={items} selectedItem={selectedClient} onItemSelect={onItemSelect} icon={UserRound}/>
                         </div>
                     )}
                     <div className="flex justify-between items-center mb-6 space-x-2">

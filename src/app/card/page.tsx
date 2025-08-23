@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeading, SectionContent } from '@/components/Section';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewCard, deleteCardData, fetchCards, updateCardData } from '@/store/actions/cardActions';
@@ -12,11 +12,8 @@ import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { AppDispatch, RootState } from '@/store/store';
 import { Card } from '@/app/model/Card';
 import ActionMenu from '@/components/ActionMenu';
+import { SortConfig } from '@/types/SortConfig';
 
-export interface SortConfig {
-    key: string;
-    direction: string
-}
 
 export default function CardTypeScreen() {
     const dispatch: AppDispatch = useDispatch();
@@ -27,8 +24,13 @@ export default function CardTypeScreen() {
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "name", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [currentRows, setCurrentRows] = useState<Card[]>([]);
-    const rowsPerPage = 10;
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Card>(null);
+    const columnsToShowWhileDeleteRecord = [
+        { label: 'Card', accessor: 'name' },
+        { label: 'Transactions', accessor: 'transaction_count' },
+        { label: 'Created On', accessor: 'create_date' }
+    ]
 
     const openDeleteRecordDialog = (data: Card) => {
         setIsDeleteRecordDialogOpen(data);
@@ -74,7 +76,7 @@ export default function CardTypeScreen() {
         const indexOfLastRow = currentPage * rowsPerPage;
         const indexOfFirstRow = indexOfLastRow - rowsPerPage;
         setCurrentRows(sortedData.slice(indexOfFirstRow, indexOfLastRow));
-    }, [currentPage, sortedData, cards])
+    }, [currentPage, sortedData, cards, rowsPerPage]);
 
     const getSortIcon = (columnKey: string, sorting = true) => {
         if (sorting && sortConfig.key === columnKey) {
@@ -124,6 +126,11 @@ export default function CardTypeScreen() {
             type: "string"
         },
         {
+            Header: "Transactions",
+            accessor: "transaction_count",
+            type: "number"
+        },
+        {
             Header: "Created On",
             accessor: "create_date"
         },
@@ -169,6 +176,7 @@ export default function CardTypeScreen() {
             return (
                 <>
                     <TableData>{row.name}</TableData>
+                    <TableData>{row.transaction_count || 0}</TableData>
                     <TableData>
                         <span className='text-sm'>
                             <span>{formatDate(row.create_date!.toString())}</span><br />
@@ -176,7 +184,7 @@ export default function CardTypeScreen() {
                         </span>
                     </TableData>
                     <TableData>
-                        <ActionMenu<Card> items={menuItems} data={row}/>
+                        <ActionMenu<Card> items={menuItems} data={row} />
                     </TableData>
                 </>
             )
@@ -192,6 +200,11 @@ export default function CardTypeScreen() {
             </>
         )
     }
+
+    function onRowsPerPageChange(newRowsPerPage: number) {
+        setCurrentPage(1); // Reset to first page when rows per page changes
+        setRowsPerPage(newRowsPerPage);
+    };
 
     return (
         <Dashboard>
@@ -228,6 +241,7 @@ export default function CardTypeScreen() {
                         totalRows={sortedData.length}
                         onPageChange={setCurrentPage}
                         rowsPerPage={rowsPerPage}
+                        onRowsPerPageChange={onRowsPerPageChange}
                     >
                         <TableHeader>
                             {renderTableHeaders(columns)}
@@ -247,6 +261,7 @@ export default function CardTypeScreen() {
                         positiveButtonText={"Delete Card"}
                         negativeButtonText={"Cancel"}
                         isOpen={isDeleteRecordDialogOpen}
+                        columns={columnsToShowWhileDeleteRecord}
                         onClose={closeDeleteRecordDialog}
                         onDelete={handleDeleteCardType}
                     />

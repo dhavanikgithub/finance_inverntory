@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IndianRupee, Percent, Save, X } from 'lucide-react';
+import { CreditCard, IndianRupee, Landmark, Percent, Save, UserRound, X } from 'lucide-react';
 import Dropdown from './Dropdown';
 import { formatAmount, getTransactionTypeStr, parseFormattedAmount } from '@/utils/helper';
 import { Client } from '@/app/model/Client';
@@ -17,7 +17,8 @@ const TransactionModal = ({
     isOpen,
     onClose,
     onSave,
-    transactionType
+    transactionType,
+    isSelectedClient=false
 }: {
     clients: Client[];
     banks: Bank[];
@@ -27,6 +28,7 @@ const TransactionModal = ({
     onClose: () => void;
     onSave: (transactionData: Transaction) => void;
     transactionType: TransactionType;
+    isSelectedClient: boolean;
 }) => {
     // Define the type for the form data
     interface FormData {
@@ -44,7 +46,7 @@ const TransactionModal = ({
     const initialFormData: FormData = {
         action: transactionType,
         remark: '',
-        selectedClient: null,
+        selectedClient: isSelectedClient ? clients[0].name : null,
         deductionAmount: 0,
         widthdrawCharge: 0,
         transactionAmount: '0',
@@ -113,7 +115,7 @@ const TransactionModal = ({
         }
         const tempFormData = updateAmount();
         setFormData(tempFormData);
-        const selectedClientObj = clients.find((element) => element.name === tempFormData.selectedClient) as Client;
+        const selectedClientObj = isSelectedClient ? clients[0] : clients.find((element) => element.name === tempFormData.selectedClient) as Client;
         const selectedBankObj = banks.find((element) => element.name === tempFormData.selectedBank) as Bank;
         const selectedCardObj = cards.find((element) => element.name === tempFormData.selectedCard) as Card;
 
@@ -182,7 +184,6 @@ const TransactionModal = ({
         setFormData(initialFormData)
         onClose();
     }
-
     // Dropdown items list
     const items = clients.map((item) => item.name);
 
@@ -210,7 +211,7 @@ const TransactionModal = ({
                 <div className="grid grid-cols-1 gap-4">
                     <div>
                         <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Client</label>
-                        <Dropdown placeholder="Select Client..." className='mb-3 mt-2' items={items} selectedItem={formData.selectedClient} onItemSelect={onClientSelect} />
+                        <Dropdown placeholder="Select Client..." className='mb-3 mt-2' items={items} selectedItem={formData.selectedClient} onItemSelect={onClientSelect} icon={UserRound} />
                     </div>
                 </div>
 
@@ -229,6 +230,16 @@ const TransactionModal = ({
                 ) : (
                     <div className="mt-4">
                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Select Bank</label>
+                                <Dropdown placeholder="Select Bank..." className='mb-3 mt-2' items={bankItems} selectedItem={formData.selectedBank} onItemSelect={onBankSelect} icon={Landmark} />
+                            </div>
+                            <div>
+                                <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Select Card</label>
+                                <Dropdown placeholder="Select Card..." className='mb-3 mt-2' items={cardItems} selectedItem={formData.selectedCard} onItemSelect={onCardSelect} icon={CreditCard} />
+                            </div>
+                        </div>
+                        <div className="mt-4 grid grid-cols-2 gap-4">
                             <div>
                                 <InputField
                                     type='text'
@@ -264,14 +275,7 @@ const TransactionModal = ({
                             </div>
 
                         </div>
-                        <div>
-                            <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Select Bank</label>
-                            <Dropdown placeholder="Select Bank..." className='mb-3 mt-2' items={bankItems} selectedItem={formData.selectedBank} onItemSelect={onBankSelect} />
-                        </div>
-                        <div>
-                            <label htmlFor="client" className="block text-sm font-medium text-gray-700 dark:text-gray-200">Select Card</label>
-                            <Dropdown placeholder="Select Card..." className='mb-3 mt-2' items={cardItems} selectedItem={formData.selectedCard} onItemSelect={onCardSelect} />
-                        </div>
+                        
                     </div>
                 )}
                 <div>

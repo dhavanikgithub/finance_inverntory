@@ -10,7 +10,7 @@ interface Props {
   isOpen: boolean;
   onClose: (rupay?:number,master?:number) => void;
   settings: {
-    id: number;
+    id?: number;
     rupay_card_charge_amount: number;
     master_card_charge_amount: number;
   } | null;

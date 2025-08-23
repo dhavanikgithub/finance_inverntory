@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import TransactionModal from '../../components/TransactionModal';
 import { ArrowDownLeft, ArrowUpRight, File, Filter as FilterIcon, Pencil, Search, Trash2, User2 } from "lucide-react";
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, SectionContent, Heading, SubHeading } from '@/components/Section';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,7 +12,6 @@ import { fetchClients } from '@/store/actions/clientActions';
 import GenerateReportModal from '@/components/GenerateReportModal';
 import DeactivateAccountModal from '@/components/DeactivateAccountModal';
 import { AppDispatch, RootState } from '@/store/store';
-import { SortConfig } from '../client/page';
 import Fuse from 'fuse.js';
 import Transaction, { Deposit, TransactionType, Widthdraw } from '../model/Transaction';
 import FilterModal, { FilterData, FilterType, getTotalFilterCount } from '@/components/FilterModal';
@@ -27,6 +26,7 @@ import ContextMenuWrapper from '@/components/ContextMenu/ContextMenuWrapper';
 import { ContextMenuHandle, ContextMenuItem } from '@/components/ContextMenu/types';
 import { InfoModalRef } from '@/components/InfoModal/types';
 import { Client } from '../model/Client';
+import { SortConfig } from '@/types/SortConfig';
 
 
 export default function Home() {
@@ -44,7 +44,7 @@ export default function Home() {
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "create_date", direction: "desc" });
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [currentRows, setCurrentRows] = useState<Transaction[]>([]);
-  const rowsPerPage: number = 10;
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [isGenerateReportModalOpen, setIsGenerateReportModalOpen] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState<string>("");
   const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Transaction>(null);
@@ -119,10 +119,29 @@ export default function Home() {
 
   };
 
+  const columnsToShowWhileDeleteRecord = [
+    { label: 'Client', accessor: 'client_name' },
+    { label: 'Transaction Type', accessor: 'transaction_type' },
+    { label: 'Amount', accessor: 'transaction_amount' },
+    { label: 'Charges', accessor: 'widthdraw_charges' },
+    { label: 'Bank', accessor: 'bank_name' },
+    { label: 'Card', accessor: 'card_name' },
+    { label: 'Create Date', accessor: 'create_date' },
+    { label: 'Create Time', accessor: 'create_time' },
+  ]
+
+  const columnsToClientInfoRecord = [
+    { label: 'Client', accessor: 'name' },
+    { label: 'Transactions', accessor: 'transaction_count' },
+    { label: 'Email', accessor: 'email' },
+    { label: 'Contact', accessor: 'contact' },
+    { label: 'Created On', accessor: 'create_date' }
+  ]
+
   const handleClientNameClick = (clientId: number) => {
     const client = clients.find((c) => c.id === clientId);
     if (client) {
-      userInfoModalRef.current?.open(client, `Client Info: ${client.name}`);
+      userInfoModalRef.current?.open(client, columnsToClientInfoRecord, `Client Info: ${client.name}`);
     } else {
       console.warn(`Client not found: ${clientId}`);
     }
@@ -133,7 +152,7 @@ export default function Home() {
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
     setCurrentRows(sortedData.slice(indexOfFirstRow, indexOfLastRow));
-  }, [currentPage, sortedData, transactions])
+  }, [currentPage, sortedData, transactions, rowsPerPage])
 
   const getSortIcon = (columnKey: string, sorting = true) => {
     if (sorting && sortConfig.key === columnKey) {
@@ -240,7 +259,7 @@ export default function Home() {
       return (
         <>
 
-          <TableData onClick={() => handleClientNameClick(row.client_id)}>
+          <TableData className={"cursor-pointer hover:underline text-blue-600 dark:text-blue-400"} onClick={() => handleClientNameClick(row.client_id)}>
             {row.client_name}
           </TableData>
 
@@ -330,7 +349,7 @@ export default function Home() {
     setIsModalOpen(null)
     setTransactionToEdit(null)
   }
-  const searchColumn:SearchColumn[] = [
+  const searchColumn: SearchColumn[] = [
     {
       name: "client_name"
     },
@@ -346,7 +365,8 @@ export default function Home() {
   ]
 
   const handleOnSearch = (searchText: string) => {
-    const dataProcessor = new DataProcessor<Transaction>(sortedData, searchColumn);
+    setCurrentPage(1);
+    const dataProcessor = new DataProcessor<Transaction>(transactions, searchColumn);
     dataProcessor.applySearch(searchText);
     setSortedData(dataProcessor.getData());
   }
@@ -360,6 +380,50 @@ export default function Home() {
     dataProcessor.applyFilter(appliedFilters)
     setSortedData(dataProcessor.getData())
   }, [appliedFilters])
+
+  const bankNameFilter = useMemo((): FilterType => {
+    const distinctBankNames: FilterData[] = Array.from(
+      new Set(
+        transactions
+          .map(t => t.bank_name)
+          .filter((v): v is string => !!v)
+          .sort((a, b) => a.localeCompare(b))
+      )
+    ).map(bankName => ({
+      label: bankName,
+      value: bankName,
+    }));
+
+    return {
+      columnName: "Bank Name",
+      columnAccessor: "bank_name",
+      filterOperator: 'string',
+      dataOperator: 'string',
+      data: distinctBankNames,
+    };
+  }, [transactions]);
+
+  const cardNameFilter = useMemo((): FilterType => {
+    const distinctCardNames: FilterData[] = Array.from(
+      new Set(
+        transactions
+          .map(t => t.card_name)
+          .filter((v): v is string => !!v)
+          .sort((a, b) => a.localeCompare(b))
+      )
+    ).map(cardName => ({
+      label: cardName,
+      value: cardName,
+    }));
+
+    return {
+      columnName: "Card Name",
+      columnAccessor: "card_name",
+      filterOperator: 'string',
+      dataOperator: 'string',
+      data: distinctCardNames,
+    };
+  }, [transactions]);
 
   const clientNameFilter = useMemo((): FilterType => {
     const distinctClientNames: FilterData[] = Array.from(
@@ -480,6 +544,8 @@ export default function Home() {
   useEffect(() => {
     setFilterColumns([
       transactionTypeFilter,
+      bankNameFilter,
+      cardNameFilter,
       clientNameFilter,
       dateYearFilter,
       dateMonthFilter,
@@ -504,6 +570,12 @@ export default function Home() {
       onClick: openDeleteRecordDialog,
     },
   ];
+
+
+  function onRowsPerPageChange(newRowsPerPage: number) {
+    setCurrentPage(1); // Reset to first page when rows per page changes
+    setRowsPerPage(newRowsPerPage);
+  };
 
   return (
     <Dashboard>
@@ -545,6 +617,7 @@ export default function Home() {
               onClose={onCloseAmountManagementModal}
               onSave={handleSaveTransaction}
               transactionType={isModalOpen}
+              isSelectedClient={false}
             />
           }
         </SectionHeaderRight>
@@ -592,6 +665,7 @@ export default function Home() {
             totalRows={sortedData.length}
             onPageChange={setCurrentPage}
             rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={onRowsPerPageChange}
           >
             {/* Table Header */}
             <TableHeader>
@@ -602,9 +676,11 @@ export default function Home() {
             <TableBody>
               {loading || currentRows.length === 0 ?
                 (
-                  <TableData colSpan={9} isLoading={loading} noData={transactions.length === 0}>
-                    {""}
-                  </TableData>
+                  <TableRow>
+                    <TableData colSpan={9} isLoading={loading} noData={transactions.length === 0}>
+                      {""}
+                    </TableData>
+                  </TableRow>
                 )
                 : renderTableRows(currentRows)
               }
@@ -619,6 +695,7 @@ export default function Home() {
             positiveButtonText={"Delete Transaction"}
             negativeButtonText={"Cancel"}
             isOpen={isDeleteRecordDialogOpen}
+            columns={columnsToShowWhileDeleteRecord}
             onClose={closeDeleteRecordDialog}
             onDelete={handleDeleteTransaction}
           />

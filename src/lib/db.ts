@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { getSchema } from './config';
 
 const DB_CONFIG = {
   DB_NAME: process.env.DB_NAME,
@@ -8,8 +9,9 @@ const DB_CONFIG = {
   DB_PORT: Number(process.env.DB_PORT), // Default PostgreSQL port
 }
 
+
 // PostgreSQL connection details
-const pool = new Pool({
+export const pool = new Pool({
   user: DB_CONFIG.DB_USER, // Change with your PostgreSQL username
   host: DB_CONFIG.DB_HOST, // Change if needed
   database: DB_CONFIG.DB_NAME, // Your database name
@@ -17,6 +19,11 @@ const pool = new Pool({
   port: DB_CONFIG.DB_PORT, // PostgreSQL default port
 });
 
+// Set search_path when pool connects
+pool.on('connect', (client) => {
+  client.query(`SET search_path TO ${getSchema()};`);
+  console.log(`Database Schema: ${getSchema()}`)
+});
 // Function to query the database
 const query = async (text: string, params?: any[]) => {
   const res = await pool.query(text, params);

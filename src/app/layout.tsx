@@ -51,7 +51,7 @@ export default function RootLayout({
   return (
     <ThemeProvider>
       <StoreProvider>
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning={true}>
           <head>
             <title>Bapa Sitaram</title>
             <link id="favicon" rel="icon" href="/favicon-light.svg" />

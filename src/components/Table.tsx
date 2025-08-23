@@ -10,6 +10,7 @@ interface CustomTableProps {
   totalRows: number;
   rowsPerPage: number;
   onPageChange: (pageNumber: number) => void;
+  onRowsPerPageChange: (rowsPerPage: number) => void;
 
 }
 interface TableDataProps {
@@ -18,6 +19,7 @@ interface TableDataProps {
   isLoading?: boolean;
   noData?: boolean;
   onClick?: () => void;
+  className?: string;
 }
 
 interface TableRowProps {
@@ -44,6 +46,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
   totalRows,
   onPageChange,
   rowsPerPage,
+  onRowsPerPageChange
 }) => {
   return (
     <div className="w-full mt-4 ">
@@ -61,6 +64,7 @@ const CustomTable: React.FC<CustomTableProps> = ({
         totalRows={totalRows}
         onPageChange={onPageChange}
         rowsPerPage={rowsPerPage}
+        onRowsPerPageChange={onRowsPerPageChange}
       />
     </div>
   );
@@ -73,12 +77,12 @@ const CustomTable: React.FC<CustomTableProps> = ({
 //     </td>
 //   )
 // }
-const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading = false, noData = false, onClick }) => {
+const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading = false, noData = false, onClick, className='' }) => {
   let content = children;
 
   if (isLoading) {
     return (
-      <td colSpan={colSpan} className="p-4 text-center border-b border-slate-200 dark:border-slate-600">
+      <td colSpan={colSpan} className={`p-4 text-center border-b border-slate-200 dark:border-slate-600`}>
         <Spinner />
       </td>
     );
@@ -86,7 +90,7 @@ const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading 
 
   else if (noData && !isLoading) {
     return (
-      <td colSpan={colSpan} className="p-4 text-center border-b border-slate-200 dark:border-slate-600">
+      <td colSpan={colSpan} className={`p-4 text-center border-b border-slate-200 dark:border-slate-600`}>
         <div className="flex flex-col text-black dark:text-gray-200 w-full">No records found.</div>
       </td>
     );
@@ -94,8 +98,8 @@ const TableData: React.FC<TableDataProps> = ({ children, colSpan = 1, isLoading 
 
   else {
     return (
-      <td colSpan={colSpan} className="p-4 border-b border-slate-200 dark:border-slate-600 cursor-pointer" onClick={onClick}>
-        <div className="flex flex-col text-black dark:text-gray-200 w-full">{content}</div>
+      <td colSpan={colSpan} className={`p-4 border-b border-slate-200 dark:border-slate-600 cursor-pointer`} onClick={onClick}>
+        <div className={`flex flex-col w-full ${className || 'text-black dark:text-gray-200'}`}>{content}</div>
       </td>
     );
   }

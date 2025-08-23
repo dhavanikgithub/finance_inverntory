@@ -1,5 +1,5 @@
 'use client'
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeading } from '@/components/Section';
 
 export default function Home() {

@@ -1,9 +1,9 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import { SectionHeader, SectionHeaderLeft, SectionHeaderRight, Heading, SubHeading, SectionContent } from '@/components/Section';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNewClient, deleteClientData, fetchClients, updateClientData } from '@/store/actions/clientActions';
+import { addClient, deleteClient, fetchClients, updateClient } from '@/store/actions/clientActions';
 import CustomTable, { TableBody, TableData, TableHeader, TableHeaderItem, TableRow } from '@/components/Table';
 import { Pencil, Search, Trash2, UserRound } from 'lucide-react';
 import ClientManagementModal from '@/components/ClientManagementModal';
@@ -16,13 +16,13 @@ import ActionMenu from '@/components/ActionMenu';
 import SearchBox from '@/components/SearchBox';
 import Fuse from 'fuse.js';
 import DataProcessor, { SearchColumn } from '@/utils/DataProcessor';
+import { SortConfig } from '@/types/SortConfig';
+import { useRouter } from 'next/navigation';
 
-export interface SortConfig {
-    key: string;
-    direction: string
-}
+
 export default function ClientScreen() {
-
+    const router = useRouter();
+    // Redux hooks
     const dispatch: AppDispatch = useDispatch();
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [clientToEdit, setClientToEdit] = useState<null | Client>(null);
@@ -32,9 +32,17 @@ export default function ClientScreen() {
     const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "name", direction: "asc" });
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [currentRows, setCurrentRows] = useState<Client[]>([]);
-    const rowsPerPage = 10;
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10);
     const [isDeleteRecordDialogOpen, setIsDeleteRecordDialogOpen] = useState<null | Client>(null);
     const [searchInput, setSearchInput] = useState<string>("");
+    const columnsToShowWhileDeleteRecord = [
+        { label: 'Client', accessor: 'name' },
+        { label: 'Transactions', accessor: 'transaction_count' },
+        { label: 'Email', accessor: 'email' },
+        { label: 'Contact', accessor: 'contact' },
+        { label: 'Created On', accessor: 'create_date' }
+    ]
+    
 
     const openDeleteRecordDialog = (data: Client) => {
         setIsDeleteRecordDialogOpen(data);
@@ -66,6 +74,8 @@ export default function ClientScreen() {
             setSortedData([]);
             return;
         }
+        console.log("Sorting data by key:", key, "in direction:", direction);
+        console.log("Current clients data:", clients);
 
         const sorted = [...clients].sort((a, b) => {
             const aVal = String(a[key] || '').toLowerCase();
@@ -83,7 +93,7 @@ export default function ClientScreen() {
         const indexOfLastRow = currentPage * rowsPerPage;
         const indexOfFirstRow = indexOfLastRow - rowsPerPage;
         setCurrentRows(sortedData.slice(indexOfFirstRow, indexOfLastRow));
-    }, [currentPage, sortedData, clients])
+    }, [currentPage, sortedData, clients, rowsPerPage])
 
     const getSortIcon = (columnKey: string, sorting = true) => {
         if (sorting && sortConfig.key === columnKey) {
@@ -114,16 +124,16 @@ export default function ClientScreen() {
     const handleSaveClient = (clientData: Client) => {
         if (clientToEdit) {
             // Update existing client
-            dispatch(updateClientData(clientData));
+            dispatch(updateClient(clientData));
         } else {
             // Add new client
-            dispatch(addNewClient(clientData));
+            dispatch(addClient(clientData));
         }
 
     };
 
     const handleDeleteClient = (clientData: Client) => {
-        dispatch(deleteClientData(clientData.id!));
+        dispatch(deleteClient(clientData.id!));
     }
 
 
@@ -132,6 +142,11 @@ export default function ClientScreen() {
             Header: "Name",
             accessor: "name",
             type: "string"
+        },
+        {
+            Header: "Transactions",
+            accessor: "transaction_count",
+            type: "number"
         },
         {
             Header: "Email",
@@ -161,6 +176,10 @@ export default function ClientScreen() {
 
     ];
 
+    function gotoClientTransactionPage(client: Client) {
+        router.push(`/client/${client.name}/transaction`);
+    }
+
     function renderTableHeaders(columns: Column[]) {
         return (
             <>
@@ -178,8 +197,11 @@ export default function ClientScreen() {
         const renderTableData = (row: Client) => {
             return (
                 <>
-                    <TableData>
+                    <TableData onClick={() => gotoClientTransactionPage(row)} className='cursor-pointer hover:underline text-blue-600 dark:text-blue-400'>
                         {row.name}
+                    </TableData>
+                     <TableData onClick={() => gotoClientTransactionPage(row)} className='cursor-pointer hover:underline text-blue-600 dark:text-blue-400'>
+                        {row.transaction_count || 0}
                     </TableData>
                     <TableData>
                         {row.email || ''}
@@ -226,27 +248,34 @@ export default function ClientScreen() {
             onClick: openDeleteRecordDialog,
         },
     ];
-    const searchColumn:SearchColumn[] = [
+    const searchColumn: SearchColumn[] = [
         {
-            name:"name"
+            name: "name"
         },
         {
-            name:"email"
+            name: "email"
         },
         {
-            name:"contact"
+            name: "contact"
         },
         {
-            name:"address"
+            name: "address"
         },
     ];
-    
+
 
     const handleOnSearch = (searchText: string) => {
-        const dataProcessor = new DataProcessor<Client>(clients,searchColumn); 
+        setCurrentPage(1);
+        const dataProcessor = new DataProcessor<Client>(clients, searchColumn);
         dataProcessor.applySearch(searchText);
         setSortedData(dataProcessor.getData());
     }
+
+
+    function onRowsPerPageChange(newRowsPerPage: number) {
+        setCurrentPage(1); // Reset to first page when rows per page changes
+        setRowsPerPage(newRowsPerPage);
+    };
 
     return (
         <Dashboard>
@@ -283,7 +312,7 @@ export default function ClientScreen() {
             </SectionHeader>
             <div className='w-full flex items-baseline justify-end gap-2'>
 
-                <SearchBox handleOnSearch={handleOnSearch} searchInput={searchInput} setSearchInput={setSearchInput}/>
+                <SearchBox handleOnSearch={handleOnSearch} searchInput={searchInput} setSearchInput={setSearchInput} />
                 <button
                     onClick={() => handleOnSearch(searchInput)}
                     className="btn-secondary-outline p-3"
@@ -300,6 +329,7 @@ export default function ClientScreen() {
                         totalRows={sortedData.length}
                         onPageChange={setCurrentPage}
                         rowsPerPage={rowsPerPage}
+                        onRowsPerPageChange={onRowsPerPageChange}
                     >
                         {/* Table Header */}
                         <TableHeader>
@@ -320,6 +350,7 @@ export default function ClientScreen() {
                         positiveButtonText={"Delete Client"}
                         negativeButtonText={"Cancel"}
                         isOpen={isDeleteRecordDialogOpen}
+                        columns={columnsToShowWhileDeleteRecord}
                         onClose={closeDeleteRecordDialog}
                         onDelete={handleDeleteClient}
                     />

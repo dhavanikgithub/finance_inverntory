@@ -1,12 +1,14 @@
-import { ChevronDown, UserRound } from 'lucide-react';
+'use client'
+import { ChevronDown, LucideIcon, UserRound } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 
 interface Dropdown {
   items:string[];
   selectedItem:string|null;
   onItemSelect:(item:string)=>void;
-  className: string;
+  className?: string;
   placeholder?: string;
+  icon?: React.ComponentType<any>;
 }
 
 const Dropdown: React.FC<Dropdown> = (
@@ -15,11 +17,24 @@ const Dropdown: React.FC<Dropdown> = (
     selectedItem, 
     onItemSelect, 
     className = "", 
-    placeholder = "Select..." 
+    placeholder = "Select..." ,
+    icon: Icon
   }) => {
+    
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Reference to the dropdown container
+
+  // Clone icon with common classes
+  const renderIcon = () => {
+    if (!Icon) return null;
+    
+    return (
+      <Icon 
+        className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400" 
+      />
+    );
+  };
 
   // Toggle the dropdown
   const toggleDropdown = () => {
@@ -60,7 +75,8 @@ const Dropdown: React.FC<Dropdown> = (
           onClick={toggleDropdown}
         >
           <div className='flex'>
-            <UserRound className="w-5 h-5 mr-2 text-gray-500 dark:text-gray-400"/>
+            {renderIcon()}
+            
             <span className="mr-2 dark:text-gray-400">{selectedItem ? selectedItem : placeholder}</span>
           </div>
           <ChevronDown className="w-5 h-5 ml-2 -mr-1" />

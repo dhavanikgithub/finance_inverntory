@@ -7,10 +7,10 @@ export async function GET(): Promise<NextResponse> {
     try {
         const { rows }: { rows: Transaction[] } = await pool.query<Transaction>(`
       SELECT tr.*, c.name AS client_name, bk.name AS bank_name, ct.name AS card_name
-      FROM public.transaction_records tr 
-      JOIN public.client c ON tr.client_id = c.id 
-      LEFT JOIN public.bank bk ON tr.bank_id = bk.id
-      LEFT JOIN public.card ct ON tr.card_id = ct.id
+      FROM transaction_records tr 
+      JOIN client c ON tr.client_id = c.id 
+      LEFT JOIN bank bk ON tr.bank_id = bk.id
+      LEFT JOIN card ct ON tr.card_id = ct.id
       ORDER BY tr.create_date DESC, tr.create_time DESC;
     `);
 
@@ -58,7 +58,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
         // Step 3: Insert the new transaction into the database
         const newTransaction = await pool.query(
-            `INSERT INTO public.transaction_records(client_id, transaction_type, widthdraw_charges, transaction_amount, remark, bank_id, card_id) 
+            `INSERT INTO transaction_records(client_id, transaction_type, widthdraw_charges, transaction_amount, remark, bank_id, card_id) 
          VALUES ($1, $2, $3, $4, $5, $6, $7) 
          RETURNING *`,
             [client_id, transaction_type, widthdraw_charges, transaction_amount, remark || '', bank_id, card_id]
@@ -67,10 +67,10 @@ export async function POST(req: Request): Promise<NextResponse> {
         // Step 4: Get the client name for the inserted transaction
         const transactionWithClientName = await pool.query<Transaction>(
             `SELECT tr.*, c.name AS client_name, bk.name AS bank_name, ct.name AS card_name
-      FROM public.transaction_records tr 
-      JOIN public.client c ON tr.client_id = c.id 
-      LEFT JOIN public.bank bk ON tr.bank_id = bk.id
-      LEFT JOIN public.card ct ON tr.card_id = ct.id
+      FROM transaction_records tr 
+      JOIN client c ON tr.client_id = c.id 
+      LEFT JOIN bank bk ON tr.bank_id = bk.id
+      LEFT JOIN card ct ON tr.card_id = ct.id
          WHERE tr.id = $1;`,
             [newTransaction.rows[0].id]
         );
@@ -170,7 +170,7 @@ export async function PUT(req: Request): Promise<NextResponse> {
         values.push(id);
 
         // Build the final SQL query string
-        const query = `UPDATE public.transaction_records SET ${setClause.join(', ')} WHERE id = $${(values.length)} RETURNING *`;
+        const query = `UPDATE transaction_records SET ${setClause.join(', ')} WHERE id = $${(values.length)} RETURNING *`;
 
         // Execute the query
         const updatedTransaction = await pool.query(query, values);
@@ -178,10 +178,10 @@ export async function PUT(req: Request): Promise<NextResponse> {
         // Step 4: Get the client name for the updated transaction
         const updatedTransactionWithClientName = await pool.query(
             `SELECT tr.*, c.name AS client_name, bk.name AS bank_name, ct.name AS card_name
-      FROM public.transaction_records tr 
-      JOIN public.client c ON tr.client_id = c.id 
-      LEFT JOIN public.bank bk ON tr.bank_id = bk.id
-      LEFT JOIN public.card ct ON tr.card_id = ct.id
+      FROM transaction_records tr 
+      JOIN client c ON tr.client_id = c.id 
+      LEFT JOIN bank bk ON tr.bank_id = bk.id
+      LEFT JOIN card ct ON tr.card_id = ct.id
          WHERE tr.id = $1;`,
             [updatedTransaction.rows[0].id]
         );
@@ -204,7 +204,7 @@ export async function DELETE(req: Request): Promise<NextResponse> {
         }
 
         const deletedTransaction = await pool.query(
-            'DELETE FROM public.transaction_records WHERE id = $1 RETURNING *',
+            'DELETE FROM transaction_records WHERE id = $1 RETURNING *',
             [id]
         );
 

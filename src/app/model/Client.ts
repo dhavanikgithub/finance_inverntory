@@ -8,4 +8,5 @@ export interface Client {
     create_time?: string;
     modify_date?: string;
     modify_time?: string;
+    transaction_count?: number;
 }

@@ -3,16 +3,13 @@ import pool from '../../../lib/db';
 import { Client } from '@/app/model/Client';
 import { isValidContact, isValidEmail } from '@/utils/validators';
 import kysely from '@/lib/kysely-db';
+import { ClientService } from '@/services/clientService';
 
-
+const clientService = new ClientService();
 // Handler to get all clients
 export async function GET(): Promise<NextResponse> {
   try {
-    // const result = await pool.query<Client>('SELECT * FROM public.client ORDER BY name');
-    const clients = await kysely.selectFrom('client')
-      .selectAll()
-      .orderBy('name', 'asc')
-      .execute();
+    const clients = await clientService.getAllClients();
     return NextResponse.json(clients, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -68,16 +65,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       return NextResponse.json({ error: errors.join(', ') }, { status: 400 });
     }
 
-    const [insertedClient] = await kysely
-      .insertInto('client')
-      .values({
-        name: values[0],
-        email: values[1],
-        contact: values[2],
-        address: values[3],
-      })
-      .returningAll() // equivalent to RETURNING *
-      .execute();
+    const insertedClient = await clientService.createClient(values);
 
     return NextResponse.json(insertedClient, { status: 201 });
   } catch (error: any) {
@@ -138,11 +126,19 @@ export async function PUT(req: Request): Promise<NextResponse> {
       .returningAll()
       .execute();
 
+    const [result] = await kysely
+      .selectFrom('transaction_records')
+      .where('client_id', '=', id)
+      .select(kysely.fn.countAll().as('transaction_count'))
+      .execute();
+
+    const transaction_count = result?.transaction_count ?? 0;
+
     if (updated.length === 0) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 });
     }
 
-    return NextResponse.json(updated[0]);
+    return NextResponse.json({ ...updated[0], transaction_count }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

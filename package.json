@@ -1,5 +1,5 @@
 {
-  "name": "finance_inverntory",
+  "name": "finance_inventory",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,16 +11,15 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
-    "@types/jsreport-client": "^1.2.3",
     "@types/pg": "^8.11.11",
     "axios": "^1.8.3",
     "fuse.js": "^7.1.0",
     "gsap": "^3.13.0",
-    "jsreport-client": "^1.0.2",
     "kysely": "^0.28.3",
     "lucide-react": "^0.482.0",
     "next": "15.2.2",
     "nostfly": "^1.0.3",
+    "pdfkit": "^0.17.1",
     "pg": "^8.14.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -30,6 +29,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
+    "@types/pdfkit": "^0.17.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",

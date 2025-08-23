@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import Dashboard from '@/components/Dashboard';
+import React, { useEffect, useMemo, useState } from 'react';
+import Dashboard from '@/components/Dashboard/Dashboard';
 import {
   SectionHeader,
   SectionHeaderLeft,
@@ -46,7 +46,12 @@ export default function BankScreen() {
   const [sortedData, setSortedData] = useState<Bank[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: string }>({ key: 'name', direction: 'asc' });
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<null | Bank>(null);
-  const rowsPerPage = 10;
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  const columnsToShowWhileDeleteRecord = [
+    { label: 'Bank', accessor: 'name' },
+    { label: 'Transactions', accessor: 'transaction_count' },
+    { label: 'Created On', accessor: 'create_date' }
+  ]
 
   useEffect(() => {
     dispatch(fetchBanks());
@@ -82,6 +87,7 @@ export default function BankScreen() {
 
   const columns = [
     { Header: 'Bank Name', accessor: 'name' },
+    { Header: 'Transactions', accessor: 'transaction_count' },
     { Header: 'Created On', accessor: 'create_date' },
     { Header: 'Action', accessor: 'action', sorting: false },
   ];
@@ -100,7 +106,7 @@ export default function BankScreen() {
     },
   ];
 
-  const sortDataToggle = (key: keyof Card, direction = "asc") => {
+  const sortDataToggle = (key: keyof Bank, direction = "asc") => {
     if (sortConfig.key === key && sortConfig.direction === "asc") {
       direction = "desc";
     }
@@ -131,10 +137,16 @@ export default function BankScreen() {
     ))
   );
 
-  const indexOfLastRow = currentPage * rowsPerPage;
-  const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = sortedData.slice(indexOfFirstRow, indexOfLastRow);
+  const currentRows = useMemo(() => {
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+    return sortedData.slice(indexOfFirstRow, indexOfLastRow);
+  },[rowsPerPage, currentPage, sortedData]);
 
+  function onRowsPerPageChange(newRowsPerPage: number) {
+    setCurrentPage(1); // Reset to first page when rows per page changes
+    setRowsPerPage(newRowsPerPage);
+  };
   return (
     <Dashboard>
       <SectionHeader>
@@ -160,12 +172,14 @@ export default function BankScreen() {
           totalRows={sortedData.length}
           onPageChange={setCurrentPage}
           rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={onRowsPerPageChange}
         >
           <TableHeader>{renderTableHeaders()}</TableHeader>
           <TableBody>
             {currentRows.map((row) => (
               <TableRow key={row.id}>
                 <TableData>{row.name}</TableData>
+                <TableData>{row.transaction_count}</TableData>
                 <TableData>
                   <span>{formatDate(row.create_date!.toString())}<br /><span className="text-gray-500">{formatTime(row.create_time!)}</span></span>
                 </TableData>
@@ -180,6 +194,7 @@ export default function BankScreen() {
           title="Delete Bank"
           description="Are you sure you want to delete this bank? This action cannot be undone."
           isOpen={isDeleteDialogOpen}
+          columns={columnsToShowWhileDeleteRecord}
           onClose={() => setIsDeleteDialogOpen(null)}
           onDelete={handleDeleteBank}
           positiveButtonText="Delete Bank"

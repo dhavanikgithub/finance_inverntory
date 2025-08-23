@@ -1,109 +1,136 @@
-import { AppDispatch } from '../store'; // Assuming AppDispatch is defined in your store file
-import { setLoading, setClients, addClient, updateClient, deleteClient } from '../slices/clientSlice';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 import { Client } from '@/app/model/Client';
-import { APIResponseError } from '@/app/model/APIResponseError';
 import { showToastError, showToastSuccess } from '@/utils/toast';
 
 const API_URL = '/api/client';
 
+// ─────────────────────────────────────────────────────────────
 // Fetch all clients
-export const fetchClients = () => async (dispatch: AppDispatch) => {
-  dispatch(setLoading(true));
+export const fetchClients = createAsyncThunk<
+  Client[], // Return type
+  void,
+  { rejectValue: string }
+>('clients/fetchClients', async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(API_URL);
-    if(response.ok){
-      const data: Client[] = await response.json();  // Type the response as an array of clients
-      dispatch(setClients(data));
-    }
-    else{
-      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      console.error('Failed to fetch clients:', errorData.error);
-      showToastError('Failed to fetch clients', errorData.error);
-    }
-  } catch (error:any) {
+    const response = await axios.get(API_URL);
+    return response.data;
+  } catch (error) {
     console.error('Error fetching clients:', error);
-    showToastError("Error fetching clients",error.message)
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
-
-// Add a new client
-export const addNewClient = (client: Client) => async (dispatch: AppDispatch) => {
-  dispatch(setLoading(true));
-  try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(client),
-    });
-    if(response.ok){
-      const data: Client = await response.json();  // Type the response as a single client
-      dispatch(addClient(data));
-      showToastSuccess('Client Added', 'The new client has been added successfully.');
-    }
-    else{
-      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      console.error('Failed to add client:', errorData.error);
-      showToastError("Failed to add client",errorData.error)
-    }
-
-  } catch (error:any) {
-    console.error('Error adding client:', error);
-    showToastError("Error adding client",error.message)
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
-
-// Update an existing client
-export const updateClientData = (client: Client) => async (dispatch: AppDispatch) => {
-  dispatch(setLoading(true));
-  try {
-    const response = await fetch(API_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(client),
-    });
-    if(response.ok){
-      const data: Client = await response.json();  // Type the response as a single client
-      dispatch(updateClient(data));
-      showToastSuccess('Client Updated', 'The client was updated successfully.');
+    if (axios.isAxiosError(error) && error.response) {
+      showToastError('Failed to fetch clients', error.response.data);
+      return rejectWithValue(error.response.data);
+    } else if (axios.isAxiosError(error) && error.request) {
+      showToastError('Error fetching clients', 'Network error or no response received');
+      return rejectWithValue('Network error or no response received');
     } else {
-      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      console.error('Failed to update client:', errorData.error);
-      showToastError("Failed to update client",errorData.error)
+      showToastError('Error fetching clients', 'An unknown error occurred');
+      return rejectWithValue('An unknown error occurred');
     }
-  } catch (error:any) {
-    console.error('Error updating client:', error);
-    showToastError("Error updating client",error.message)
-  } finally {
-    dispatch(setLoading(false));
   }
-};
+});
 
-// Delete a client
-export const deleteClientData = (id: number) => async (dispatch: AppDispatch) => {
-  dispatch(setLoading(true));
+// ─────────────────────────────────────────────────────────────
+// Fetch a single client by name
+export const fetchClientByName = createAsyncThunk<
+  Client,
+  string,
+  { rejectValue: string }
+>('clients/fetchClientByName', async (name, { rejectWithValue }) => {
   try {
-    const response = await fetch(API_URL, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
-    if (!response.ok) {
-      const errorData: APIResponseError = await response.json(); // Assuming the API returns an error object
-      console.error('Failed to delete client:', errorData.error);
-      showToastError("Failed to delete client",errorData.error)
-      return;
+    const response = await axios.get(`${API_URL}/${encodeURIComponent(name)}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching client by name:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      showToastError('Failed to fetch client', error.response.data);
+      return rejectWithValue(error.response.data);
+    } else if (axios.isAxiosError(error) && error.request) {
+      showToastError('Error fetching client', 'Network error or no response received');
+      return rejectWithValue('Network error or no response received');
+    } else {
+      showToastError('Error fetching client', 'An unknown error occurred');
+      return rejectWithValue('An unknown error occurred');
     }
-    await response.json();  // Assuming you don't need to use the response, but you can type it if necessary
-    dispatch(deleteClient(id));
-    showToastSuccess('Client Deleted', 'The client was deleted successfully.');
-  } catch (error:any) {
-    console.error('Error deleting client:', error);
-    showToastError("Error deleting client",error.message)
-  } finally {
-    dispatch(setLoading(false));
   }
-};
+});
+
+// ─────────────────────────────────────────────────────────────
+// Add new client
+export const addClient = createAsyncThunk<
+  Client,
+  Client,
+  { rejectValue: string }
+>('clients/addClient', async (clientData, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(API_URL, clientData);
+    showToastSuccess('Client Added', 'The new client has been added successfully.');
+    return response.data;
+  } catch (error) {
+    console.error('Error adding client:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      showToastError('Failed to add client', error.response.data);
+      return rejectWithValue(error.response.data);
+    } else if (axios.isAxiosError(error) && error.request) {
+      showToastError('Error adding client', 'Network error or no response received');
+      return rejectWithValue('Network error or no response received');
+    } else {
+      showToastError('Error adding client', 'An unknown error occurred');
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// Update client
+export const updateClient = createAsyncThunk<
+  Client,
+  Client,
+  { rejectValue: string }
+>('clients/updateClient', async (clientData, { rejectWithValue }) => {
+  try {
+    const response = await axios.put(API_URL, clientData);
+    showToastSuccess('Client Updated', 'The client was updated successfully.');
+    return response.data;
+  } catch (error) {
+    console.error('Error updating client:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      showToastError('Failed to update client', error.response.data);
+      return rejectWithValue(error.response.data);
+    } else if (axios.isAxiosError(error) && error.request) {
+      showToastError('Error updating client', 'Network error or no response received');
+      return rejectWithValue('Network error or no response received');
+    } else {
+      showToastError('Error updating client', 'An unknown error occurred');
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// Delete client
+export const deleteClient = createAsyncThunk<
+  { id: number },
+  number,
+  { rejectValue: string }
+>('clients/deleteClient', async (id, { rejectWithValue }) => {
+  try {
+    const response = await axios.delete(API_URL, {
+      data: { id },
+    });
+    showToastSuccess('Client Deleted', 'The client was deleted successfully.');
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting client:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      showToastError('Failed to delete client', error.response.data);
+      return rejectWithValue(error.response.data);
+    } else if (axios.isAxiosError(error) && error.request) {
+      showToastError('Error deleting client', 'Network error or no response received');
+      return rejectWithValue('Network error or no response received');
+    } else {
+      showToastError('Error deleting client', 'An unknown error occurred');
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});

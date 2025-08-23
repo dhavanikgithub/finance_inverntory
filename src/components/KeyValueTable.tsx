@@ -2,10 +2,11 @@ import { formatDate, formatTime, getTransactionTypeStr } from '@/utils/helper';
 import React from 'react';
 
 interface KeyValueTableProps {
+  columns: { label: string; accessor: string }[]; // Optional, not used in this implementation
   data: Record<string, any>;
 }
 
-const KeyValueTable: React.FC<KeyValueTableProps> = ({ data }) => {
+const KeyValueTable: React.FC<KeyValueTableProps> = ({ columns, data }) => {
   return (
     <div className="mt-4 max-h-64 overflow-y-auto rounded border border-gray-200 dark:border-gray-700">
       <table className="min-w-full text-sm text-left bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
@@ -16,7 +17,9 @@ const KeyValueTable: React.FC<KeyValueTableProps> = ({ data }) => {
           </tr>
         </thead>
         <tbody>
-          {Object.entries(data).map(([key, value]) => {
+          {columns.map((item) => {
+            const key = item.accessor;
+            const value = data[key];
             let displayValue = value;
             if (
               displayValue === null ||
@@ -47,7 +50,7 @@ const KeyValueTable: React.FC<KeyValueTableProps> = ({ data }) => {
 
             return (
               <tr key={key} className="border-t border-gray-200 dark:border-gray-700">
-                <td className="px-4 py-2 font-medium">{key}</td>
+                <td className="px-4 py-2 font-medium">{item.label}</td>
                 <td className="px-4 py-2 break-all whitespace-pre-wrap">{String(displayValue)}</td>
               </tr>
             );

@@ -6,9 +6,26 @@ import pool from '../../../lib/db';
 export async function GET(): Promise<NextResponse> {
   try {
     const query = `
-      SELECT *
-      FROM public.bank
-      ORDER BY name ASC
+    WITH bank_with_transactions AS (
+    SELECT 
+        b.id AS bank_id, 
+        COUNT(*) AS transaction_count
+    FROM transaction_records
+    LEFT JOIN bank b ON b.id = transaction_records.bank_id
+    GROUP BY b.id
+)
+SELECT 
+    bank.id, 
+    bank.name, 
+    bank.create_date, 
+    bank.create_time, 
+    bank.modify_date, 
+    bank.modify_time, 
+    COALESCE(bank_with_transactions.transaction_count, 0) AS transaction_count
+FROM bank
+LEFT JOIN bank_with_transactions 
+    ON bank_with_transactions.bank_id = bank.id
+ORDER BY bank.name ASC;
     `;
     const result = await pool.query<Bank>(query);
     return NextResponse.json(result.rows);
@@ -32,11 +49,11 @@ export async function POST(request: Request): Promise<NextResponse> {
     // Insert and return the new bank with card type info
     const insertQuery = `
       WITH inserted_bank AS (
-        INSERT INTO public.bank (name)
+        INSERT INTO bank (name)
         VALUES ($1)
         RETURNING *
       )
-      SELECT *
+      SELECT *, 0 AS transaction_count
       FROM inserted_bank
       ORDER BY name ASC;
     `;
@@ -62,17 +79,23 @@ export async function PUT(request: Request): Promise<NextResponse> {
     }
 
     // Update and return the bank with card type info
-    const updateQuery = `
-      WITH updated_bank AS (
-        UPDATE public.bank 
-        SET name = $1
-        WHERE id = $2
-        RETURNING *
-      )
-      SELECT *
-      FROM updated_bank
-      ORDER BY name ASC;
-    `;
+    const updateQuery = `WITH updated_bank AS (
+    UPDATE bank 
+    SET name = $1
+    WHERE id = $2
+    RETURNING *
+)
+SELECT 
+    ub.*, 
+    COALESCE(bt.transaction_count, 0) AS transaction_count
+FROM updated_bank ub
+LEFT JOIN (
+    SELECT bank_id, COUNT(*) AS transaction_count
+    FROM transaction_records
+    GROUP BY bank_id
+) bt ON bt.bank_id = ub.id
+ORDER BY ub.name ASC;
+`;
 
     const result = await pool.query<Bank>(updateQuery, 
       [data.name, data.id]);
@@ -103,7 +126,7 @@ export async function DELETE(request: Request): Promise<NextResponse> {
     }
 
     const result = await pool.query(
-      'DELETE FROM public.bank WHERE id = $1 RETURNING *',
+      'DELETE FROM bank WHERE id = $1 RETURNING *',
       [id]
     );
 
