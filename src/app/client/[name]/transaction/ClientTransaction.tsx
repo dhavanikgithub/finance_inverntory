@@ -210,11 +210,12 @@ export default function ClientTransaction({ clients }: ClientTransactionProps) {
     accessor: keyof Transaction | string; // Change this from string to keyof Transaction
     type?: string;        // Optional property for custom column types (like "action")
     sorting?: boolean;    // Optional property for sorting control
+    isHidden?: boolean;
   }
 
   // Define the columns array with the correct types
   const columns: Column[] = [
-    { Header: "Type", accessor: "transaction_type" },
+    { Header: "Type", accessor: "transaction_type", isHidden:true },
     { Header: "Amount", accessor: "transaction_amount" },
     { Header: "Charges", accessor: "widthdraw_charges" },
     { Header: "Bank", accessor: "bank_name" },
@@ -266,7 +267,7 @@ export default function ClientTransaction({ clients }: ClientTransactionProps) {
     return (
       <>
         {columns.map((column) => (
-          <TableHeaderItem key={column.accessor} onClick={() => {
+          column?.isHidden !== true && <TableHeaderItem key={column.accessor} onClick={() => {
             if (column.sorting != false) {
               sortDataToggle(column.accessor as keyof Transaction)
             }
@@ -294,7 +295,7 @@ export default function ClientTransaction({ clients }: ClientTransactionProps) {
                 ">
                 <div className='flex items-center'>
                   <ArrowDownLeft className='w-3 h-3 me-2' />
-                  <span>Deposit</span>
+                  <span>₹{formatAmount(row.transaction_amount.toString())}/-</span>
                 </div>
               </div>
               :
@@ -304,24 +305,9 @@ export default function ClientTransaction({ clients }: ClientTransactionProps) {
                 ">
                 <div className='flex items-center'>
                   <ArrowUpRight className='w-3 h-3 me-2' />
-                  <span>Widthdraw</span>
+                  <span>₹{formatAmount((row.transaction_amount * -1).toString())}/-</span>
                 </div>
               </div>
-            }
-          </TableData>
-          <TableData>
-            {isTransactionTypeWidthdraw(row.transaction_type) ?
-              <div>
-                <p className="text-red-700 text-sm dark:text-red-500">
-                  - ₹{formatAmount((row.transaction_amount * -1).toString())}/-
-                </p>
-
-              </div>
-
-              :
-              <p className="text-green-700 text-sm dark:text-green-500">
-                + ₹{formatAmount(row.transaction_amount.toString())}/-
-              </p>
             }
           </TableData>
           <TableData>
