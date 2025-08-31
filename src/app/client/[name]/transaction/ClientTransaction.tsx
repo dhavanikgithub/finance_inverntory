@@ -292,14 +292,20 @@ export default function ClientTransaction({ clients }: ClientTransactionProps) {
                 className="grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20
                 dark:bg-green-900 dark:text-green-300 dark:bg-opacity-25
                 ">
-                <span className="">Deposit</span>
+                <div className='flex items-center'>
+                  <ArrowDownLeft className='w-3 h-3 me-2' />
+                  <span>Deposit</span>
+                </div>
               </div>
               :
               <div
                 className="grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20
                 dark:bg-red-900 dark:text-red-300 dark:bg-opacity-25
                 ">
-                <span className="">Widthdraw</span>
+                <div className='flex items-center'>
+                  <ArrowUpRight className='w-3 h-3 me-2' />
+                  <span>Widthdraw</span>
+                </div>
               </div>
             }
           </TableData>

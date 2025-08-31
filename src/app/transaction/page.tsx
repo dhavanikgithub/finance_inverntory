@@ -27,10 +27,11 @@ import { ContextMenuHandle, ContextMenuItem } from '@/components/ContextMenu/typ
 import { InfoModalRef } from '@/components/InfoModal/types';
 import { Client } from '../model/Client';
 import { SortConfig } from '@/types/SortConfig';
+import { useRouter } from 'next/navigation';
 
 
 export default function Home() {
-
+  const router = useRouter();
   const dispatch: AppDispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState<null | TransactionType>(null);
   const transactions = useSelector((state: RootState) => state.transaction.transactions);
@@ -252,6 +253,10 @@ export default function Home() {
     )
   }
 
+  function gotoClientTransactionPage(clientName: string) {
+    router.push(`/client/${clientName}/transaction`);
+  }
+
   function renderTableRows(currentRows: Transaction[]) {
 
     const renderTableData = (row: Transaction) => {
@@ -259,7 +264,7 @@ export default function Home() {
       return (
         <>
 
-          <TableData className={"cursor-pointer hover:underline text-blue-600 dark:text-blue-400"} onClick={() => handleClientNameClick(row.client_id)}>
+          <TableData className={"cursor-pointer hover:underline text-blue-600 dark:text-blue-400"} onClick={() => gotoClientTransactionPage(row.client_name)}>
             {row.client_name}
           </TableData>
 
@@ -269,14 +274,21 @@ export default function Home() {
                 className="grid items-center px-2 py-1 font-sans text-xs font-bold text-green-900 uppercase rounded-md select-none whitespace-nowrap bg-green-500/20
                 dark:bg-green-900 dark:text-green-300 dark:bg-opacity-25
                 ">
-                <span className="">Deposit</span>
+                <div className='flex items-center'>
+                  <ArrowDownLeft className='w-3 h-3 me-2' />
+                  <span>Deposit</span>
+                </div>
+
               </div>
               :
               <div
                 className="grid items-center px-2 py-1 font-sans text-xs font-bold text-red-900 uppercase rounded-md select-none whitespace-nowrap bg-red-500/20
                 dark:bg-red-900 dark:text-red-300 dark:bg-opacity-25
                 ">
-                <span className="">Widthdraw</span>
+                <div className='flex items-center'>
+                  <ArrowUpRight className='w-3 h-3 me-2' />
+                  <span>Widthdraw</span>
+                </div>
               </div>
             }
           </TableData>

@@ -200,7 +200,7 @@ export default function ClientScreen() {
                     <TableData onClick={() => gotoClientTransactionPage(row)} className='cursor-pointer hover:underline text-blue-600 dark:text-blue-400'>
                         {row.name}
                     </TableData>
-                     <TableData onClick={() => gotoClientTransactionPage(row)} className='cursor-pointer hover:underline text-blue-600 dark:text-blue-400'>
+                    <TableData onClick={() => gotoClientTransactionPage(row)} className='cursor-pointer hover:underline text-blue-600 dark:text-blue-400'>
                         {row.transaction_count || 0}
                     </TableData>
                     <TableData>
